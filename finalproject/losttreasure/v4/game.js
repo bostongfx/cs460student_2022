@@ -227,20 +227,18 @@ class Game{
 		light.shadow.camera.far = 3000;
 		this.scene.add( light );
 
-		// ground
 		var mesh = new THREE.Mesh( new THREE.PlaneBufferGeometry( 2000, 2000 ), new THREE.MeshPhongMaterial( { color: 0x999999, depthWrite: false } ) );
 		mesh.rotation.x = - Math.PI / 2;
-		//mesh.position.y = -100;
+
 		mesh.receiveShadow = true;
-		//this.scene.add( mesh );
+
 
 		var grid = new THREE.GridHelper( 2000, 40, 0x000000, 0x000000 );
-		//grid.position.y = -100;
+
 		grid.material.opacity = 0.2;
 		grid.material.transparent = true;
-		//this.scene.add( grid );
 
-		// model
+
 		const loader = new THREE.FBXLoader();
 		const game = this;
 		
@@ -285,13 +283,12 @@ class Game{
 		this.renderer.setPixelRatio( window.devicePixelRatio );
 		this.renderer.setSize( window.innerWidth, window.innerHeight );
 		this.renderer.shadowMap.enabled = true;
-		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; // default THREE.PCFShadowMap
+		this.renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
 		this.renderer.shadowMapDebug = true;
 		this.container.appendChild( this.renderer.domElement );
 			
 		window.addEventListener( 'resize', function(){ game.onWindowResize(); }, false );
 
-		// stats
 		if (this.debug){
 			this.stats = new Stats();
 			this.container.appendChild( this.stats.dom );
@@ -395,7 +392,7 @@ class Game{
 	}
 	
 	playerControl(forward, turn){
-		//console.log(`playerControl(${forward}), ${turn}`);
+	
 		turn = -turn;
 		
 		if (forward==0 && turn==0){
@@ -510,10 +507,10 @@ class Game{
 
 		var xobj = new XMLHttpRequest();
 			xobj.overrideMimeType("application/json");
-		xobj.open('GET', `${name}.json`, true); // Replace 'my_data' with the path to your file
+		xobj.open('GET', `${name}.json`, true); 
 		xobj.onreadystatechange = function () {
 			  if (xobj.readyState == 4 && xobj.status == "200") {
-				// Required use of an anonymous callback as .open will NOT return a value but simply returns undefined in asynchronous mode
+				
 				callback(xobj.responseText);
 			  }
 		};
@@ -569,7 +566,7 @@ class Game{
 		}
 		
 		if (this.environmentProxy!=undefined){
-			//cast left
+		
 			dir.set(-1,0,0);
 			dir.applyMatrix4(this.player.object.matrix);
 			dir.normalize();
@@ -580,7 +577,7 @@ class Game{
 				if (intersect[0].distance<50) this.player.object.translateX(50-intersect[0].distance);
 			}
 			
-			//cast right
+			
 			dir.set(1,0,0);
 			dir.applyMatrix4(this.player.object.matrix);
 			dir.normalize();
@@ -591,7 +588,7 @@ class Game{
 				if (intersect[0].distance<50) this.player.object.translateX(intersect[0].distance-50);
 			}
 			
-			//cast down
+			
 			dir.set(0,-1,0);
 			pos.y += 200;
 			raycaster = new THREE.Raycaster(pos, dir);
@@ -601,11 +598,11 @@ class Game{
 			if (intersect.length>0){
 				const targetY = pos.y - intersect[0].distance;
 				if (targetY > this.player.object.position.y){
-					//Going up
+					
 					this.player.object.position.y = 0.8 * this.player.object.position.y + 0.2 * targetY;
 					this.player.velocityY = 0;
 				}else if (targetY < this.player.object.position.y){
-					//Falling
+					
 					if (this.player.velocityY==undefined) this.player.velocityY = 0;
 					this.player.velocityY += dt * gravity;
 					this.player.object.position.y -= this.player.velocityY;
@@ -704,7 +701,7 @@ class Game{
 }
 
 class Easing{
-	// t: current time, b: begInnIng value, c: change In value, d: duration
+	
 	constructor(start, end, duration, startTime=0, type='linear'){
 		this.b = start;
 		this.c = end - start;
@@ -910,7 +907,7 @@ class Tween{
 		this.duration = duration;
 		this.currentTime = 0;
 		this.finished = false;
-		//constructor(start, end, duration, startTime=0, type='linear')
+		
 		this.easing = new Easing(target[channel], endValue, duration, 0, easing); 
 	}
 	
@@ -958,7 +955,7 @@ class SFX{
 	static supportsAudioType(type) {
 		let audio;
 
-		// Allow user to create shortcuts, i.e. just "mp3"
+		
 		let formats = {
 			mp3: 'audio/mpeg',
 			wav: 'audio/wav',
@@ -972,7 +969,7 @@ class SFX{
 	}
 	
 	load(url) {
-  		// Load buffer asynchronously
+  		
   		const request = new XMLHttpRequest();
   		request.open("GET", url, true);
   		request.responseType = "arraybuffer";
@@ -980,7 +977,7 @@ class SFX{
   		const sfx = this;
 
   		request.onload = function() {
-			// Asynchronously decode the audio file data in request.response
+			
     		sfx.context.decodeAudioData(
       			request.response,
       			function(buffer) {
