@@ -39,6 +39,9 @@ sure to credit the original authors. Then, link the repository here: <https://gi
 **Reference**
 
 https://threejs.org
+
 https://jellymar.io
+
 https://cs460.org/gfx/cs460.png
+
 https://i.ibb.co/2Mp5NNS/jellyfish-mario.jpg
