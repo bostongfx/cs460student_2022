@@ -35,6 +35,11 @@ jellyfish in the sea.
 Github repository and make it accessible via Github pages. Please make
 sure to credit the original authors. Then, link the repository here: <https://github.com/JieLin0O0/cs460student>
 
+**Redirectoin Link**:
+
+<https://htmlpreview.github.io/?https://github.com/JieLin0O0/cs460student/blob/main/mario.html>
+
+
 
 **Reference**
 
