@@ -1,3 +1,2 @@
-**cs460student**
-
+# cs460student
 Assignments for CS460.org!
