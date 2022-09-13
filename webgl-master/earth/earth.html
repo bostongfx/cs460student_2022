@@ -1,0 +1,319 @@
+<html>
+
+<head>
+  <title>WebGL Earth</title>
+  <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+  <script>
+  /*
+  @licstart  The following is the entire license notice for the
+  JavaScript and html code in this page.
+
+  Copyright (C) 2015 by Sascha Willems (www.saschawillems.de)
+
+  Source can be found at https://github.com/SaschaWillems
+
+  The JavaScript code in this page is free software: you can
+  redistribute it and/or modify it under the terms of the GNU
+  General Public License (GNU GPL) as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option)
+  any later version.  The code is distributed WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+  @licend  The above is the entire license notice
+  for the JavaScript code in this page.
+  */
+  </script>
+</head>
+
+<body>
+
+  <canvas id="webGLcanvas" style='position: absolute; left: 0px; top: 0px;' ></canvas>
+  <div id="hud" ng-controller="hudController">
+    <div id="fps" style='position: absolute; left: 5px; top: 5px;'><font color="white">{{ fps }}</font></div>
+  </div>
+
+  <script type="text/javascript" src="external/gl-Matrix-min.js"></script>
+  <script type="text/javascript" src="external/angular.min.js"></script>
+  <script type="text/javascript" src="vertexBufferObject.js"></script>
+  <script type="text/javascript" src="webglutils.js"></script>
+  <script type="text/javascript" src="base.js"></script>
+  <script type="text/javascript" src="earth.js"></script>
+
+  <script type="text/javascript">
+
+    const PI = Math.PI;
+
+    var gl;
+    var canvas;
+
+    var firstRenderInterval;
+    var startTime;
+    var lastTimeStamp;
+    var lastFpsTimeStamp;
+    var framesPerSecond = 0;
+    var frameCount = 0;
+    var timeFactor = 0;
+
+    var hudScope;
+
+    function vbos() {
+      var background = null;
+    }
+
+    var earth;
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      if (gl !== null) {
+        gl.viewportWidth = canvas.width;
+        gl.viewportHeight = canvas.height;
+      }
+    }
+
+    function initOffscreenTexture(width, height) {
+      textures.offscreen = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, textures.offscreen);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, width, height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+      buffers.render = gl.createRenderbuffer();
+      gl.bindRenderbuffer(gl.RENDERBUFFER, buffers.render);
+      gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, width, height);
+
+      buffers.framebuffer = gl.createFramebuffer();
+      gl.bindFramebuffer(gl.FRAMEBUFFER, buffers.framebuffer);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, textures.offscreen, 0);
+      gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, buffers.render);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+      // Generate buffer for rendering fullscreen quad
+      buffers.fullscreen = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffers.fullscreen);
+      gl.bufferData(gl.ARRAY_BUFFER,
+          new Float32Array([
+               0.0, 0.0,
+               1.0, 0.0,
+               0.0, 1.0,
+               0.0, 1.0,
+               1.0, 0.0,
+               1.0, 1.0]),
+          gl.STATIC_DRAW);
+    }
+
+    function initGL(canvas) {
+      gl = getWebGLContext(canvas, 'webgl', false);
+      gl.enable(gl.DEPTH_TEST);
+      gl.depthFunc(gl.LEQUAL);
+    }
+
+    function initScene() {
+      loadShaders();
+      earth = new Earth(shaders.globe);
+      earth.generate();
+
+      var vertices = [0,0,0, 0,1,0, 1,0,0, 0,1,0, 1,1,0, 1,0,0];
+      var texcoords = [0,0, 0,1, 1,0, 0,1, 1,1, 1,0];
+
+      vbos.background = new vertexBufferObject();
+      vbos.background.setVertices(vertices, shaders.base.vertexPositionAttribute);
+      vbos.background.setTextureCoordinates(texcoords, shaders.base.texcoordAttribute, 2);
+
+      loadTextures();
+      initOffscreenTexture(dimOffscreenTex, dimOffscreenTex);
+    }
+
+    function loadTextures() {
+      earth.colorMapDay = loadTexture("./data/textures/earth_colormap_day.jpg");
+      earth.colorMapNight = loadTexture("./data/textures/earth_colormap_night.jpg");
+      earth.cloudMap =  loadTexture("./data/textures/earth_cloudmap.jpg");
+      textures.background = loadTexture("./data/textures/space.jpg");
+    }
+
+    function loadShaders() {
+        // Simple base shader (texturing only)
+        shaders.base = loadShader("./data/shaders/base.vert", "./data/shaders/base.frag");
+        shaders.base.vertexPositionAttribute = gl.getAttribLocation(shaders.base, "aVertexPosition");
+        shaders.base.texcoordAttribute = gl.getAttribLocation(shaders.base, "aTextureCoord");
+        shaders.base.pMatrixUniform = gl.getUniformLocation(shaders.base, "uPMatrix");
+        shaders.base.mvMatrixUniform = gl.getUniformLocation(shaders.base, "uMVMatrix");
+
+        // Globe shader
+        shaders.globe = loadShader("./data/shaders/earth.vert", "./data/shaders/earth.frag");
+        shaders.globe.vertexPositionAttribute = gl.getAttribLocation(shaders.globe, "aVertexPosition");
+        shaders.globe.normalAttribute = gl.getAttribLocation(shaders.globe, "aNormal");
+        shaders.globe.texcoordAttribute = gl.getAttribLocation(shaders.globe, "aTextureCoord");
+        shaders.globe.pMatrixUniform = gl.getUniformLocation(shaders.globe, "uPMatrix");
+        shaders.globe.mvMatrixUniform = gl.getUniformLocation(shaders.globe, "uMVMatrix");
+        shaders.globe.normalMatrixUniform = gl.getUniformLocation(shaders.globe, "uNormalMatrix");
+
+
+        // Blur shader
+        shaders.blur = loadShader("./data/shaders/blur.vert", "./data/shaders/blur.frag");
+        shaders.blur.vertexPositionAttribute = gl.getAttribLocation(shaders.blur, "aVertexPosition");
+        shaders.blur.pMatrixUniform = gl.getUniformLocation(shaders.blur, "uPMatrix");
+        shaders.blur.mvMatrixUniform = gl.getUniformLocation(shaders.blur, "uMVMatrix");
+
+    }
+
+
+    var mvMatrix = mat4.create();
+    var pMatrix = mat4.create();
+    var uNormalMatrix = mat3.create();
+
+    function setMatrixUniforms() {
+
+      mat4.perspective(pMatrix, 45, gl.viewportWidth/gl.viewportHeight, 1, 1024);
+      mat4.identity(mvMatrix);
+      mat4.translate(mvMatrix, mvMatrix, [0, 0, -8]);
+
+      mat3.fromMat4(uNormalMatrix, mvMatrix);
+      mat3.rotate(uNormalMatrix, uNormalMatrix, Math.sin(earth.shaderRotation), [1, 0, 0]);
+      mat3.rotate(uNormalMatrix, uNormalMatrix, Math.cos(earth.shaderRotation), [0, 0, 1]);
+      mat3.rotate(uNormalMatrix, uNormalMatrix, earth.rotation, [1, 1, 1]);
+      mat3.invert(uNormalMatrix, uNormalMatrix);
+      mat3.transpose(uNormalMatrix, uNormalMatrix);
+
+      mat4.rotate(mvMatrix, mvMatrix, 5 * deg_to_rad, [1, 0, 0]);
+      mat4.rotate(mvMatrix, mvMatrix, 10 * deg_to_rad, [0, 0, 1]);
+      mat4.rotate(mvMatrix, mvMatrix, earth.rotation, [0, 1, 0]);
+
+      mat3.fromMat4(uNormalMatrix, mvMatrix);
+      mat3.invert(uNormalMatrix, uNormalMatrix);
+      mat3.transpose(uNormalMatrix, uNormalMatrix);
+
+      gl.useProgram(shaders.globe);
+      gl.uniformMatrix4fv(shaders.globe.pMatrixUniform, false, pMatrix);
+      gl.uniformMatrix4fv(shaders.globe.mvMatrixUniform, false, mvMatrix);
+      gl.uniformMatrix3fv(shaders.globe.normalMatrixUniform, false, uNormalMatrix);
+    }
+
+    function webGLStart() {
+        canvas = document.getElementById("webGLcanvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        initGL(canvas);
+        initScene();
+
+        gl.clearColor(0.0, 0.0, 0.0, 1.0);
+
+        startTime = window.webkitAnimationStartTime || window.mozAnimationStartTime || new Date().getTime();
+        lastTimeStamp = startTime;
+        lastFpsTimeStamp = startTime;
+
+        firstRenderInterval = setInterval(render, 150);
+    }
+
+    function drawBackground() {
+      gl.depthMask(false);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, textures.background);
+      gl.useProgram(shaders.base);
+      mat4.ortho(pMatrix, 0, 1, 1, 0, -1, 1);
+      mat4.identity(mvMatrix);
+      gl.useProgram(shaders.base);
+      gl.uniformMatrix4fv(shaders.base.pMatrixUniform, false, pMatrix);
+      gl.uniformMatrix4fv(shaders.base.mvMatrixUniform, false, mvMatrix);
+      gl.enableVertexAttribArray(shaders.base.vertexPositionAttribute);
+      gl.enableVertexAttribArray(shaders.base.texcoordAttribute);
+      vbos.background.render(gl.TRIANGLES);
+      gl.depthMask(true);
+    }
+
+    function renderToOffscreen() {
+      gl.bindFramebuffer(gl.FRAMEBUFFER, buffers.framebuffer);
+
+      gl.viewport(0, 0, dimOffscreenTex, dimOffscreenTex);
+      gl.clear(gl.COLOR_BUFFER || gl.DEPTH_BUFFER_BIT);
+
+      setMatrixUniforms();
+      gl.useProgram(earth.shader);
+      gl.uniform1i(gl.getUniformLocation(earth.shader, "uForBlur"), 1);
+      earth.render(timeFactor);
+      gl.uniform1i(gl.getUniformLocation(earth.shader, "uForBlur"), 0);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    }
+
+    function drawScene() {
+        renderToOffscreen();
+
+        gl.viewport(0, 0, gl.viewportWidth, gl.viewportHeight);
+        gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+        drawBackground();
+        setMatrixUniforms();
+        earth.render(timeFactor);
+
+        // Render and blur offscreen (glow) texture several times with different offsets
+        gl.activeTexture(gl.TEXTURE0);
+        gl.bindTexture(gl.TEXTURE_2D, textures.offscreen);
+        gl.depthMask(false);
+        mat4.ortho(pMatrix, 0, 1, 1, 0, -1, 1);
+        mat4.identity(mvMatrix);
+        gl.useProgram(shaders.blur);
+        gl.uniformMatrix4fv(shaders.blur.pMatrixUniform, false, pMatrix);
+        gl.uniformMatrix4fv(shaders.blur.mvMatrixUniform, false, mvMatrix);
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffers.fullscreen);
+        gl.enableVertexAttribArray(shaders.blur.vertexPositionAttribute);
+
+        gl.vertexAttribPointer(shaders.blur.vertexPositionAttribute, 2, gl.FLOAT, false, 0, 0);
+        gl.uniform2f(gl.getUniformLocation(shaders.blur, "uShift"), 0.0, 0.0);
+
+        var blurShifts = [[blurShift,0], [-blurShift,0], [0,blurShift], [0,-blurShift]];
+
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+        for (var i = 0; i < blurShifts.length; i++) {
+          gl.uniform2f(gl.getUniformLocation(shaders.blur, "uShift"), blurShifts[i][0], blurShifts[i][1]);
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        }
+        gl.disable(gl.BLEND);
+
+        gl.disableVertexAttribArray(shaders.blur.vertexPositionAttribute);
+        gl.depthMask(true);
+        gl.disable(gl.BLEND);
+    }
+
+    function render() {
+      clearInterval(firstRenderInterval);
+
+      time = window.webkitAnimationStartTime ||
+             window.mozAnimationStartTime ||
+             new Date().getTime();
+
+      if(time - lastFpsTimeStamp >= 1000) {
+           framesPerSecond = frameCount;
+           frameCount = 0;
+           lastFpsTimeStamp = time;
+           hudScope.$apply('fps = "' + framesPerSecond + ' fps"');
+      }
+
+      requestAnimationFrame(render);
+      drawScene();
+
+      timeFactor = (time - lastTimeStamp) * 2;
+
+      ++frameCount;
+      lastTimeStamp = time;
+
+      earth.update(timeFactor);
+
+    }
+
+    angular.module("hud", []).
+    controller("hudController", function($scope){
+      $scope.fps = "0 fps";
+    });
+    angular.bootstrap(document.getElementById("hud"), ["hud"]);
+    hudScope = angular.element(document.getElementById("hud")).scope();
+
+    webGLStart();
+
+    window.addEventListener('resize', resizeCanvas, false);
+
+  </script>
+
+</body>
+</html>
