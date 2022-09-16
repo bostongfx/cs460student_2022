@@ -11,6 +11,8 @@
 body{
 	background-color: black;
 	color:white;
+	font-family: sans-serif;
+	overflow: hidden !important;
 }
 #logo{
 	margin-top:10px;
@@ -18,7 +20,27 @@ body{
 
 }
 </style>
+<script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+<script type="text/javascript">
 
+	window.onload = function(){
+		var r = new X.renderer3D();
+		r.init();
+		var c= new X.cube();
+		c.center[0,0,1]
+		c.color=[1, 0, 0]
+		var c2= new X.cube();
+		c2.center = [25, 0, 0];
+		r.add(c);
+		r.add(c2);
+		r.render();
+		var c3 = new X.cube();
+		c3.color=[0,0,1];
+		c3.center=[-25, 0,0];
+		r.add(c3);
+		r.camera.position=[0,0, 1000];
+	}
+</script>
 	</head>
 	<body>
 	
