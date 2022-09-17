@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 	<head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -10,7 +11,7 @@
 				font-family: sans-serif;
 				margin: 0;
 				padding: 0;
-				height: 100%;
+				height: 100vh;
 				overflow: hidden !important;
 			}
 			#logo {
@@ -22,18 +23,18 @@
 		<script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
 		<script type="text/javascript">
 			var model = 'heart';
+			var rowstate = [3, 1, 1, 1, 2, 2, 2, 3, 3];
 			var colors = [
 				null, // empty space - 0
-				[1, 0, 0], // red - 1
-				[1, 0.25, 0],
-				[1, 0.5, 0], // orange - 3
-				[.5, 0.75, 0], // yellow - 4
-				[0, 1, 0], // lime - 5
-				[0, 0.5, 0.75],
-				[0, 0, 1], // blue - 9
-				[0.25, 0, 1],
-				[0.5, 0, 1], // violet - 11
-				[0.75, 0, 0.5]
+				[0.7, 0.0, 0.3], // red - 1
+				[1.0, 0.0, 0.0],
+				[0.6, 0.4, 0.0], // orange - 3
+				[0.3, 0.7, 0.0], // yellow - 4
+				[0.0, 1.0, 0.0], // lime - 5
+				[0.0, 0.6, 0.4],
+				[0.0, 0.3, 0.7], // blue - 9
+				[0.0, 0.0, 1.0],
+				[0.4, 0.0, 0.6], // violet - 11
 			];
 			var heart = [
 				[0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -84,28 +85,66 @@
 				});
 
 				// keep track of a counter outside of setInterval
-				var row = 0;
-				// cycle through colors for every block, one color per column
+				var rowcolor = colors.slice(1);
 				setInterval(() => {
-					if(row === colors.length) row = 1;
-					else row++;
-
 					for (let i = 0; i < 9; i++) {
-						for(let j = 0; j < 9; j++) {
-							if(pixelGrid[i][j]) {
-								let color = row + i;
-								if(color >= colors.length) color -= colors.length-1;
-								pixelGrid[i][j].color = colors[color];
-							}
+						// update the color values
+						switch (rowstate[i]) {
+							case 1:
+								rowcolor[i] = rtg(rowcolor[i]);
+								if(rowcolor[i][1] >= 1) {
+									rowstate[i] = 2;
+								}
+								break;
+							case 2:
+								rowcolor[i] = gtb(rowcolor[i]);
+								if(rowcolor[i][2] >= 1) {
+									rowstate[i] = 3;
+								}
+								break;
+							case 3:
+								rowcolor[i] = btr(rowcolor[i]);
+								if(rowcolor[i][0] >= 1) {
+									rowstate[i] = 1;
+								}
+								break;
+						}
+
+						// update the cubes themselves
+						for (let j = 0; j < 9; j++) {
+							if(!pixelGrid[i][j]) continue;
+							pixelGrid[i][j].color = rowcolor[i];
 						}
 					}
-				}, 300);
-
+				}, 10);
 
 				r.camera.position = [-100, -100, 200];
 				r.camera.focus = [0, 0, 0];
 				r.render();
 			};
+
+			var increment = 0.01;
+			function rtg([r, g, b]) {
+				r -= increment;
+				g += increment;
+				if(r < 0) r = 0;
+				if(g > 1) g = 1;
+				return [r, g, b];
+			}
+			function gtb([r, g, b]) {
+				g -= increment;
+				b += increment;
+				if(g < 0) g = 0;
+				if(b > 1) b = 1;
+				return [r, g, b];
+			}
+			function btr([r, g, b]) {
+				b -= increment;
+				r += increment;
+				if(b < 0) b = 0;
+				if(r > 1) r = 1;
+				return [r, g, b];
+			}
 		</script>
 	</head>
 	<body>
