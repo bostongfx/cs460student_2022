@@ -1,0 +1,116 @@
+<html>
+	<head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+		<title>CS460 Assignment 2</title>
+		<style>
+			body {
+				background-color: black;
+				color: white;
+				font-family: sans-serif;
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden !important;
+			}
+			#logo {
+				position: absolute;
+				right: 10px;
+				top: 10px;
+			}
+		</style>
+		<script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+		<script type="text/javascript">
+			var model = 'heart';
+			var colors = [
+				null, // empty space - 0
+				[1, 0, 0], // red - 1
+				[1, 0.25, 0],
+				[1, 0.5, 0], // orange - 3
+				[.5, 0.75, 0], // yellow - 4
+				[0, 1, 0], // lime - 5
+				[0, 0.5, 0.75],
+				[0, 0, 1], // blue - 9
+				[0.25, 0, 1],
+				[0.5, 0, 1], // violet - 11
+				[0.75, 0, 0.5]
+			];
+			var heart = [
+				[0, 0, 0, 0, 0, 0, 0, 0, 0],
+				[0, 1, 1, 0, 0, 0, 1, 1, 0],
+				[1, 1, 1, 1, 0, 1, 1, 1, 1],
+				[1, 1, 1, 1, 1, 1, 1, 1, 1],
+				[1, 1, 1, 1, 1, 1, 1, 1, 1],
+				[0, 1, 1, 1, 1, 1, 1, 1, 0],
+				[0, 0, 1, 1, 1, 1, 1, 0, 0],
+				[0, 0, 0, 1, 1, 1, 0, 0, 0],
+				[0, 0, 0, 0, 1, 0, 0, 0, 0]
+			];
+			var pixelGrid = [
+				[],
+				[],
+				[],
+				[],
+				[],
+				[],
+				[],
+				[],
+				[],
+			]
+			window.onload = function() {
+				// this gets called when the site is ready
+				var r = new X.renderer3D();
+				r.init();
+
+				var offset = 25; // amount to change the position by
+				var x = 0; // counter for the current column
+				var y = 0; // counter for the current row
+				var z = 0; // this will remain 0; would be used to add depth
+				heart.forEach(row => {
+					x = 0; // make sure the x value is reset
+					row.forEach(color => {
+						if(colors[color]) {
+							var c = new X.cube();
+							c.color = colors[color];
+							c.lengthZ = c.lengthZ*5;
+							c.center = [x*offset, -y*offset, z];
+							// pixel grid keeps track of all of the cubes
+							pixelGrid[x][y] = c;
+							r.add(c);
+						}
+						x++;
+					});
+					y++;
+				});
+
+				// keep track of a counter outside of setInterval
+				var row = 0;
+				// cycle through colors for every block, one color per column
+				setInterval(() => {
+					if(row === colors.length) row = 1;
+					else row++;
+
+					for (let i = 0; i < 9; i++) {
+						for(let j = 0; j < 9; j++) {
+							if(pixelGrid[i][j]) {
+								let color = row + i;
+								if(color >= colors.length) color -= colors.length-1;
+								pixelGrid[i][j].color = colors[color];
+							}
+						}
+					}
+
+				}, 300);
+
+				r.camera.position = [0, 0, 400];
+				r.render();
+			};
+		</script>
+	</head>
+	<body>
+		<h1>CS460 Assignment 2</h1>
+		<div id="logo">
+			<img style="height:60px" src="gfx/cs460.png" />
+		</div>
+	</body>
+</html>
