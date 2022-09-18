@@ -1,0 +1,47 @@
+<!-- This is a copy of the code written in class by Professor Haehn
+on 9/12/22, during lecture 3-->
+<html>
+    <head>
+        <title>CS460 Assignment 2!</title>
+        <style>
+            body {
+                background-color: black;
+                color: white; /* font color */
+                font-family: sans-serif;
+            }
+            #logo {
+                position: absolute;
+                right: 10px;
+                top: 10px;
+            }
+        </style>
+        <script type="text/javascript">
+
+            window.onload = function() {
+
+                // THIS ONLY GETS EXECUTED ONCE THE PAGE IS FULLY LOADED!
+
+                // here is where your code goes
+                var mytext = "This is a text!!!";
+                var mynumber = 8;
+                var myfloat = 3.1415;
+                var myboolean = true;
+
+                console.log(mytext, mynumber, myfloat, myboolean);
+
+                // we needed window.onload for the following lines of code,
+                // otherwise the change in logo's positioning with this 
+                // method wouldn't work.
+                var logo = document.geElementById("logo");
+                logo.style.right = '500px';
+            };
+
+        </script>
+    </head>
+    <body>
+        <h1>CS460 Assignment 2</h1>
+        <div id="logo">
+            <img src="gfx/cs460.png">
+        </div>
+    </body>
+</html>
