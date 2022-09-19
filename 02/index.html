@@ -8,6 +8,10 @@
         background-color: black;
         color: white; /* font color */
         font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
       }
 
       #logo {
@@ -16,28 +20,82 @@
         top: 10px;
       }
     </style>
-    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    
+    <script type="text/javascript" src="http://get.goXTK.com/xtk_edge.js"></script>
+
     <script type="text/javascript">
 
     window.onload = function() {
 
-      // this gets called when the site is ready
+      // This gets called when the site is ready
 
-      var ren = new X.renderer3D();
-      
-      ren.init();
+      // Create a new scene and renderer
+      r = new X.renderer3D();
+      r.init();
 
-      var cube = new X.cube();
-      cube.color = [1,0,0];
+      // Creating fox
+      const cube_list = new Array();
 
-      ren.add(cube);
+      pos_x = -50;
+      pos_y = 50;
 
-      var cube2 = new X.cube();
-      cube2.center = [20,0,0];
+      for (var i = 0; i < 7; i++){
+        for (var j = 0; j < 6; j++){
 
-      ren.add(cube2);
+          c = new X.cube();
+          c.center = [pos_x, pos_y+(25*j), 0];
+          // c.color = [0.71765, 0.34510, 0];
+          c.color = [0.38824, 0.15294, 0.01961];
+          r.add(c);
+          cube_list.push(c);
 
-      ren.render();
+        }
+
+        pos_x+=25;
+
+        if (i == 0 || i == 1) {
+          pos_y -= 25;
+        }
+
+        if (i == 2 || i == 3) {
+          pos_y = 0;
+        }
+        
+        if (i == 4 || i == 5) {
+          pos_y += 25;
+        }
+
+      }
+
+      // Fox eyes
+      cube_list[9].color = [1, 0.85098, 0.58431];
+      cube_list[16].color = [1, 0.85098, 0.58431];
+      cube_list[28].color = [1, 0.85098, 0.58431];
+      cube_list[33].color = [1, 0.85098, 0.58431];
+
+      // Fox mouth
+      cube_list[19].color = [1, 1, 0.94510];
+
+      // set camera further away!
+      r.camera.position = [0, 0, 700];
+
+      // Render everything!
+      r.render();
+
+      // Blink fox eyes
+      setInterval(function() {
+        cube_list[9].color = [1, 1, 0.94510];
+        cube_list[16].color = [1, 1, 0.94510];
+        cube_list[28].color = [1, 1, 0.94510];
+        cube_list[33].color = [1, 1, 0.94510];
+      }, 1000);
+
+      setInterval(function() {
+        cube_list[9].color = [1, 0.85098, 0.58431];
+        cube_list[16].color = [1, 0.85098, 0.58431];
+        cube_list[28].color = [1, 0.85098, 0.58431];
+        cube_list[33].color = [1, 0.85098, 0.58431];
+      }, 2000);
 
     };
 
