@@ -33,6 +33,7 @@
       r = new X.renderer3D();
       r.init();
       const shape = new Array();
+      r.camera.position = [0, 0, 700];
       // drawing the shape
       for(var i=0; i<9; i++)
       {
@@ -77,12 +78,6 @@
         shape[50].color = [1, 1, 1];
       }, 1000);
 
-      
-      
- 
-      // set camera further away!
-      r.camera.position = [0, 0, 1000];
- 
       // render everything!
       r.render();
  
