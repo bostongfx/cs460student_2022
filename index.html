@@ -1,53 +1,187 @@
-<!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Combo&display=swap" rel="stylesheet">
     
-    <title>SaiCharitha's CS460 </title>
+    <title>CS460 Assignment 2</title>
     <style>
-        body{
-            background-color: black;
-            color: antiquewhite;
-			font-family: 'Combo', cursive;
-        	margin-top: 5px;
-        	margin-bottom: 5px;
-        	padding: 0;
-        	height: 100%;
-        	overflow: hidden !important;
-        }
-		#logo {
-			position: absolute;
-			right: 10px;
-			top: 10px;
-		  }
+      
+      body {
+
+        background-image: linear-gradient(rgb(0, 0, 0), rgb(42, 24, 43));
+        color: rgb(241, 222, 225); /* font color */
+        font-family: 'Combo', cursive;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+      
+      .name,.sid{
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+
+      #logo {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+      }
     </style>
+    
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+      r = new X.renderer3D();
+      r.init();
+
+      draw_row([75,0,0],1, [1,1,0]); 
+      draw_row([2*25,-25,0],3, [1,1,0]);
+
+      draw_row([25,-25*2,0],5, [1,1,1]);
+      draw_row([0, -25*3, 0],7, [1,1,1]);
+      draw_row([0, -25*4, 0],7, [1,1,1]);
+      draw_row([-25,-25*5,0], 9, [1,1,1]);
+      draw_row([-25,-25*6,0], 9, [1,0,0]);
+      
+      draw_row([-25,-25*7,0], 9, [1,1,0]);
+      draw_row([-25,-25*8,0], 9, [1,1,1]);
+      
+      draw_row([-25,-25*9,0], 9, [1,1,1]);
+      draw_row([-25,-25*10,0], 9, [1,1,1]);
+      draw_row([-25,-25*11,0], 9, [1,1,1]);
+      draw_row([-25,-25*12,0], 9, [1,1,1]);
+      draw_row([-25,-25*13,0], 9, [1,1,1]);
+      draw_row([-25,-25*14,0], 9, [1,1,1]);
+      draw_row([-25,-25*15,0], 9, [1,1,1]);
+      draw_row([-25,-25*16,0], 9, [1,1,1]);
+      draw_row([-25,-25*17,0], 9, [1,1,1]);
+      draw_row([-25,-25*18,0], 9, [1,1,1]);
+      draw_row([-25,-25*19,0], 9, [1,1,1]);
+
+      draw_row([-25,-25*20,0], 9, [1,1,1]);
+      draw_row([-25,-25*21,0], 9, [1,1,1]);
+      draw_row([-25,-25*22,0], 9, [1,1,1]);
+      draw_row([-25,-25*23,0], 9, [1,1,1]);
+      draw_row([-25,-25*24,0], 9, [1,1,1]);
+      draw_row([-25,-25*25,0], 9, [1,1,1]);
+      draw_row([-25,-25*26,0], 9, [1,0,0]);
+      
+
+      draw_row([-25*2,-25*20,0], 2, [0,1,1]);
+      draw_row([-25*3,-25*21,0], 4, [0,1,1]);
+      draw_row([-25*4,-25*22,0], 5, [0,1,1]);
+      draw_row([-25*5,-25*23,0], 6, [0,1,1]);
+      draw_row([-25*6,-25*24,0], 7, [0,1,1]);
+      draw_row([-25*7,-25*25,0], 8, [0,1,1]);
+      draw_row([-25*7,-25*26,0], 6, [0,1,1]);
+      
+      draw_row([25*7,-25*20,0], 2, [0,1,1]);
+      draw_row([25*6,-25*21,0], 4, [0,1,1]);
+      draw_row([25*6,-25*22,0], 5, [0,1,1]);
+      draw_row([25*6,-25*23,0], 6, [0,1,1]);
+      draw_row([25*6,-25*24,0], 7, [0,1,1]);
+      draw_row([25*6,-25*25,0], 8, [0,1,1]);
+      draw_row([25*8,-25*26,0], 6, [0,1,1]);
+
+      draw_row([-25,-25*20,0], 1, [0,0,1]);
+      draw_row([-25*2,-25*21,0], 3, [0,0,1]);
+      draw_row([-25*3,-25*22,0], 4, [0,0,1]);
+      draw_row([-25*3,-25*23,0], 4, [0,0,1]);
+      
+      draw_row([25*7,-25*20,0], 1, [0,0,1]);
+      draw_row([25*6,-25*21,0], 3, [0,0,1]);
+      draw_row([25*6,-25*22,0], 4, [0,0,1]);
+      draw_row([25*6,-25*23,0], 4, [0,0,1]);
+
+      draw_row([-25*8,-25*27,0], 3, [0,1,1]);
+      draw_row([25*12 ,-25*27,0], 3, [0,1,1]);
+
+      draw_row([-25*2,-25*27,0], 3, [0,1,0]); 
+      draw_row([-25*3,-25*28,0], 5, [0,1,0]);       
+      draw_row([-25*3,-25*29,0], 5, [0,1,0]);       
+
+      draw_row([25*6,-25*27,0], 3, [0,1,0]);
+      draw_row([25*5,-25*28,0], 5, [0,1,0]);
+      draw_row([25*5,-25*29,0], 5, [0,1,0]);
+
+      fire = [];
+      draw_row([-25*3,-25*30,0], 5, [0.8,0.3,0]); 
+      draw_row([-25*3,-25*30,0], 5, [0.4,0,0], true); 
+      draw_row([-25*3,-25*31,0], 5, [0.8,0.3,0]); 
+      draw_row([-25*3,-25*31,0], 5, [0.4,0,0], true); 
+      draw_row([-25*2,-25*32,0], 3, [0.8,0.3,0]);       
+      draw_row([-25*2,-25*32,0], 3, [0.4,0,0], true);       
+      draw_row([-25*2,-25*33,0], 3, [0.8,0.3,0]);
+      draw_row([-25*2,-25*33,0], 3, [0.4,0,0],true);
+      draw_row([-25,-25*34,0], 1, [0.8,0.3,0]);
+      draw_row([-25,-25*34,0], 1, [0.4,0,0],true);
+
+      draw_row([25*5,-25*30,0], 5, [0.8,0.3,0]); 
+      draw_row([25*5,-25*31,0], 5, [0.8,0.3,0]); 
+      draw_row([25*6,-25*32,0], 3, [0.8,0.3,0]);       
+      draw_row([25*6,-25*33,0], 3, [0.8,0.3,0]);
+      draw_row([25*7,-25*34,0], 1, [0.8,0.3,0]);
+
+      draw_row([25*5,-25*30,0], 5, [0.4,0,0],true); 
+      draw_row([25*5,-25*31,0], 5, [0.4,0,0],true); 
+      draw_row([25*6,-25*32,0], 3, [0.4,0,0],true);       
+      draw_row([25*6,-25*33,0], 3, [0.4,0,0],true);
+      draw_row([25*7,-25*34,0], 1, [0.4,0,0],true); 
+
+      
+      r.camera.position = [0,0,1000];
+
+      // render everything!
+      r.render();
+
+      no_fire = false;
+      setInterval(function() {
+        if (no_fire) {
+          
+          for (e in fire) { 
+            fire[e].color = [0.8,0.3,0];
+          }
+          no_fire = false;
+        } else {
+          
+          for (e in fire) { 
+            fire[e].color = [0.4,0,0];
+          }  
+          no_fire = true;
+        }
+        
+      },1000);
+
+    };
+
+    function draw_row(start, howmany, color, keeptrack) {
+
+      for (var i=0; i<howmany; i++) {
+
+        c = new X.cube();
+        c.color = color;
+        c.center = [start[0]+i*20+i*5, start[1], start[2]];
+        r.add(c);
+        if (keeptrack) {
+          fire.push(c);
+        }
+      }
+    }
+
+    </script>
   </head>
   <body>
-	<div id="logo"><img style="height:60px" src="02\gfx\cs460.png"></div>
-
-		<header>
-			<h1>SaiCharitha/CS460 ASSIGNMENTS </h1>  
-		</header>
-
-		<main>
-			<ol>
-				<li>Assignment 01</li>
-				<ul>
-					<li><a href="http://oos.moxiecode.com/js_webgl/particles_morph/">My favorite WebGL demo</a></li>	
-				</ul>
-				<li>Assignment 02</li>
-				<ul>
-					<li><a href="http://127.0.0.1:5500/02/index.html">Rocket Pixel Art using loops</a></li>
-					<li><a href="http://127.0.0.1:5500/02/rocket.html">Rocket Pixel Art</a></li>
-				</ul>
-			</ol>
-		</main>
-		<footer>
-			
-			<a href="https://github.com/dathrika13/cs460student.git">My CS460 Repository</a>
-			
-		</footer>
-	</body>
+    <h1>CS460 Assignment 2</h1>
+    <p class="name">Saicharitha Dathrika</p>
+    <p class="sid"> student id: 02010404</p>
+    <div id="logo"><img style="height:60px" src="https://drive.google.com/uc?export=view&id=1i9_0wFIt-eUnBMg9Juq5lT2JdzUmt54c"></div>
+  </body>
 </html>
