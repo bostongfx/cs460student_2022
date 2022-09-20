@@ -18,15 +18,12 @@
       }
     </style>
 
-    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js">
-
-        
-
-    </script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
 
     <script type="text/javascript">
 
     window.onload = function() {
+      
 
         var bool = true;
         var r = new X.renderer3D();
@@ -52,19 +49,24 @@
         */
         var c = new X.cube(81);
         function grid(){
+      var id = 0;
         for(var y = 0; y < 9 ; y++){
           for(var x = 0; x < 9; x++){
-             c[x+y] = new X.cube();
-            c[x+y].color = [heartColor(x+1,y+1), cG, cB];
+             c[id] = new X.cube();
+            c[id].color = [heartColor(x+1,y+1), cG, cB];
             if(!(heartColor(x+1,y+1)))
-              c[x+y].opacity = 0.5;
+              c[id].opacity = 0.5;
             
-            c[x+y].center = [x*25, y*-25, 0]
-            r.add(c[x+y]);
+              c[id].center = [x*25, y*-25, 0];
+              
+              
+            r.add(c[id++]);
           }
           
         }
       }
+
+     
 
       function heartColor(x,y){
           if((y == 1)){
@@ -107,87 +109,47 @@
           
         return 0;
       }
-      function heartSmall(x,y){
-          if((y == 1)){
-            if ((x==2) || (x==3) || (x==7) || (x==8))
-              return 0
-            }
-            else if((y == 2)){
-            if ((x==1) || (x==4)|| (x==6)  || (x==9))
-              return 0
-            }
-            else if((y == 3)){
-            if ( x==5)
-              return 0
-            }
-
-             else if((y == 5)){
-            if ( (x==1) || (x==9))
-              return 0
-             }
-             else if((y == 6)){
-            if ((x==2)  || (x==8) )
-              return 0
-             }
-             else if((y == 7)){
-            if ( (x==3) || (x==7) )
-              return 0
-             }
-             else if((y == 8)){
-            if ( (x==4) || (x==6))
-              return 0
-             }
-             else if((y == 9)){
-            if ( (x==5) )
-              return 0
-             }
-          
-             
-        return 0;
-      }
-      
-
       
 
         r.camera.position = [0,0,500];
 
         grid();
-        setInterval(console.log("hola"), 1000);
         r.render();
         
          // r.interactor.onMouseDown = function(){ c[0].color = [0,0,1];};
-          var heartsm = false;
+        var swtch = false;
           function heartbeat(){
            // r.onRender = function(){
+            id = 0;
   
-            for (var y = 0; y < 9 ; y++){
-              for(var x = 0 ; x < 9 ; x++){
-                if(heartsm){
-                c[x+y].color = [heartColor(x+1,y+1),cG,cB];
-                console.log("false");
-                heartsm = false;
-                }
-                else {
-                c[x+y].color = [heartSmall(x+1,y+1),cG,cB];
-                console.log("true");
-                heartsm = true;
-                }
+            for(var y = 0; y < 9 ; y++){
+              for(var x = 0; x < 9; x++){
+                if(heartColor(x+1,y+1)== 1)
+                if (swtch){
+                c[(id)].color = [10,cG, cB];
+                swtch = false;
               }
+                else{
+                c[(id)].color = [1,cG, cB];
+              swtch =true;}
+                id++;
 
-            }
-            c[0].color = [0,1,1];
+          }
+          
+        }
             
           }
-          setInterval(heartbeat, 10000);
+          setInterval(heartbeat, 500);
          
         
        // r.onRender() = function(){
          // r.get(1).modified
        // }
-        
+       
 
        // r.get(1).modified(color = [1,1,1]);
-        //r.interactor.onMouseDown("hola");
+       // r.interactor.onMouseDown = function () {//song coming soon
+        //};
         //;
         
      
@@ -207,6 +169,7 @@
         */
 
       // this gets called when the site is ready
+     
   
     };
 
@@ -217,5 +180,6 @@
   <body>
     <h1>CS460 Assignment 2</h1>
     <div id="logo"><img style="height:60px" src="gfx/cs460.png"></div>
+    
   </body>
 </html>
