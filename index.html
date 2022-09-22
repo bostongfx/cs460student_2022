@@ -1,0 +1,110 @@
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>CS460 Assignment 2</title>
+    <style>
+      body {
+        background-color: black;
+        color: white; /* font color */
+        font-family: sans-serif;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+
+      #logo {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+      }
+    </style>
+    
+    <script type="text/javascript" src="http://get.goXTK.com/xtk_edge.js"></script>
+
+    <script type="text/javascript">
+
+    window.onload = function() {
+
+      // this gets called when the site is ready
+
+      // create a new scene and renderer
+      r = new X.renderer3D();
+      r.init();
+
+      // create a cube and add it!
+      c = new X.cube();
+      c.color = [0,1,0];
+      c.center = [0,25,0];
+      r.add(c);
+      locations = [];
+      var row_number = 2;
+      var x = -30;
+      var y = 0;
+      var z = 0;
+      cubes([0,1,0],[x,y,z],3);
+      cubes([0,1,0],[x,y,z],7);
+      cubes([0,1,0],[x,y,z],9);
+      x = -30;
+      y = -150;
+      z = 0;
+      cubes([0,1,0],[x,y,z],3);
+
+      var lights_off = false;
+      var red = false;
+      
+      setInterval(function() {
+        if (lights_off) {
+          for (var q = 0; q < locations.length; q = q + 2) {
+            locations[q].color = [1,0,0];
+            red = true;
+          }
+          lights_off = false;
+        } else {
+          for (cube in locations) {
+            locations[cube].color = [0,1,0];
+          }
+          lights_off = true;
+      }
+      },1000);
+      
+     
+      function cubes(color, location, count) {
+        if (count == 7) {
+          x = x - 30*2;
+        }
+        if (count == 9) {
+          x = x - 30;
+        }
+        for (var j = 0; j < 2; j++) {
+            for (var i = 0; i < count; i++) {
+              c = new X.cube();
+              c.color = color;
+              c.center = [x,y,z];
+              r.add(c);
+              locations.push(c);
+              x = x + 30;
+            }
+            row_number++;
+            x = x - (30*(count));
+            y = y-25;
+          }
+      }
+      
+      
+
+      // set camera further away!
+      r.camera.position = [0, 0, 1000];
+
+      // render everything!
+      r.render();
+    };
+
+    </script>
+  </head>
+  <body>
+    <h1>CS460 Assignment 2</h1>
+    <div id="logo"><img style="height:60px" src="gfx/cs460.png"></div>
+  </body>
+</html>
