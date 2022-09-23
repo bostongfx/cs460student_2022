@@ -1,5 +1,6 @@
 <html>
   <head>
+    <meta charset="UTF-8" />
     <style>
       html, body { 
         background-color:#000;
@@ -15,42 +16,71 @@
       window.onload = function() {
 
 
-        // create scene
+        // Three.js code goes here
+        
         scene = new THREE.Scene();
 
-        // setup the camera
-        var fov = 75;
-        var ratio = window.innerWidth / window.innerHeight;
-        var zNear = 1;
-        var zFar = 10000;
-        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
+        fov = 75;
+        ratio = window.innerWidth / window.innerHeight;
+        zNear = 1;
+        zFar = 10000;
+        // console.log(ratio);
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( 0, 0, 100);
 
-        camera.position.set(0, 0, 100);
-
-        // Create renderer and canvas
         renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild(renderer.domElement );
 
-        // Add canvas to body
-        document.body.appendChild(renderer.domElement);
+        geometry = new THREE.PlaneGeometry(10000, 10000);
+        material = new THREE.MeshBasicMaterial({visible:false});
 
-        // Set up lights
-        ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
+        invisible_plane = new THREE.Mesh(geometry,material);
+        scene.add(invisible_plane);
 
-        light = new THREE.DirectionalLight(0xffffff, 5.0);
-        light.position.set(10, 100, 10);
+        renderer.domElement.onclick = function( e ){
+          
+            console.log('Yay! We clicked!');
+
+            pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+
+            console.log('Pixel coords', pixel_coords);
+
+            vp_coords = new THREE.Vector2( 
+                        ( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+                        -( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+
+            console.log('Viewport coords', vp_coords);
+
+            vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+
+            raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(vp_coords_near,camera);
+
+            intersects = raycaster.intersectObject(invisible_plane);
+
+            console.log('Ray to plane',intersects[0].point);
+
+            p = intersects[0].point;
+
+            cube.position.set(p.x,p.y,p.z);
+
+          };
+
+        ambientLight = new THREE.AmbientLight( 0x404040 );
+        scene.add( ambientLight );
+
+        light = new THREE.DirectionalLight( 0xffffff, 5.0);
+        light.position.set( 10, 100, 10 );
         scene.add(light);
 
-        // Configure cube
-        geometry = new THREE.BoxBufferGeometry(20,20,20);
-        material = new THREE.MeshStandardMaterial({color: 0xffffff, wireframe:true});
-
-        cube = new THREE.Mesh(geometry, material);
+        // now we add the cube
+        geometry = new THREE.BoxGeometry( 20, 20, 20);
+        material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        cube = new THREE.Mesh( geometry, material);
         scene.add(cube);
 
-        // Setup interactions
-        controls = new THREE.TrackballControls(camera, renderer.domElement);
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
 
         animate();
         
@@ -60,8 +90,12 @@
 
         requestAnimationFrame( animate );
 
+        // console.log('check');
+
         controls.update();
-        renderer.render(scene, camera);
+
+        // and here...
+        renderer.render( scene, camera);
 
       };
     </script>
