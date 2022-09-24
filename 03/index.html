@@ -20,6 +20,33 @@
       type="text/javascript"
     ></script>
     <script>
+      alert(
+        "Click anywhere on the website, a geometry will be randomly generated!!!"
+      );
+
+      // six geometries
+      const geometries = [
+        "Box",
+        "TorusKnot",
+        "Sphere",
+        "Octahedron",
+        "Cone",
+        "Ring",
+      ];
+
+      // get a random geometry
+      function generateRandomGeometry() {
+        var num = Math.floor(Math.random() * geometries.length);
+        return geometries[num];
+      }
+
+      // generate a random color - code snippet from: https://css-tricks.com/snippets/javascript/random-hex-color/
+      function generateRandomColor() {
+        var randomColor =
+          "#" + Math.floor(Math.random() * 16777215).toString(16);
+        return randomColor;
+      }
+
       window.onload = function () {
         scene = new THREE.Scene();
 
@@ -35,33 +62,32 @@
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
+        // light
         ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
-
         light = new THREE.DirectionalLight(0xffffff, 5.0);
         light.position.set(10, 100, 10);
         scene.add(light);
 
         // now we add the cube
-        geometry = new THREE.BoxBufferGeometry(20, 20, 20);
-        material = new THREE.MeshStandardMaterial({ color: 0xffffff });
-        cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+        // geometry = new THREE.BoxGeometry(20, 20, 20);
+        // material = new THREE.MeshStandardMaterial({
+        //   color: generateRandomColor(),
+        // });
+        // cube = new THREE.Mesh(geometry, material);
+        // scene.add(cube);
 
         //
         // The invisible plane
         //
-        geometry = new THREE.PlaneBufferGeometry(10000, 10000);
+        geometry = new THREE.PlaneGeometry(10000, 10000);
         material = new THREE.MeshBasicMaterial({
           visible: false,
         });
 
         invisible_plane = new THREE.Mesh(geometry, material);
-
         scene.add(invisible_plane);
-
         controls = new THREE.TrackballControls(camera, renderer.domElement);
-
         animate();
 
         //
@@ -84,7 +110,6 @@
             (pixel_coords.x / window.innerWidth) * 2 - 1,
             -(pixel_coords.y / window.innerHeight) * 2 + 1
           );
-
           console.log("Viewport coordinates", vp_coords);
 
           vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
@@ -92,11 +117,47 @@
           raycaster = new THREE.Raycaster();
           raycaster.setFromCamera(vp_coords_near, camera);
           intersects = raycaster.intersectObject(invisible_plane);
-
           console.log("Ray to Invisible Plane", intersects[0].point);
 
-          // update cube position
-          // cube.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+          // create the object and put it into the scene
+          function create_Object(geo) {
+            material = new THREE.MeshStandardMaterial({
+              color: generateRandomColor(),
+            });
+            obj = new THREE.Mesh(geometry, material);
+            scene.add(obj);
+            p = intersects[0].point;
+            obj.position.set(p.x, p.y, p.z);
+          }
+
+          switch (generateRandomGeometry()) {
+            case "Box":
+              geometry = new THREE.BoxGeometry(20, 20, 20);
+              create_Object(geometry);
+              break;
+            case "TorusKnot":
+              geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+              create_Object(geometry);
+              break;
+            case "Sphere":
+              geometry = new THREE.SphereGeometry(15, 32, 16);
+              create_Object(geometry);
+              break;
+            case "Octahedron":
+              geometry = new THREE.OctahedronGeometry(10);
+              create_Object(geometry);
+              break;
+            case "Cone":
+              geometry = new THREE.ConeGeometry(5, 20, 32);
+              create_Object(geometry);
+              break;
+            case "Ring":
+              geometry = new THREE.RingGeometry(1, 5, 32);
+              create_Object(geometry);
+              break;
+            default:
+              console.log("hi");
+          }
         };
       };
 
