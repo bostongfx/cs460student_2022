@@ -1,5 +1,7 @@
+<!DOCTYPE html>
 <html>
   <head>
+    <meta charset="UTF-8" />
     <style>
       html, body {
         background-color:#000;
@@ -13,38 +15,77 @@
     <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
     <script>
       window.onload = function() {
-				// create scene
+
+        // Three.js code goes here
+
         scene = new THREE.Scene();
 
-				// setup the camera
-				var fov = 75;
-				var ratio = window.innerWidth / window.innerHeight;
-				var zNear = 1;
-				var zFar = 10000;
+        fov = 75;
+        ratio = window.innerWidth / window.innerHeight;
+        zNear = 1;
+        zFar = 10000;
+        // console.log(ratio);
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( 0, 0, 100);
 
-        camera = new THREE.PerspectiveCamera( fov, ratio, zNear, zFar );
-        camera.position.set( 0, 0, 100 );
-
-				// create renderer and canvas
         renderer = new THREE.WebGLRenderer();
         renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( renderer.domElement );
+        document.body.appendChild(renderer.domElement );
+
+				// add invisible plane
+				geometry = new THREE.PlaneGeometry( 10000, 10000 );
+				material = new THREE.MeshBasicMaterial({visible: false});
+
+				invisible_plane = new THREE.Mesh( geometry, material );
+				scene.add( invisible_plane );
+				// counter for total objects
+				var totalObjects = 0;
+
+				// Generate random shapes
+        renderer.domElement.onmousemove = function( e ){
+					if(!e.shiftKey) return false;
+
+					// if the shift key was being pressed during the event:
+					// get the screen coordinates
+					pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+					// translate them to 3D coordinates
+					vp_coords = new THREE.Vector2(
+											( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+											-( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+
+					vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+					// setup the raycaster
+					raycaster = new THREE.Raycaster();
+					raycaster.setFromCamera(vp_coords_near, camera);
+					// get the point where the raycast intersects our invisible plane
+					intersects = raycaster.intersectObject( invisible_plane );
+
+					p = intersects[0].point;
+					// select a random geometry
+
+					geometry = generateRandomGeometry();
+					// select a random color
+					material = new THREE.MeshStandardMaterial(generateRandomColor());
+					// combine the two and add to scene at click location
+					mesh = new THREE.Mesh(geometry, material);
+					mesh.position.set(p.x, p.y, p.z);
+					scene.add(mesh);
+					totalObjects++;
+					console.log(totalObjects);
+				};
 
         ambientLight = new THREE.AmbientLight( 0x404040 );
         scene.add( ambientLight );
 
-        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light = new THREE.DirectionalLight( 0xffffff, 5.0);
         light.position.set( 10, 100, 10 );
-        scene.add( light );
+        scene.add(light);
 
-        geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
-        material = new THREE.MeshStandardMaterial({
-					color: 0xffffff,
-					wireframe: true
-				});
-        cube = new THREE.Mesh( geometry, material );
-
-        scene.add( cube );
+        // now we add the default cube (Removed for the random adding demo)
+        //geometry = new THREE.BoxGeometry( 20, 20, 20);
+        //material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        //cube = new THREE.Mesh( geometry, material);
+        //scene.add(cube);
 
         controls = new THREE.TrackballControls( camera, renderer.domElement );
 
@@ -56,10 +97,46 @@
 
         requestAnimationFrame( animate );
 
+        // console.log('check');
+
         controls.update();
-        renderer.render( scene, camera );
+
+        // and here...
+        renderer.render(scene, camera);
 
       };
+
+			function generateRandomGeometry() {
+				// there are 6 shapes
+				// let's pick one
+				var index = getRandomInt(6);
+				// generate and return it
+				switch(index) {
+					case 0: // box
+						return new THREE.BoxGeometry(20, 20, 20);
+					case 1: // torus knot
+						return new THREE.TorusKnotGeometry(10, 5, 100, 16);
+					case 2: // sphere
+						return new THREE.SphereGeometry(10, 20, 20);
+					case 3: // octahedron
+						return new THREE.OctahedronGeometry(10);
+					case 4: // cone
+						return new THREE.ConeGeometry(10, 20);
+					case 5: // ring
+						return new THREE.RingGeometry(5, 10, 20);
+				}
+			}
+
+			function generateRandomColor() {
+				// color can be provided as HEX or a CSS-style string
+				// I will opt for the CSS string in the format {color: 'rgb(r, g, b)'}
+
+				return {color: `rgb(${getRandomInt(256)}, ${getRandomInt(256)}, ${getRandomInt(256)})`};
+			}
+			function getRandomInt(max) {
+				// from MDN docs
+				return Math.floor(Math.random() * max);
+			}
     </script>
   </head>
   <body></body>
