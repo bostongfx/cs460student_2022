@@ -99,35 +99,35 @@
 
         /*------------------------Mouse Click event Q1-----------------------------------*/
 
-        renderer.domElement.onclick = function(e) {
+        // renderer.domElement.onclick = function(e) {
 
-          if (!e.shiftKey) {
-            e.preventDefault();
-            return false;
-          }
+        //   if (!e.shiftKey) {
+        //     e.preventDefault();
+        //     return false;
+        //   }
 
-          pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+        //   pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
 
-          vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
-                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
+        //   vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
+        //                                 -( pixel_coords.y / window.innerHeight ) * 2 + 1);
 
-          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+        //   vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
 
-          raycaster = new THREE.Raycaster();
-          raycaster.setFromCamera(vp_coords_near, camera);
-          intersects = raycaster.intersectObject(invisible_plane);
+        //   raycaster = new THREE.Raycaster();
+        //   raycaster.setFromCamera(vp_coords_near, camera);
+        //   intersects = raycaster.intersectObject(invisible_plane);
 
-          // Generating random color
-          var randomColor = colorPalette[Math.floor(Math.random()*colorPalette.length)];
+        //   // Generating random color
+        //   var randomColor = colorPalette[Math.floor(Math.random()*colorPalette.length)];
 
-          // Selecting random shape
-          var shapeGeometry = shapeList[Math.floor(Math.random()*shapeList.length)];
-          var shapeMaterial = new THREE.MeshStandardMaterial({ color: randomColor });
-          var shape = new THREE.Mesh( shapeGeometry, shapeMaterial );
-          scene.add(shape);
-          shape.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
+        //   // Selecting random shape
+        //   var shapeGeometry = shapeList[Math.floor(Math.random()*shapeList.length)];
+        //   var shapeMaterial = new THREE.MeshStandardMaterial({ color: randomColor });
+        //   var shape = new THREE.Mesh( shapeGeometry, shapeMaterial );
+        //   scene.add(shape);
+        //   shape.position.set(intersects[0].point.x, intersects[0].point.y, intersects[0].point.z);
         
-        };
+        // };
 
         /*------------------------Mouse move event Bonus Q2-----------------------------------*/
 
@@ -150,8 +150,7 @@
           intersects = raycaster.intersectObject(invisible_plane);
 
           // Generating random color
-          var randomColor = Math.floor(Math.random()*16777215).toString(16);
-          randomColor = '#' + randomColor;
+          var randomColor = colorPalette[Math.floor(Math.random()*colorPalette.length)];
 
           // Selecting random shape
           var shapeGeometry = shapeList[Math.floor(Math.random()*shapeList.length)];
