@@ -58,6 +58,7 @@
         var previousPx = null;
         var previousPy = null;
         var previousPz = null;
+        var tempint1 = 0;
 
         //New 9/23, pinrt pixel coords
         renderer.domElement.onmousemove = function( e ){
@@ -87,6 +88,9 @@
             previousPx = p.x;
             previousPy = p.y;
             previousPz = p.z;
+            whetherExecute = true;
+            tempint1 = tempint1 + 1;
+            console.log('count: ', tempint1);
 
             if (whetherExecute) {
             var randomRGBInt1 = Math.floor((Math.random() * 0xffffff));
