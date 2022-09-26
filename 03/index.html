@@ -111,7 +111,6 @@
  
         // configure object (e.g., cube)
         geometry = new THREE.BoxGeometry( 20, 20, 20);
-        console.log(geometry.faces.length)
         material = new THREE.MeshStandardMaterial(getRandomColor());
         cube = new THREE.Mesh( geometry, material);
         scene.add(cube);
