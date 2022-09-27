@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+       html, body{
+
+            background-color: #0000;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden !important;
+
+        };
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment_03 threejs</title>
+
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+
+    <script>
+        
+window.onload = function(){
+
+
+    // create scene as the first  step
+    scene = new THREE.Scene();
+
+var fov =75;
+var ratio = window.innerWidth / window.innerHeight;
+var zNear = 1;
+var zFar = 10000;
+
+camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+camera.position.set(0,0,100);
+
+// rendering Starts here 
+renderer = new THREE.WebGLRenderer();
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+geometry= new THREE.PlaneGeometry(10000, 10000);
+material = new THREE.MeshBasicMaterial({visible:false});
+invisible_plane = new THREE.Mesh(geometry, material);
+scene.add(invisible_plane);
+
+renderer.domElement.onclick = function(e){
+console.log("Yay We Clicked");
+pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+console.log('pixel coords', pixel_coords)
+vp_coords = new THREE.Vector2(( pixel_coords.x / window.innerWidth ) * 2 - 1,
+                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
+console.log('Viewport coords', vp_coords);
+vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y);
+raycaster = new THREE.Raycaster();
+
+raycaster.setFromCamera(vp_coords_near, camera);
+intersect = raycaster.intersectObject(invisible_plane);
+console.log('Ray to plane', intersect[0].point);
+
+for(i = 1; 1<=10; i++){
+p=intersect[0].point;
+
+geometry = new THREE.BoxGeometry(20, 20, 20);
+material = new THREE.MeshStandardMaterial({color:0xffff1111});
+cube = new THREE.Mesh(geometry, material);
+scene.add(cube);
+
+cube.position.set(p.x, p.y, p.z);
+
+
+//p2=intersect[1].point;
+geometry = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
+material = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+torusKnot = new THREE.Mesh( geometry, material );
+scene.add( torusKnot );
+cube.position.set(p.x+4, p2.y*3, p2.z*1);
+
+sphere = new THREE.SphereGeometry( 15, 32, 16 );
+ material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
+sphere = new THREE.Mesh( geometry, material );
+scene.add( sphere );
+sphere.position.set(p.x+4, p2.y*3, p2.z*1);
+
+};
+};
+// adds canvas to the page ui=sing the append child method of document
+
+
+// Setting up the light using Ambient light 
+ambientLight = new THREE.AmbientLight(0x404040);
+// add the light to the scene
+scene.add(ambientLight);
+
+//Directional light with positions setup
+light = new THREE.DirectionalLight(0xffffff, 5.0);
+light.position.set(10, 100, 10);
+scene.add(light);
+
+// build shapes starting with geometry, cube in this case. BoxeBufferGeometry from THREEJS gives few shapes
+
+
+//setup interactions
+controls = new THREE.TrackballControls(camera, renderer.domElement);
+
+animate();
+
+};
+function animate(){
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene,camera);
+};
+
+    </script>
+</head>
+<body></body>
+</html>
