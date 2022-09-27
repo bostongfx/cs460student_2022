@@ -1,1 +1,204 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<style>
+			html,
+			body {
+				background-color: #000;
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden !important;
+			}
+						
+		</style>
+		<script
+			src="https://threejs.org/build/three.min.js"
+			type="text/javascript"
+		></script>
+		<script
+			src="https://threejs.org/examples/js/controls/TrackballControls.js"
+			type="text/javascript"
+		></script>
+		<script>
+			window.onload = function () {
+				scene = new THREE.Scene();
 
+				fov = 75;
+				ratio = window.innerWidth / window.innerHeight;
+				zNear = 1;
+				zFar = 10000;
+
+				var numberOfFigures = 0;
+
+				// console.log(ratio);
+				camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+				camera.position.set(0, 0, 100);
+
+				renderer = new THREE.WebGLRenderer();
+				renderer.setSize(window.innerWidth, window.innerHeight);
+				document.body.appendChild(renderer.domElement);
+
+				ambientLight = new THREE.AmbientLight(0x404040);
+				scene.add(ambientLight);
+
+				light = new THREE.DirectionalLight(0xffffff, 5.0);
+				light.position.set(10, 100, 0);
+				scene.add(light);
+
+				// now we add the cube
+				geometry = new THREE.BoxBufferGeometry(20, 20, 20);
+				material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+				cube = new THREE.Mesh(geometry, material);
+				scene.add(cube);
+
+				//
+				// The invisible plane
+				//
+				geometry = new THREE.PlaneBufferGeometry(10000, 10000);
+				material = new THREE.MeshBasicMaterial({
+					visible: false,
+				});
+
+				invisible_plane = new THREE.Mesh(geometry, material);
+
+				scene.add(invisible_plane);
+				//
+				//
+				//
+
+				controls = new THREE.TrackballControls(camera, renderer.domElement);
+
+				animate();
+
+				//
+				// ACTION!
+				//
+
+				// onmousemove for bonus question
+				renderer.domElement.onmousemove = function (e) {
+					if (!e.shiftKey) {
+						e.preventDefault();
+						return false;
+					}
+
+					console.log('yes! you clicked!');
+
+					pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+
+					console.log('Pixel coordinates', pixel_coords);
+
+					vp_coords = new THREE.Vector2(
+						(pixel_coords.x / window.innerWidth) * 2 - 1,
+						-(pixel_coords.y / window.innerHeight) * 2 + 1
+					);
+
+					console.log('Viewport coordinates', vp_coords);
+
+					vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+
+					raycaster = new THREE.Raycaster();
+					raycaster.setFromCamera(vp_coords_near, camera);
+					intersects = raycaster.intersectObject(invisible_plane);
+
+					console.log('Ray to Invisible Plane', intersects[0].point);
+
+					// update cube position
+					cube.position.set(
+						intersects[0].point.x,
+						intersects[0].point.y,
+						intersects[0].point.z
+					);
+
+					// Create a new shape for assignment 3 here.
+					// geometry = new THREE.BoxBufferGeometry(20, 20, 20);
+					// material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+					// cube = new THREE.Mesh(geometry, material);
+					// scene.add(cube);
+
+					// cube.material.color.setHex(Math.floor(Math.random() * 16777215));
+					// for (var i = 0; i < 1000; i++) {
+					randomlyGenerateAnyShape();
+					numberOfFigures = numberOfFigures + 1;
+					console.log(numberOfFigures);
+					updateCount(numberOfFigures);
+					// }
+				};
+			};
+      function updateCount(totalfig) {
+				var counter = document.getElementsByClassName('figure_count')[0];
+				counter.innerHTML = totalfig;
+			}
+
+			function animate() {
+				requestAnimationFrame(animate);
+
+				controls.update();
+				renderer.render(scene, camera);
+			}
+      
+      
+			function randomlyGenerateAnyShape() {
+				// Generate random number between 0 to 6
+				var num = Math.floor(Math.random()* 10);
+        
+				Math.floor(Math.random*10);
+            if (num == 0) {
+            // now we add the cube
+                geometry = new THREE.BoxGeometry( 10, 10, 10);
+                material = new THREE.MeshStandardMaterial({ color: '#FF9472' });
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+            }
+            else if (num == 1){
+              //torusKnot Geometry
+                geometry = new THREE.TorusKnotGeometry( 10, 3, 10, 16 );
+                material = new THREE.MeshStandardMaterial({ color: '#A020F0' });
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                }
+            else if (num == 2){
+            //Sphere Geometry
+                geometry = new THREE.SphereGeometry( 10, 32, 16 );
+                material = new THREE.MeshStandardMaterial({ color: '#FFA500' });
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                }
+            else if (num == 3){
+            //Octahedron Geometry
+                geometry = new THREE.OctahedronGeometry(10);
+                material = new THREE.MeshStandardMaterial({ color: '#0000FF' });
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                }
+            else if (num == 4){
+            //Cone Geometry
+                geometry = new THREE.ConeGeometry( 10, 10 );
+                material = new THREE.MeshStandardMaterial({ color: '#FF0000' });
+                cube = new THREE.Mesh(geometry, material);
+                scene.add(cube);
+                }
+            else {
+            //Ring Geometry
+            geometry = new THREE.RingGeometry( 5, 10, 32 );
+            material = new THREE.MeshStandardMaterial({ color: '#00FF00' });
+            cube = new THREE.Mesh(geometry, material);
+            scene.add(cube);
+                }
+            
+			}
+
+			
+		</script>
+	</head>
+	<body>
+    <style>
+    .object_count {
+            color: white;
+    }
+    </style>
+		<div class="object_count">
+			Total number of objects = <span class="figure_count">0</span>
+		</div>
+	</body>
+</html>
