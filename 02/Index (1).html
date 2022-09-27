@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <meta http-equiv="Content-Style-Type" content="text/css">
+  <title></title>
+  <meta name="Generator" content="Cocoa HTML Writer">
+  <meta name="CocoaVersion" content="2113.5">
+  <style type="text/css">
+    p.p1 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica}
+    p.p2 {margin: 0.0px 0.0px 0.0px 0.0px; font: 12.0px Helvetica; min-height: 14.0px}
+    span.Apple-tab-span {white-space:pre}
+  </style>
+</head>
+<body>
+<p class="p1">&lt;html&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;meta charset="UTF-8" /&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>html, body {<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">        </span>background-color:#000;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>margin: 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>padding: 0;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>height: 100%;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>overflow: hidden !important; <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/style&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://threejs.org/build/three.min.js" type="text/javascript"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"&gt;&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;script&gt;</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>function getRandomColor() {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getRandomRGB() {</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return Math.floor(Math.random()*256);</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return {color: `rgb(${getRandomRGB()}, ${getRandomRGB()}, ${getRandomRGB()})`};</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>function getRandomGeometry() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>function getRandomCase() {</p>
+<p class="p1"><span class="Apple-converted-space">        </span>return Math.floor(Math.random() * 5)</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>switch(getRandomCase()) {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>case 0:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.RingGeometry(8, 20, 24);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>case 1:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.ConeGeometry(20, 40);<span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span></p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>case 2:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.SphereGeometry(20, 40, 40);</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>case 3:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.OctahedronGeometry(20);</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>case 4:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.TorusKnotGeometry(20, 6, 48, 8);</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>case 5:</p>
+<p class="p1"><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span><span class="Apple-tab-span">	</span>return new THREE.BoxGeometry(10, 10, 10);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>}</p>
+<p class="p1"><span class="Apple-converted-space">      </span>}</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>var global_counter = 0;</p>
+<p class="p1"><span class="Apple-converted-space">      </span>window.onload = function() {</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene = new THREE.Scene();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>fov = 75; /degrees corresponds to up and down that constitutes frustrum/</p>
+<p class="p1"><span class="Apple-converted-space">        </span>ratio = window.innerWidth / window.innerHeight;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zNear = 1;</p>
+<p class="p1"><span class="Apple-converted-space">        </span>zFar = 10000;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>camera.position.set( 0, 0, 500);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer = new THREE.WebGLRenderer();</p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer.setSize( window.innerWidth, window.innerHeight );</p>
+<p class="p1"><span class="Apple-converted-space">        </span>document.body.appendChild(renderer.domElement );</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>geometry = new THREE.PlaneGeometry( 10000, 10000 );</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>material = new THREE.MeshBasicMaterial( {</p>
+<p class="p1"><span class="Apple-converted-space">          </span>visible: false</p>
+<p class="p1"><span class="Apple-converted-space">        </span>});</p>
+<p class="p1"><span class="Apple-converted-space">        </span>invisible_plane = new THREE.Mesh( geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add(invisible_plane);</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer.domElement.onmousemove = function( e ){</p>
+<p class="p1"><span class="Apple-converted-space">            </span>if(!e.shiftKey) return false;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>pixel_coords = new THREE.Vector2( e.clientX, e.clientY);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>vp_coords = new THREE.Vector2(<span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>( pixel_coords.x / window.innerWidth ) * 2 - 1, <span class="Apple-converted-space"> </span></p>
+<p class="p1"><span class="Apple-converted-space">                        </span>-( pixel_coords.y / window.innerHeight ) * 2 + 1)<span class="Apple-converted-space"> </span></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>raycaster = new THREE.Raycaster();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>raycaster.setFromCamera(vp_coords_near, camera);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>intersects = raycaster.intersectObject(invisible_plane);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>p = intersects[0].point;</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">            </span>geometry = getRandomGeometry();</p>
+<p class="p1"><span class="Apple-converted-space">            </span>material = new THREE.MeshStandardMaterial(getRandomColor());</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cube = new THREE.Mesh( geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>scene.add(cube);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>cube.position.set(p.x, p.y, p.z);</p>
+<p class="p1"><span class="Apple-converted-space">            </span>global_counter++;</p>
+<p class="p1"><span class="Apple-converted-space">            </span>console.log(global_counter);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">          </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>ambientLight = new THREE.AmbientLight( 0x404040 );</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add( ambientLight );</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>light = new THREE.DirectionalLight( 0xd2ded2, 5.0);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>light.position.set( 20, 100, 20 );</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add(light);</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>geometry = new THREE.BoxGeometry( 40, 40, 40);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>material = new THREE.MeshStandardMaterial(getRandomColor());</p>
+<p class="p1"><span class="Apple-converted-space">        </span>cube = new THREE.Mesh( geometry, material);</p>
+<p class="p1"><span class="Apple-converted-space">        </span>scene.add(cube);</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>controls = new THREE.TrackballControls( camera, renderer.domElement );</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>animate();</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>function animate() {</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>requestAnimationFrame( animate );</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>controls.update();</p>
+<p class="p2"><br></p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">        </span>renderer.render( scene, camera);</p>
+<p class="p2"><br></p>
+<p class="p1"><span class="Apple-converted-space">      </span>};</p>
+<p class="p1"><span class="Apple-converted-space">    </span>&lt;/script&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;/head&gt;</p>
+<p class="p1"><span class="Apple-converted-space">  </span>&lt;body&gt;&lt;/body&gt;</p>
+<p class="p1">&lt;/html&gt;</p>
+</body>
+</html>
