@@ -1,0 +1,103 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html,
+      body {
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+    </style>
+    <script
+      src="https://threejs.org/build/three.min.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="https://threejs.org/examples/js/controls/TrackballControls.js"
+      type="text/javascript"
+    ></script>
+    <script>
+      alert(
+        "Click anywhere on the website, a geometry will be randomly generated!!!"
+        "Move around mouse with shift key pressed, a geometry will be randomly generated"
+      );
+
+      var count = 0;
+      // six geometries
+      const geometries = [
+        "Box",
+@@ -40,10 +41,13 @@
+        return geometries[num];
+      }
+
+      // generate a random color - code snippet from: https://css-tricks.com/snippets/javascript/random-hex-color/
+      // generate a random color - code snippet from: https://dev.to/akhil_001/generating-random-color-with-single-line-of-js-code-fhj
+      function generateRandomColor() {
+        var randomColor =
+          "#" + Math.floor(Math.random() * 16777215).toString(16);
+          "#" +
+          Math.floor(Math.random() * (256 * 256 * 256))
+            .toString(16)
+            .padStart(6, "0");
+        return randomColor;
+      }
+
+@@ -94,7 +98,7 @@
+        // ACTION!
+        //
+
+        renderer.domElement.onclick = function (e) {
+        renderer.domElement.onmousemove = function (e) {
+          if (!e.shiftKey) {
+            e.preventDefault();
+            return false;
+@@ -128,6 +132,8 @@
+            scene.add(obj);
+            p = intersects[0].point;
+            obj.position.set(p.x, p.y, p.z);
+            count++;
+            console.log(`Number of geometries ${count}`);
+          }
+
+          switch (generateRandomGeometry()) {
+            case "Box":
+              geometry = new THREE.BoxGeometry(20, 20, 20);
+              create_Object(geometry);
+              break;
+            case "TorusKnot":
+              geometry = new THREE.TorusKnotGeometry(10, 3, 100, 16);
+              create_Object(geometry);
+              break;
+            case "Sphere":
+              geometry = new THREE.SphereGeometry(15, 32, 16);
+              create_Object(geometry);
+              break;
+            case "Octahedron":
+              geometry = new THREE.OctahedronGeometry(10);
+              create_Object(geometry);
+              break;
+            case "Cone":
+              geometry = new THREE.ConeGeometry(5, 20, 32);
+              create_Object(geometry);
+              break;
+            case "Ring":
+              geometry = new THREE.RingGeometry(1, 5, 32);
+              create_Object(geometry);
+              break;
+            default:
+              console.log("hi");
+          }
+        };
+      };
+      function animate() {
+        requestAnimationFrame(animate);
+        controls.update();
+        renderer.render(scene, camera);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>
