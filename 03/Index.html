@@ -1,5 +1,5 @@
 
-<html>
+tml>
   <head>
     <style>
       html, body {
@@ -38,7 +38,7 @@
         // let's listen to clicks on the canvas
         //
 
-        renderer.domElement.onclick = function(e) {
+        renderer.domElement.onmousemove = function(e) {
           if (!e.shiftKey) {
             e.preventDefault();
             return false;
@@ -65,10 +65,10 @@
           console.log('3d', intersects[0].point);
 
           // create example object
-          var x = Math.floor(Math.random() * 6);
+          var x = Math.floor(Math.random() * 7);
           switch(x){
             case 0:
-              geometry = new THREE.BoxBufferGeometry( 10, 10, 11 );
+              geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
               material = new THREE.MeshStandardMaterial({ color: Math.random() * 0xffffff });
               cube = new THREE.Mesh( geometry, material );
               cube.position.set( intersects[0].point.x,intersects[0].point.y, intersects[0].point.z);
@@ -84,10 +84,9 @@
               scene.add(torus);
               increment += 1;
               tor += 1;
-              
               break;
             case 2:
-              geometry = new THREE.SphereBufferGeometry( 5, 2, 3);
+              geometry = new THREE.SphereBufferGeometry( 5, 32, 32 );
               material = new THREE.MeshBasicMaterial( {color: Math.random() * 0xffffff} );
               sphere = new THREE.Mesh( geometry, material );
               sphere.position.set( intersects[0].point.x,intersects[0].point.y, intersects[0].point.z);
@@ -120,7 +119,7 @@
               scene.add( oct );
               oc += 1;
               increment += 1;
-          
+          //
         }
         console.log('counter', increment);
         console.log('numberofboxes', box);
@@ -136,7 +135,7 @@
         ambientLight = new THREE.AmbientLight( 0x404040 );
         scene.add( ambientLight );
 
-        light = new THREE.DirectionalLight( 0xffffff, 6.0);
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
         light.position.set( 10, 100, 10 );
         scene.add( light );
 
