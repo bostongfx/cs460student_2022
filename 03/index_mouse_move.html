@@ -1,3 +1,5 @@
+<!-- This is a copy of index.html, containing the code changes necessary to
+complete Bonus Part 2 for Assignment 3-->
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -53,9 +55,10 @@
         //
 
         // The following line is for doing Bonus Part 2, comment out as needed
-        // renderer.domElement.onmousemove = function( e ){
+        renderer.domElement.onmousemove = function( e ){
 
-        renderer.domElement.onclick = function(e) {
+        // The line below comes from the default version of index.html for Assignment 3.
+        // renderer.domElement.onclick = function(e) {
 
           if (!e.shiftKey) {
             e.preventDefault();
