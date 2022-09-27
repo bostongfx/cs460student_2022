@@ -1,0 +1,178 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+    <script>
+      window.onload = function() {
+
+        scene = new THREE.Scene();
+
+        fov = 75;
+        ratio = window.innerWidth / window.innerHeight;
+        zNear = 1;
+        zFar = 10000;
+        // console.log(ratio);
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( 0, 0, 100);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        ambientLight = new THREE.AmbientLight( 0x404040 );
+        scene.add( ambientLight );
+
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+        // The invisible plane
+        geometry = new THREE.PlaneGeometry( 10000, 10000 );
+        material = new THREE.MeshBasicMaterial( {
+          visible: false
+        });
+        invisible_plane = new THREE.Mesh( geometry, material );
+        scene.add( invisible_plane );
+    
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
+
+        animate();
+
+        //
+        // ACTION!
+        //
+
+        // The following line is for doing Bonus Part 2, comment out as needed
+        // renderer.domElement.onmousemove = function( e ){
+
+        renderer.domElement.onclick = function(e) {
+
+          if (!e.shiftKey) {
+            e.preventDefault();
+            return false;
+          }
+
+          console.log('yes! you clicked!');
+
+          pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+
+          console.log('Pixel coordinates', pixel_coords);
+
+          vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
+                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
+
+          console.log('Viewport coordinates', vp_coords);
+
+          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          intersects = raycaster.intersectObject(invisible_plane);
+
+          console.log('Ray to Invisible Plane', intersects[0].point);
+
+          p = intersects[0].point;
+
+          // randomColor generates a random color value for the meshes generated
+          // when the mouse was clicked.
+          // I got the code for this caulculation from these sources:
+          // https://css-tricks.com/snippets/javascript/random-hex-color/
+          // https://www.paulirish.com/2009/random-hex-color-code-snippets/
+          randomColor = '#' + Math.floor(Math.random()*16777215).toString(16);
+
+          // randomRad is for generating a random radius value between 2 and 15
+          randomRad = Math.floor(Math.random() * (15 - 2) + 2);
+          // randomOuterRad is for generating a random outer radius value between
+          // 2 and 15 for the ring mesh
+          randomOuterRad = Math.floor(Math.random() * (15 - 2) + 2);
+          // The code for this was taken from the getRandomInt() example code here:
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+
+          // Cube code
+          // randomRad is used here so as to not make another variable for generating
+          // random numbers
+          const boxGeo = new THREE.BoxGeometry( randomRad, randomRad, randomRad);
+          const boxMat = new THREE.MeshStandardMaterial({ color: randomColor });
+          const cube = new THREE.Mesh( boxGeo, boxMat);
+
+          // TorusKnot code
+          const tkGeo = new THREE.TorusKnotGeometry( randomRad, 3, 200, 16 );
+          const tkMat = new THREE.MeshStandardMaterial( { color: randomColor } );
+          const torusKnot = new THREE.Mesh( tkGeo, tkMat );
+
+          // Sphere code
+          const sphereGeo = new THREE.SphereGeometry( randomRad, 32, 16 );
+          const sphereMat = new THREE.MeshStandardMaterial( { color: randomColor } );
+          const sphere = new THREE.Mesh( sphereGeo, sphereMat );
+          
+          // Octahedron code (no example)
+          const octaGeo = new THREE.OctahedronGeometry(randomRad);
+          const octaMat = new THREE.MeshStandardMaterial( { color: randomColor } );
+          const octahedron = new THREE.Mesh(octaGeo, octaMat);
+          
+          // Cone code
+          // randomRad and randomOuterRad are used here so as to not make another 
+          // variable for generating random numbers
+          const coneGeo = new THREE.ConeGeometry( randomRad, randomOuterRad);
+          const coneMat = new THREE.MeshStandardMaterial( {color: randomColor} );
+          const cone = new THREE.Mesh( coneGeo, coneMat );
+          
+          // Ring code
+          const ringGeo = new THREE.RingGeometry( randomRad, randomOuterRad, 32 );
+          const ringMat = new THREE.MeshStandardMaterial( { color: randomColor, side: THREE.DoubleSide } );
+          const ring = new THREE.Mesh( ringGeo, ringMat );
+
+          // randNum is an int greater than or equal to 1 and less than 7
+          // The code for this was also taken from the getRandomInt() example code here:
+          // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Math/random
+          randNum = Math.floor(Math.random() * (7 - 1) + 1);
+
+          // Depending on what number was generated by randNum on instance of a click,
+          // a different mesh will be added where the mouse clicked
+          if (randNum == 1) {
+            scene.add(cube);
+            cube.position.set(p.x, p.y, p.z);
+          } else if (randNum == 2) {
+            scene.add( torusKnot );
+            torusKnot.position.set(p.x, p.y, p.z);
+          } else if (randNum == 3) {
+            scene.add( sphere );
+            sphere.position.set(p.x, p.y, p.z);
+          } else if (randNum == 4) {
+            scene.add(octahedron)
+            octahedron.position.set(p.x, p.y, p.z);
+          } else if (randNum == 5) {
+            scene.add( cone );
+            cone.position.set(p.x, p.y, p.z);
+          } else {
+            scene.add( ring );
+            ring.position.set(p.x, p.y, p.z);
+          }
+        
+        };
+
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        controls.update();
+        renderer.render( scene, camera );
+
+      };
+
+    </script>
+  </head>
+  <body></body>
+</html>
