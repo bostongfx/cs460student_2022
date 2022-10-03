@@ -2,7 +2,7 @@
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
-    <title>Default WebGL!</title>
+    <title>Vanilla WebGL!</title>
     <style>
       html, body { 
         background-color:#000;
@@ -23,9 +23,17 @@
   <script id="vertexshader" type="glsl">
     attribute vec3 position;
 
+    uniform vec3 offset;
+
     void main(void) {
     
-      gl_Position = vec4( position, 1.);
+      vec3 final_position = position;
+      final_position.x += offset.x;
+      final_position.y += offset.y;
+      final_position.z += offset.z;
+
+      gl_Position = vec4( final_position, 1.);
+      gl_PointSize = 10.;
     
     }
   </script>
@@ -33,9 +41,11 @@
   <script id="fragmentshader" type="glsl">
     precision mediump float;
 
+    uniform vec4 color;
+
     void main(void) {
 
-      gl_FragColor = vec4(1., 1., 1., 1.);
+      gl_FragColor = color; //vec4(1., 1., 1., 1.);
 
     }
   </script>
@@ -43,9 +53,9 @@
   <script>
 
     // VARIABLE DECLARATIONS
-
-    var c;
-    var v_shader, f_shader;
+    var c, gl;
+    var v_shader, f_shader, shaderprogram;
+    var vertices, v_buffer, indices, i_buffer;
 
     window.onload = function() {
       
@@ -54,73 +64,131 @@
       //
       // INITIALIZE WEBGL
       //
-
-      c = document.getElementById('c');
+      c = document.getElementById( 'c' );
       c.width = window.innerWidth;
       c.height = window.innerHeight;
-      gl = c.getContext('webgl');
-      gl.viewport(0,0,c.width,c.height);
+
+      gl = c.getContext( 'webgl' );
+      gl.viewport(0, 0, c.width, c.height);
 
 
       //************************************************************//
       //
       // SHADERS
       //
+      v_shader = gl.createShader( gl.VERTEX_SHADER );
+
+      f_shader = gl.createShader( gl.FRAGMENT_SHADER );
+
+      // compile vertex shader
+      gl.shaderSource( v_shader, document.getElementById( 'vertexshader' ).innerText );
+      gl.compileShader( v_shader );
+
+      if (!gl.getShaderParameter( v_shader, gl.COMPILE_STATUS )) {
+        console.log(gl.getShaderInfoLog( v_shader ));
+      }
+
+      // compile fragment shader
+      gl.shaderSource( f_shader, document.getElementById( 'fragmentshader' ).innerText );
+      gl.compileShader( f_shader );
+
+      if (!gl.getShaderParameter( f_shader, gl.COMPILE_STATUS )) {
+        console.log(gl.getShaderInfoLog( f_shader ));
+      }
+
+      // attach and link the shaders
+      shaderprogram = gl.createProgram();
+      gl.attachShader( shaderprogram, v_shader );
+      gl.attachShader( shaderprogram, f_shader );
+
+      gl.linkProgram( shaderprogram );
+
+      gl.useProgram( shaderprogram );
+
       
-      v_shader = gl.createShader(gl.VERTEX_SHADER);
-      f_shader = gl.createShader(gl.FRAGMENT_SHADER);
 
-      gl.shaderSource(v_shader,document.getElementById('vertexshader').innerText);
-      gl.compileShader(v_shader);
 
-      gl.shaderSource(f_shader,document.getElementById('fragmentshader').innerText);
-      gl.compileShader(f_shader);
 
-      // Attach and link shader
-      shaderProgram = gl.createProgram();
-      gl.attachShader(shaderProgram,v_shader);
-      gl.attachShader(shaderProgram,f_shader);
-
-      gl.linkProgram(shaderProgram);
-      gl.useProgram(shaderProgram);
 
       //************************************************************//
       //
       // CREATE GEOMETRY
       //
       vertices = new Float32Array( [
-                                     -0.5,  0.5, 0.0, // V0
-                                     -0.5, -0.5, 0.0, // V1
-                                      0.5,  0.5, 0.0, // V2
-
-                                      0.5,  0.5, 0.0, // V3
-                                     -0.5, -0.5, 0.0, // V4
-                                      0.5, -0.5, 0.0  // V5
+                                     -0.5,  0.5, 0.0, // V0.     // 0
+                                     -0.5, -0.5, 0.0, // V1, V4. // 1
+                                      0.5,  0.5, 0.0, // V2, V3. // 2
+                                      0.5, -0.5, 0.0  // V5.     // 3
                                     ] );
 
-      v_buffer  = gl.createBuffer(); // create buffer
-      gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer); // bind
-      gl.bufferData(gl.ARRAY_BUFFER,vertices,gl.STATIC_DRAW); // put data in
-      gl.bindBuffer(gl.ARRAY_BUFFER, null); // unbind
+      indices = new Uint8Array( [
+                                0, 1, 2, 2, 1, 3
+                                ] );
+
+      v_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
+      gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
+
+      i_buffer = gl.createBuffer(); // create
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
+      gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
+
+
+      offset = [0., 0., 0 ];
+      animate();
+
+};
+
+
+function animate() {
+
+      requestAnimationFrame(animate);
+
+
+
 
       //************************************************************//
       //
       // CONNECT SHADER WITH GEOMETRY
       //
-      gl.bindBuffer(gl.ARRAY_BUFFER,v_buffer);
+      
+      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer );
 
-      var a_position = gl.getAttribLocation(shaderProgram,'position');
-      gl.vertexAttribPointer(a_position,3,gl.FLOAT,false,0,0);
-      gl.enableVertexAttribArray(a_position);
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer );
+
+      var a_position = gl.getAttribLocation( shaderprogram, 'position' );
+
+      gl.vertexAttribPointer( a_position, 3, gl.FLOAT, false, 0, 0 );
+
+      gl.enableVertexAttribArray( a_position );
+
+
+      var u_color = gl.getUniformLocation( shaderprogram, 'color' );
+
+      gl.uniform4fv( u_color, 
+        new Float32Array( [0., 1., 0., 1.] ) );
+
+      var u_offset = gl.getUniformLocation( shaderprogram, 'offset' );
+
+      offset[0] -= .1;
+
+      if (offset[0] < -1) { offset[0] = 1 };
+
+      gl.uniform3fv( u_offset, new Float32Array( offset ) );
 
       //************************************************************//
       //
       // DRAW!
       //
 
-      gl.clearColor(0.,0.,0.,0.);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.drawArrays(gl.TRIANGLES,0,6);
+      gl.clearColor( 0., 0., 0., 0. );
+      gl.clear( gl.COLOR_BUFFER_BIT );
+
+      // gl.drawArrays( gl.LINE_LOOP, 0, 6);
+      gl.drawElements( gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+
 
     };
 
