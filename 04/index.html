@@ -227,9 +227,12 @@
       //
       // Part 2 Starts
       //
-      var x_offset = Math.random() - Math.random();
-      var y_offset = Math.random() - Math.random();
-      //   console.log(x_offset);
+      var random_number = () => Math.random() - Math.random() + 0.5;
+      var x_offset, y_offset;
+      x_offset = random_number();
+      y_offset = random_number();
+
+      // console.log(x_offset);
       //   console.log(y_offset);
       var offset = [x_offset, y_offset, 0];
 
@@ -294,19 +297,19 @@
       if (e.keyCode == 38) {
         // player pressed up
         direction_y = 0.5;
-        step_y = 0.02 * 0.5;
+        step_y = 0.02;
       } else if (e.keyCode == 40) {
         // player pressed down
         direction_y = -0.5;
-        step_y = 0.02 * 0.5;
+        step_y = 0.02;
       } else if (e.keyCode == 37) {
         // player pressed left
         direction_x = -0.5;
-        step_x = 0.02 * 0.5;
+        step_x = 0.02;
       } else if (e.keyCode == 39) {
         // player pressed right
         direction_x = 0.5;
-        step_x = 0.02 * 0.5;
+        step_x = 0.02;
       }
     };
     //
@@ -328,7 +331,7 @@
         //
         // Bonus Part 2!
         //
-
+        obstacle_factor += 2;
         framecounter = 0;
       }
 
@@ -345,6 +348,7 @@
 
         var current_v_count = current_vertices.length;
 
+        // console.log(current_offset[1]);
         if (current_objecttype == "airplane") {
           // update offsets
           if (current_offset[0] <= -1) {
@@ -374,6 +378,12 @@
           //
           // Bonus Part 1!
           //
+          current_offset[0] -= 0.001 * obstacle_factor;
+          if (current_offset[0] < -1) {
+            // bumped into left end of screen
+            current_offset[0] = 1;
+            current_offset[1] = Math.random() - Math.random();
+          }
 
           // collision detection using the bounding box of this airplane
           if (detectCollision(bbox_plane, current_offset)) {
