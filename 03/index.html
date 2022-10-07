@@ -24,6 +24,8 @@
         "Click anywhere on the website, a geometry will be randomly generated!!!"
       );
 
+      var count = 0;
+
       // six geometries
       const geometries = [
         "Box",
@@ -94,7 +96,7 @@
         // ACTION!
         //
 
-        renderer.domElement.onclick = function (e) {
+        renderer.domElement.onmousemove = function (e) {
           if (!e.shiftKey) {
             e.preventDefault();
             return false;
@@ -128,6 +130,8 @@
             scene.add(obj);
             p = intersects[0].point;
             obj.position.set(p.x, p.y, p.z);
+            count++;
+            console.log(`Number of objects ${count}`);
           }
 
           switch (generateRandomGeometry()) {
