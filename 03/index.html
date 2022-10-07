@@ -21,11 +21,14 @@
     ></script>
     <script>
       alert(
-        "Click anywhere on the website, a geometry will be randomly generated!!!"
+        "Move around mouse with shift key pressed, a geometry will be randomly generated"
       );
 
       var count = 0;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0d98502eefb3c70a8fcd3e52307c86b4721c074f
       // six geometries
       const geometries = [
         "Box",
@@ -42,10 +45,13 @@
         return geometries[num];
       }
 
-      // generate a random color - code snippet from: https://css-tricks.com/snippets/javascript/random-hex-color/
+      // generate a random color - code snippet from: https://dev.to/akhil_001/generating-random-color-with-single-line-of-js-code-fhj
       function generateRandomColor() {
         var randomColor =
-          "#" + Math.floor(Math.random() * 16777215).toString(16);
+          "#" +
+          Math.floor(Math.random() * (256 * 256 * 256))
+            .toString(16)
+            .padStart(6, "0");
         return randomColor;
       }
 
@@ -131,7 +137,11 @@
             p = intersects[0].point;
             obj.position.set(p.x, p.y, p.z);
             count++;
+<<<<<<< HEAD
             console.log(`Number of objects ${count}`);
+=======
+            console.log(`Number of geometries ${count}`);
+>>>>>>> 0d98502eefb3c70a8fcd3e52307c86b4721c074f
           }
 
           switch (generateRandomGeometry()) {
@@ -160,7 +170,7 @@
               create_Object(geometry);
               break;
             default:
-              console.log("hi");
+              console.log("hello");
           }
         };
       };
