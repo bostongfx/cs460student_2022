@@ -1,4 +1,3 @@
-
 <html>
 <head>
 	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
@@ -197,7 +196,7 @@
 		var color = [0., 0., 0., 1.];
 
 
-	//bonous part 3.
+	//bonus part 3.
 		return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES];
 	}
 
@@ -311,6 +310,7 @@
 				(super_speed == 1) ? score_increment = 100 : score_increment = 50;
 				document.getElementById('score').innerHTML =
 					parseInt(document.getElementById('score').innerHTML) + score_increment;
+					// bonos part2
 				obstacle_factor += 0.01;
 				frame_counter = 0;
 			}
@@ -326,7 +326,7 @@
 				var current_color = objects[o][4];
 				var current_drawtype = objects[o][5];
 				var current_v_count = current_vertices.length;
-
+// Bonos part 1
 				if (current_objecttype == 'airplane') {
 					if (current_offset[0] <= -1) { 				// left end of screen
 						direction_x = 1;
