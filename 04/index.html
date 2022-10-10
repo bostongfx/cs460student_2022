@@ -1,15 +1,15 @@
-<html>
+html>
   <head>
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
     <meta content="utf-8" http-equiv="encoding">
     <title>Vanilla WebGL!</title>
     <style>
-      html, body { 
+      html, body {
         background-color:#000;
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
+        overflow: hidden !important;
         background-image: url(https://media.tenor.com/b_Z3q0jyABwAAAAi/sunrise-over-mountains-travel.gif);
         background-repeat: no-repeat;
         background-size: 100% 100%;
@@ -42,11 +42,11 @@
       final_position.z += u_offset.z;
 
       gl_Position = vec4( final_position, 1.);
-      gl_PointSize = 15.0;
+      gl_PointSize = 17.0;
     }
   </script>
 
-  <script id="fragmentshader" type="glsl">
+  <script id="fshader" type="glsl">
     precision mediump float;
 
     uniform vec4 u_color;
@@ -101,7 +101,7 @@
       }
 
       // compile fragment shader
-      gl.shaderSource( f_shader, document.getElementById( 'fragmentshader' ).innerText );
+      gl.shaderSource( f_shader, document.getElementById( 'fshader' ).innerText );
       gl.compileShader( f_shader );
 
       if (!gl.getShaderParameter( f_shader, gl.COMPILE_STATUS)) {
@@ -130,6 +130,9 @@
       objects.push( createObstacle());
       objects.push( createObstacle());
       objects.push( createObstacle());
+      objects.push( createObstacle());
+      objects.push( createObstacle());
+      objects.push( createObstacle());
 
       animate();
 
@@ -143,7 +146,7 @@
       // Part 1 Starts
       //
 
-      var vertices = new Float32Array([
+      /*var vertices = new Float32Array([
         -0.05, 0.03, 0.0, // V1
         -0.05, -0.03, 0.0, // V2    Triangle 1
         -0.02, 0.009, 0.0, // V3
@@ -160,9 +163,25 @@
         0.03, 0.001, 0.0, // V11     Triangle 4
         0.05, 0.001, 0.0 //V 12
 
-      ]);
+      ]);*/
+
+        vertices = new Float32Array( [
+        -0.05, 0.03, 0.0, // V1           //0
+        -0.05, -0.03, 0.0, // V2,V5       //1
+        -0.02, 0.009, 0.0, // V3, V4, V7  //2
+         0.03, 0.0001, 0.0, // V6         //3
+         0.03, 0.001, 0.0, // V8, V11     //4
+         0.03, 0.009, 0.0, // V9, V10     //5
+         0.05, 0.001, 0.0 // V12          //6
 
 
+      ] );
+
+      indices = new Uint8Array( [0,1,2, // Triangle1
+                                 2,1,3, // Triangle2
+                                 2,4,5, // Triangle3
+                                 5,4,6  // Triangle4
+                               ] );
 
 
       // var v_buffer;
@@ -172,6 +191,13 @@
       gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
 
 
+      var i_buffer = gl.createBuffer();
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer);
+      gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW );
+      gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null);
+
+
+
 
 
       //
@@ -179,12 +205,13 @@
       //
 
       var offset = [0.,0.,0.];
-      var color = [0.4,0.,0.9,1.];
+      var color = [0.3,0.,0.7,1.];
 
       //
       // Bonus Part 3!
       //
-      return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES];
+      //return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES];
+      return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES, i_buffer];
 
     }
 
@@ -216,7 +243,7 @@
 
       var color = [Math.random(),Math.random(),Math.random(),1.];
 
-      return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS];
+      return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS, null];
 
     }
 
@@ -234,11 +261,11 @@
       var minz = 1000;
       var maxz = -1000;
 
-      for (var v=0; v<vertices.length; v+=3) {
+      for (var z=0; z<vertices.length; z+=3) {
 
-        var currentx = vertices[v] + offset[0];
-        var currenty = vertices[v+1] + offset[1];
-        var currentz = vertices[v+2] + offset[2];
+        var currentx = vertices[z] + offset[0];
+        var currenty = vertices[z+1] + offset[1];
+        var currentz = vertices[z+2] + offset[2];
 
         minx = Math.min( minx, currentx );
         miny = Math.min( miny, currenty );
@@ -281,6 +308,9 @@
     // Part 4 Starts
     //
     window.onkeyup = function(e) {
+      var airplane = objects[0];
+			var current_offset = airplane[3];
+			var u_offset = gl.getUniformLocation(shaderprogram, 'offset');
 
       if ( e.keyCode == 38 ) {
         // player pressed up
@@ -310,7 +340,7 @@
 
 
       }
-
+      gl.uniform3fv(u_offset, current_offset);
     };
     //
     // Part 4 Ends
@@ -355,6 +385,7 @@
         var current_offset = objects[o][3];
         var current_color = objects[o][4];
         var current_drawtype = objects[o][5];
+        var current_i_buffer = objects[o][6];
 
         var current_v_count = current_vertices.length;
 
@@ -390,17 +421,17 @@
           //
           // Bonus Part 1!
           //
-          current_offset[0] -= 0.001 *obstacle_factor;	
-          if(current_offset[0] < -1){	
-            current_offset[0] = 1;	
-            current_offset[1] = Math.random() * 2 -1;	
-          }	
+          current_offset[0] -= 0.001 *obstacle_factor;
+          if(current_offset[0] < -1){
+            current_offset[0] = 1;
+            current_offset[1] = (Math.random() * 2) -1;
+          }
 
 
           // collision detection using the bounding box of this airplane
           if (detectCollision(bbox_plane, current_offset)) {
 
-            document.getElementById('scoreboard').innerHTML += ' AND...GAME OVER!'
+            document.getElementById('scoreboard').innerHTML += ' GAME OVER! BETTER LUCK NEXT TIME'
 
             return;
 
@@ -416,6 +447,10 @@
         //
 
         gl.bindBuffer( gl.ARRAY_BUFFER, current_v_buffer );
+
+        if (current_i_buffer) {
+        	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
+				}
 
         // gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
 
@@ -443,7 +478,11 @@
         //
         // Bonus Part 3!
         //
-        gl.drawArrays( current_drawtype, 0, current_v_count/3, 0 );
+        if (current_objecttype === 'airplane') {
+					gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_BYTE, 0);
+				} else {
+        	gl.drawArrays( current_drawtype, 0, current_v_count/3, 0 );
+				}
 
       }
 
