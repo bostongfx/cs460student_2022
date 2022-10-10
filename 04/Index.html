@@ -125,12 +125,13 @@
       var v_buffer = gl.createBuffer(); // create
       gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
       gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
-      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // part 1 ends 
+      gl.bindBuffer( gl.ARRAY_BUFFER, null ); 
+      // part 1 ends 
       var offset = [0.,0.,0.];
       var color = [0.725,0.721,0.8,1.];
 
       // bonus part 3
-      
+
       return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLE_STRIP];
 
     }
@@ -138,17 +139,21 @@
     function createObstacle() {
 
       var vertices = new Float32Array( [ 0.0, 0.0, 0.0 ]);
+
+      // part 2 starts
       var offset = [(Math.random() * 1000), ((Math.random() * 2) - 1), 0.];
       var v_buffer = gl.createBuffer(); // create
       gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
       gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
       gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
-      var color = [0.5 + Math.random() / 2, 0.5 + Math.random() / 2, 0.5 + Math.random() / 2, 1.]; // color is never white or black
+      var color = [0.5 + Math.random() / 2, 0.5 + Math.random() / 2, 0.5 + Math.random() / 2, 1.]; 
+      //  part 2 ends
       return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS];
+
 
     }
     function calculateBoundingBox(vertices, offset) {
-
+// part 3 start
       var minx = 999;
       var maxx = -999;
       var miny = 999;
@@ -191,7 +196,8 @@
 
       return collision;
     }
-
+// part 3 ends
+// part 4 starts
     window.onkeyup = function(e) {
 
       if ( e.keyCode == 38 ) {
@@ -226,7 +232,7 @@
       step_x = 0.03;
       step_y = 0.03;
     };
-
+// part 4 ends
     var framecounter = 1;
 
     var level = 1;
@@ -237,7 +243,8 @@
         // roughly every five seconds with 30 FPS
         level++;
         // update score
-        document.getElementById('scoreboard').innerHTML = parseInt(document.getElementById('scoreboard').innerHTML) + 100;
+        document.getElementById('scoreboard').innerHTML = parseInt(document.getElementById('scoreboard').innerHTML) + 100; 
+        // bonus part 2
         framecounter = 0;
       }
 
@@ -254,7 +261,7 @@
         var current_drawtype = objects[o][5];
 
         var current_v_count = current_vertices.length;
-        
+        // bonus part 1
         if (current_objecttype == 'airplane') {
 
           // update offsets
@@ -298,7 +305,7 @@
         //
         
         gl.bindBuffer( gl.ARRAY_BUFFER, current_v_buffer );
-
+//bonus part 3
         // gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
 
         // find the attribute in the shader source
