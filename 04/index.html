@@ -145,7 +145,7 @@
       //
       // Part 1 Starts
       //
-      var vertices = new Float32Array(
+      /*var vertices = new Float32Array(
 				[
 					// Triangle 1
 					-.035,  .015, 0, // V0
@@ -164,9 +164,21 @@
 					 .025,  .005, 0, // V5
 					 .035, -.005, 0, // V6
 				]
+			);*/
+
+      var vertices = new Float32Array(
+				[
+					-.035,  .015, 0, // V0
+					-.035, -.005, 0, // V1
+					-.035, -.015, 0, // V2
+					-.010,  .005, 0, // V3
+					 .015, -.005, 0, // V4
+					 .025,  .005, 0, // V5
+					 .035, -.005, 0, // V6
+				]
 			);
 
-			/*
+
 			var indices = new Uint8Array(
 				[
 					0, 1, 4, // Triangle 1
@@ -175,19 +187,19 @@
 					4, 5, 6, // Triangle 4
 				]
 			);
-			*/
+
 
 			v_buffer = gl.createBuffer(); // create
 			gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer); // bind
 			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // put data in
 			gl.bindBuffer(gl.ARRAY_BUFFER, null); // unbind
 
-			/*
+
 			i_buffer = gl.createBuffer(); // create
 			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
 			gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
 			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
-			*/
+
 
       //
       // Part 1 Ends
@@ -199,7 +211,7 @@
       //
       // Bonus Part 3!
       //
-      return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES];
+      return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES, i_buffer];
 
     }
 
@@ -225,7 +237,7 @@
 
       var color = [Math.random(),Math.random(),Math.random(),1.];
 
-      return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS];
+      return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS, null];
 
     }
 
@@ -297,22 +309,22 @@
       if ( e.keyCode == 38 ) {
         // player pressed up
 
-				current_offset[1] += 0.1;
+				current_offset[1] += 0.05;
 
       } else if (e.keyCode == 40 ) {
         // player pressed down
 
-				current_offset[1] -= 0.1;
+				current_offset[1] -= 0.05;
 
       } else if (e.keyCode == 37 ) {
         // player pressed left
 
-				current_offset[0] -= 0.1;
+				current_offset[0] -= 0.05;
 
       } else if (e.keyCode == 39 ) {
         // player pressed right
 
-				current_offset[0] += 0.1;
+				current_offset[0] += 0.05;
 
       }
 
@@ -344,7 +356,6 @@
         // Bonus Part 2!
         //
 				speed += 0.01 * (framecounter + 1) / 5000;
-				console.log('increase speed to', speed);
 
         framecounter = 0;
 
@@ -363,6 +374,7 @@
         var current_offset = objects[o][3];
         var current_color = objects[o][4];
         var current_drawtype = objects[o][5];
+				var current_i_buffer = objects[o][6];
 
         var current_v_count = current_vertices.length;
 
@@ -428,8 +440,9 @@
 
         gl.bindBuffer( gl.ARRAY_BUFFER, current_v_buffer );
 
-        // gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
-
+				if (current_i_buffer) {
+        	gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
+				}
         // find the attribute in the shader source
         var a_position = gl.getAttribLocation( shaderprogram, 'a_position' );
 
@@ -454,8 +467,11 @@
         //
         // Bonus Part 3!
         //
-        gl.drawArrays( current_drawtype, 0, current_v_count/3, 0 );
-
+				if (current_objecttype === 'airplane') {
+					gl.drawElements(gl.TRIANGLES, 12, gl.UNSIGNED_BYTE, 0);
+				} else {
+        	gl.drawArrays( current_drawtype, 0, current_v_count/3, 0 );
+				}
       }
 
 
