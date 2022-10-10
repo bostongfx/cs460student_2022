@@ -149,56 +149,91 @@
       var i_buffer;
       var indices;
 
+      // vertices = new Float32Array([
+      //   -0.05,
+      //   0.05,
+      //   0.0, //0
+      //   -0.05,
+      //   0.01,
+      //   0.0, //1
+      //   -0.01,
+      //   0.01,
+      //   0.0, //2       // triangle 1
+
+      //   -0.05,
+      //   0.01,
+      //   0.0, //1
+      //   0.025,
+      //   0.01,
+      //   0.0, //3
+      //   -0.05,
+      //   -0.01,
+      //   0.0, //4       //triangle 2
+
+      //   0.025,
+      //   0.01,
+      //   0.0, //3
+      //   -0.05,
+      //   -0.01,
+      //   0.0, //4
+      //   0.025,
+      //   -0.01,
+      //   0.0, //5       //triangle 3
+
+      //   -0.05,
+      //   -0.01,
+      //   0.0, //4
+      //   0.025,
+      //   -0.01,
+      //   0.0, //5
+      //   -0.05,
+      //   -0.05,
+      //   0.0, //6        //triangle 4
+
+      //   0.025,
+      //   0.01,
+      //   0.0, //3
+      //   0.025,
+      //   -0.01,
+      //   0.0, //5
+      //   0.05,
+      //   -0.01,
+      //   0.0, //7        // triangle 5
+      // ]);
+
+      //for bonus part 3
       vertices = new Float32Array([
         -0.05,
         0.05,
         0.0, //0
-        -0.05,
-        0.01,
-        0.0, //1
-        -0.01,
-        0.01,
-        0.0, //2       // triangle 1
 
         -0.05,
         0.01,
         0.0, //1
-        0.025,
-        0.01,
-        0.0, //3
-        -0.05,
+
         -0.01,
-        0.0, //4       //triangle 2
+        0.01,
+        0.0, //2
 
         0.025,
         0.01,
         0.0, //3
-        -0.05,
-        -0.01,
-        0.0, //4
-        0.025,
-        -0.01,
-        0.0, //5       //triangle 3
 
         -0.05,
         -0.01,
         0.0, //4
-        0.025,
-        -0.01,
-        0.0, //5
-        -0.05,
-        -0.05,
-        0.0, //6        //triangle 4
 
         0.025,
-        0.01,
-        0.0, //3
-        0.025,
         -0.01,
         0.0, //5
+
+        -0.05,
+        -0.05,
+        0.0, //6
+
         0.05,
         -0.01,
-        0.0, //7        // triangle 5
+        0.0, //7
       ]);
 
       v_buffer = gl.createBuffer(); // create
@@ -221,7 +256,15 @@
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW); // put data in
       gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, null); // unbind
 
-      return ["airplane", v_buffer, vertices, offset, color, gl.TRIANGLES];
+      return [
+        "airplane",
+        v_buffer,
+        vertices,
+        offset,
+        color,
+        gl.TRIANGLES,
+        i_buffer,
+      ];
     }
 
     function createObstacle() {
@@ -241,7 +284,7 @@
       y_offset = random_number();
 
       // console.log(x_offset);
-      //   console.log(y_offset);
+      // console.log(y_offset);
       var offset = [x_offset, y_offset, 0];
 
       //
@@ -353,6 +396,7 @@
         var current_offset = objects[o][3];
         var current_color = objects[o][4];
         var current_drawtype = objects[o][5];
+        var current_i_buffer = objects[o][6];
 
         var current_v_count = current_vertices.length;
 
@@ -409,7 +453,7 @@
 
         gl.bindBuffer(gl.ARRAY_BUFFER, current_v_buffer);
 
-        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, current_i_buffer);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, current_i_buffer);
 
         // find the attribute in the shader source
         var a_position = gl.getAttribLocation(shaderprogram, "a_position");
@@ -435,12 +479,12 @@
         //
         // Bonus Part 3!
         //
-        gl.drawArrays(current_drawtype, 0, current_v_count / 3, 0);
-        // if (current_objecttype == "airplane") {
-        //   gl.drawElements(gl.TRIANGLES, 15, gl.UNSIGNED_BYTE, 0);
-        // } else {
-        //   gl.drawArrays(current_drawtype, 0, current_v_count / 3, 0);
-        // }
+        // gl.drawArrays(current_drawtype, 0, current_v_count / 3, 0);
+        if (current_objecttype == "airplane") {
+          gl.drawElements(gl.TRIANGLES, 15, gl.UNSIGNED_BYTE, 0);
+        } else {
+          gl.drawArrays(current_drawtype, 0, current_v_count / 3, 0);
+        }
       }
 
       requestAnimationFrame(animate);
