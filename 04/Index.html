@@ -10,7 +10,7 @@
         padding: 0;
         height: 100%;
         overflow: hidden !important;
-        background-image: url(https://animated-gif-creator.com/images/01/stunning-animated-gifs-of-backgrounds-from-old-fighting_97.gif);
+        background-image: url(https://animated-gif-creator.com/images/03/35-christian-video-background-video-loop-easy-worship_5.gif);
         background-repeat: no-repeat;
         background-size: 100% 100%;
       }
@@ -19,11 +19,14 @@
         width: 100%;
         height: 100%;
       }
-
+      #help {
+      margin-top: 12px;
+      font-size: 0.5em;
+    }
       #scoreboard {
         position: absolute;
-        top: 14px;
-        right:14px;
+        top: 20px;
+        right:20px;
       };
     </style>
   </head>
@@ -42,7 +45,7 @@
       final_position.z += u_offset.z;
 
       gl_Position = vec4( final_position, 1.);
-      gl_PointSize = 22.0;
+      gl_PointSize = 27.0;
     }
   </script>
 
@@ -66,7 +69,7 @@
 
     var step_x = 0.0;
     var step_y = 0.0;
-    var obstacle_factor = 6; // Hint for the bonus!
+    var obstacle_factor = 5; // Hint for the bonus!
     var direction_y = 0;
     var direction_x = 0;
 
@@ -119,35 +122,11 @@
 
 
       // create multiple objects
-      objects = [];
-      objects.push( createAirplane());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      
+     objects = [];
+    objects.push( createAirplane() );
+    for (var obs = 0; obs <= 9; obs++) {
+      objects.push( createObstacle() );
+    }
 
       animate();
 
@@ -201,7 +180,7 @@ var vertices = new Float32Array( [
       // Part 1 Ends
       //
 
-      var offset = [0.,0.,0.];
+      var offset = [-0.5,0.,0.];
       var color = [0.,0.,0.,1.];
 
       //
@@ -421,14 +400,15 @@ var vertices = new Float32Array( [
           current_offset[0] -= 0.001 *obstacle_factor;
           if(current_offset[0] < -1){
             current_offset[0] = 1;
-            current_offset[1] = (Math.random() * 2) -1;
+            current_offset[1] = (Math.random() * 1) -1;
           }
 
 
           // collision detection using the bounding box of this airplane
           if (detectCollision(bbox_plane, current_offset)) {
 
-            document.getElementById('scoreboard').innerHTML += ' !... Game Over Please Try Again.'
+            document.getElementById('scoreboard').innerHTML += ' GAME OVER'
+                document.getElementById('help').innerHTML = 'press SPACE to restart';
 
             return;
 
