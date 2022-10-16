@@ -44,10 +44,10 @@
     ></script>
 
     <script type="text/javascript">
-      var r, c, r2;
+      var r, c, c2, r2, cube, cube2;
 
       window.onload = function () {
-        //XTK
+        //XTK cube
         r = new X.renderer3D();
         r.container = "r1";
         r.init();
@@ -55,29 +55,29 @@
         r.add(c);
         r.render();
 
-        var controller = {
-          threejs_color: 0xffffff,
-        };
+        // GUI for XTK cube
         var gui = new dat.GUI();
         var cubeGui = gui.addFolder("XTK Cube");
         cubeGui.addColor(c, "color");
         cubeGui.add(c, "visible");
-        cubeGui.add(c, "opacity");
+        cubeGui.add(c, "opacity", 0, 1).onChange(function () {
+          c.modified();
+        });
+        cubeGui.open();
 
         // cubeGui.add(c, "lengthX", 0, 100).onChange(function () {
         //   c.modified();
         // });
 
-        //Three.js
+        // Three.js cube
         r2 = document.getElementById("r2"); // get the div container!!!
-        console.log(r2);
         scene = new THREE.Scene();
         fov = 75;
         ratio = r2.clientWidth / r2.clientHeight;
         zNear = 1;
         zFar = 10000;
         camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-        camera.position.set(0, 0, 100);
+        camera.position.set(0, 0, 75);
 
         renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setSize(r2.clientWidth, r2.clientHeight); // again use the container
@@ -86,7 +86,7 @@
         // light
         ambientLight = new THREE.AmbientLight(0x404040);
         scene.add(ambientLight);
-        light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light = new THREE.DirectionalLight(0xffffff, 20.0);
         light.position.set(10, 100, 10);
         scene.add(light);
 
@@ -99,9 +99,38 @@
         controls = new THREE.TrackballControls(camera, r2); // pass the container to the camera
         animate();
 
-        // GUI for Thress.js
+        var controller = {
+          threejs_color: 0xffffff,
+          rotateX: function () {
+            c.transform.rotateX(20);
+            cube.rotateX(20);
+          },
+          rotateY: function () {
+            c.transform.rotateY(20);
+            cube.rotateY(20);
+          },
+          rotateZ: function () {
+            c.transform.rotateZ(20);
+            cube.rotateZ(20);
+          },
+          "add new": function () {
+            c2 = new X.cube();
+            c2.center = [50, 50, 50];
+            r.add(c2);
+            r.render();
+
+            geometry = new THREE.BoxGeometry(20, 20, 20);
+            material = new THREE.MeshStandardMaterial();
+            cube2 = new THREE.Mesh(geometry, material);
+            cube2.position.set(50, 50, 50);
+            scene.add(cube2);
+          },
+        };
+
+        // GUI for Thress.js cube
         var threejsUI = gui.addFolder("Three.js Cube");
         threejsUI.add(cube, "visible");
+        // console.log(cube.material);
         threejsUI.add(cube.material, "opacity", 0, 1).onChange(function () {
           cube.material.transparent = true;
         });
@@ -109,13 +138,20 @@
           cube.material.color.set(controller.threejs_color);
         });
         threejsUI.open();
+
+        // GUI for both cube
+        var both = gui.addFolder("Both Cubes");
+        both.add(controller, "rotateX");
+        both.add(controller, "rotateY");
+        both.add(controller, "rotateZ");
+        both.add(controller, "add new");
+        both.open();
       };
 
       function animate() {
-        requestAnimationFrame(animate);
-
         controls.update();
         renderer.render(scene, camera);
+        requestAnimationFrame(animate);
       }
     </script>
   </head>
