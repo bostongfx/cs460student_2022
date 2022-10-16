@@ -1,0 +1,80 @@
+<html>
+  <head>
+
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js"></script>
+
+    <script type='text/javascript'>
+
+      window.onload = function() {
+
+        // create and initialize a 3D renderer
+        var r = new X.renderer3D();
+        r.init();
+        
+        // create a cube
+        cube = new X.cube();
+        
+        
+        r.add(cube); // add the cube to the renderer
+        r.render(); // ..and render it
+
+        var gui = new dat.GUI();
+
+        var cubeGui = gui.addFolder('cube');
+        
+        cubeGui.addColor(cube, 'color');
+        cubeGui.add(cube, 'visible');
+        cubeGui.add(cube, 'lengthX', 0, 200).onChange( function() {
+          cube.modified();
+        });
+        cubeGui.add(cube, 'lengthY', 0, 200).onChange( function() {
+          cube.modified();
+        });
+        cubeGui.add(cube, 'lengthZ', 0, 200).onChange( function() {
+          cube.modified();
+        });
+
+
+        pablo2 = {
+
+          'parameter1': 100
+
+        }
+
+        cubeGui.add(pablo2, 'parameter1', 0, 1000);
+
+        cubeGui.add(window, 'pablo');
+
+        cubeGui.open();
+
+
+
+      };
+
+      function pablo() {
+
+        console.log('pablo');
+
+      };
+
+
+
+    </script>
+
+
+  </head>
+
+  <body>
+  </body>
+</html>
