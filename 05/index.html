@@ -80,7 +80,7 @@
 
         // add cube to scene
         var geometry = new THREE.BoxBufferGeometry( 20, 20, 20);
-        var material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        var material = new THREE.MeshStandardMaterial({ color: 0xffffff, transparent: true });
         cube = new THREE.Mesh( geometry, material);
         scene.add(cube);
 
