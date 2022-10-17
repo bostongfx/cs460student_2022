@@ -142,15 +142,15 @@
                 newCube.center = [50, 50, 50];
                 r.add(newCube)
 
-			    new_Geometry = new THREE.BoxGeometry(20, 20, 20);
+			          new_Geometry = new THREE.BoxGeometry(20, 20, 20);
 
                 newJScolor = 0xffffff;
                 new_Material = new THREE.MeshStandardMaterial({color:JScolor});
-			    newJS_Cube = new THREE.Mesh(new_Geometry, new_Material);
+			          newJS_Cube = new THREE.Mesh(new_Geometry, new_Material);
 
-			    newJS_Cube.position.set(50, 50, 50);
+			          newJS_Cube.position.set(50, 50, 50);
 
-			    scene.add(newJS_Cube);
+			          scene.add(newJS_Cube);
                 addCube = true;
             }
             else {
@@ -170,17 +170,22 @@
           cube.modified();
       });
       cubeGUI.addColor(cube, 'color');
+      cubeGUI.open();
+
       //part2 r2 gui
       //var gui2 = new dat.GUI();
       var threejsUI = gui.addFolder('Three.js Cube')
 
       threejsUI.add(JS_cube, 'visible');
-      threejsUI.add(JS_cube.material, 'opacity', 0.0, 1.0).onChange(val => function(){
-        JS_cube.material.opacity = val;//[!] not working dont know why
+      threejsUI.add(JS_cube.material, 'opacity', 0, 1).onChange(function(){
+        JS_cube.material.transparent = true;
+        JS_cube.material.needsUpdate = true;
+        //JS_cube.material.opacity = val;//[!] not working dont know why, val => function () {...}
       });
       threejsUI.addColor(controller, 'threejs_color').onChange( function(){
         JS_cube.material.color.set(controller.threejs_color);
       });
+      threejsUI.open();
 
       //Q4-Q6 dat.gui end
       //Q7 rotate gui, Q8 add new cube
