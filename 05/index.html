@@ -1,0 +1,216 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+      #r1 {
+        width: 50%;
+        height: 100%;
+        float: left;
+      }
+      #r2 {
+        width: 50%;
+        height: 100%;
+        float: left;
+      }
+    </style>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js" type="text/javascript"></script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js" type="text/javascript"></script>
+    <script type="text/javascript">
+
+      var mesh = null;
+      var meshes = [];
+      var addCube = false;
+
+
+      window.onload = function() {
+
+      // create and initialize a 3D renderer
+      var r = new X.renderer3D();
+      r.container='r1';
+      r.init();
+  
+      // create a cube
+      cube = new X.cube();
+  
+      // setting the edge length can also be skipped since 20 is the default
+      cube.lengthX = cube.lengthY = cube.lengthZ = 20;
+  
+      // can also be skipped since [0,0,0] is the default center
+      cube.center = [0, 0, 0];
+  
+      // [1,1,1] (== white) is also the default so this can be skipped aswell
+      cube.color = [1, 1, 1];
+  
+      r.add(cube); // add the cube to the renderer
+      r.render(); // ..and render it
+      //XTK end
+
+
+        
+      //setup scene by using THREE js
+      scene = new THREE.Scene();
+
+      fov = 75;
+      //ratio = window.innerWidth / window.innerHeight;
+      //Q3 r2 part1
+      var r2 = document.getElementById('r2');
+      var ratio = r2.clientWidth / r2.clientHeight;
+        
+      //Q3 r2end part1
+      zNear = 1;
+      zFar = 10000;
+      // console.log(ratio);
+      camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+      camera.position.set( 0, 0, 100);
+
+      //Q3 r2 part2
+      //renderer = new THREE.WebGLRenderer();
+      //renderer.setSize( window.innerWidth, window.innerHeight );
+      //document.body.appendChild( renderer.domElement );
+      renderer = new THREE.WebGLRenderer({antialias:true});
+      renderer.setSize( r2.clientWidth, r2.clientHeight ); // again use the container
+      r2.appendChild( renderer.domElement );
+      //Q3 r2 part2 end
+
+      ambientLight = new THREE.AmbientLight();
+      scene.add( ambientLight );
+
+      light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+      light.position.set( 10, 100, 10 );
+      scene.add( light );
+
+
+      //
+      // The invisible plane
+      //
+      geometry = new THREE.PlaneGeometry( 10000, 10000 );
+      material = new THREE.MeshBasicMaterial( {
+        visible: false
+      });
+
+      invisible_plane = new THREE.Mesh( geometry, material );
+
+      scene.add( invisible_plane );
+
+
+
+      //controls = new THREE.TrackballControls( camera, renderer.domElement );
+      //Q3 r2 part3
+      controls = new THREE.TrackballControls( camera, r2 );
+
+	  var geometry = new THREE.BoxGeometry(20, 20, 20);
+      JScolor = 0xffffff;
+      material = new THREE.MeshStandardMaterial({color:JScolor});
+      JS_cube = new THREE.Mesh( geometry, material );
+
+      scene.add(JS_cube);
+      meshes.push(JS_cube);
+      //Q3 r2 part3 end
+
+      //Q5 Helper
+      var controller = { 
+        'threejs_color': 0xffffff,
+
+        'rotateX': function() {
+            cube.transform.rotateX(20);
+            JS_cube.rotateX(20);
+        },
+        'rotateY': function() {
+            cube.transform.rotateY(20);
+            JS_cube.rotateY(20);
+        },
+        'rotateZ': function() {
+            cube.transform.rotateZ(20);
+            JS_cube.rotateZ(20);
+        },
+
+        //add new cube
+        'add new': function() {
+            // TODO!
+            if (!addCube) {
+                newCube = new X.cube();
+                cube.lengthX = cube.lengthY = cube.lengthZ = 20;
+                newCube.center = [50, 50, 50];
+                r.add(newCube)
+
+			    new_Geometry = new THREE.BoxGeometry(20, 20, 20);
+
+                newJScolor = 0xffffff;
+                new_Material = new THREE.MeshStandardMaterial({color:JScolor});
+			    newJS_Cube = new THREE.Mesh(new_Geometry, new_Material);
+
+			    newJS_Cube.position.set(50, 50, 50);
+
+			    scene.add(newJS_Cube);
+                addCube = true;
+            }
+            else {
+                console.log('addCube done already.');
+            }
+        }
+      };
+      //Q5 helper end
+
+      //Q4-Q6 dat.gui
+      //part1 r1 gui
+      var gui = new dat.GUI();
+      var cubeGUI = gui.addFolder('XTK Cube')
+
+      cubeGUI.add(cube, 'visible');
+      cubeGUI.add(cube, 'opacity', 0.0, 1.0).onChange( function(){
+          cube.modified();
+      });
+      cubeGUI.addColor(cube, 'color');
+      //part2 r2 gui
+      //var gui2 = new dat.GUI();
+      var threejsUI = gui.addFolder('Three.js Cube')
+
+      threejsUI.add(JS_cube, 'visible');
+      threejsUI.add(JS_cube.material, 'opacity', 0.0, 1.0).onChange(val => function(){
+        JS_cube.material.opacity = val;//[!] not working dont know why
+      });
+      threejsUI.addColor(controller, 'threejs_color').onChange( function(){
+        JS_cube.material.color.set(controller.threejs_color);
+      });
+
+      //Q4-Q6 dat.gui end
+      //Q7 rotate gui, Q8 add new cube
+      var both = gui.addFolder('Both Cubes');
+      both.add(controller, 'rotateX');
+      both.add(controller, 'rotateY');
+      both.add(controller, 'rotateZ');
+      both.add(controller, 'add new');
+      both.open();
+      //Q7 rotate, Q8 add new cube end
+
+      animate();
+      //end setup scene
+
+
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        controls.update();
+        renderer.render( scene, camera );
+
+      };
+
+    </script>
+  </head>
+  <body>
+    <div id="r1"></div>
+    <div id="r2"></div>
+  </body>
+</html>
