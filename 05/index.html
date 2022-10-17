@@ -132,6 +132,7 @@
         threejsUI.add(cube, "visible");
         // console.log(cube.material);
         threejsUI.add(cube.material, "opacity", 0, 1).onChange(function () {
+          cube.material.needsUpdate = true;
           cube.material.transparent = true;
         });
         threejsUI.addColor(controller, "threejs_color").onChange(function () {
