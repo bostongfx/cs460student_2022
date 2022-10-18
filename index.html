@@ -1,550 +1,149 @@
 <html>
-  <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <meta content="utf-8" http-equiv="encoding">
-    <title>Vanilla WebGL!</title>
-    <style>
-      html, body { 
-        background-color:#000;
+	<head>
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<meta content="urf-8" http-equiv="encoding">
+
+	<style>
+	  html, body {
+        background-color: #000;
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
-        background-image: url(https://cs460.org/gfx/bg.gif);
-        background-repeat: no-repeat;
-        background-size: 100% 100%;
+        overflow: hidden !important;
       }
-
-      #c {
-        width: 100%;
-        height: 100%;
+	  #r1 {
+        width:50%;
+        height:100%;
+        float: left;
       }
-
-      #scoreboard {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-      };
-      #controller {
-        position: absolute;
-        bottom: 1%;
-        left: 1%;
+      #r2 {
+        width:50%;
+        height:100%;
+        float:left;
       }
-      #left{
-        position: relative;
-  
-        
-      }
-      #right{
-        position: relative;
-        bottom: 0px;
-        left: 22px;
-      
-        
-      }
-      #up{
-        position: relative;
-        bottom: 29px;
-        left: -40px;
-
-      
-      }
-      #down{
-        position: relative;
-        bottom: 0px;
-        left: -74px;
-       
-      }
-    };
     </style>
-  </head>
-  <script type="text/javascript" src="https://cs460.org/js/glmatrix.js"></script>
-  
-  <script id="vertexshader" type="glsl">
-    attribute vec3 a_position;
 
-    uniform vec3 u_offset;
-
-    void main(void) {
-
-      vec3 final_position = a_position;
-      final_position.x += u_offset.x;
-      final_position.y += u_offset.y;
-      final_position.z += u_offset.z;
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js"></script>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
     
-      gl_Position = vec4( final_position, 1.);
+    <script type="text/javascript">
     
-    }
-  </script>
-  
-  <script id="fragmentshader" type="glsl">
-    precision mediump float;
-
-    uniform vec4 u_color;
-
-    void main(void) {
-
-      gl_FragColor = u_color;
-
-    }
-  </script>
-  
-  <script>
-
-    var c, gl;
-    var v_shader, f_shader, shaderprogram;
-    var vertices, indices, v_buffer, i_buffer;
-
-    var step_x = 0.0;
-    var step_y = 0.0;
-    var obstacle_factor = 3; // Hint for the bonus!
-    var direction_y = 0;
-    var direction_x = 0;
-    var bullet = 0;
+    var r, c;
 
     window.onload = function() {
+      	r = new X.renderer3D();
+      	r.container='r1';
+      	r.init();
+      	c = new X.cube();
+      	r.add(c);
+      	r.render();
 
-      //************************************************************//
-      //
-      // INITIALIZE WEBGL
-      //
-      c = document.getElementById( 'c' ); // setup canvas
-      c.width = window.innerWidth;
-      c.height = window.innerHeight;
+      	c.color = [0.5, 0.2, 0.7];
 
-      gl = c.getContext( 'webgl' ); // setup GL context
-      gl.viewport(0, 0, c.width, c.height );
+    var r2 = document.getElementById('r2'); // get the div container!!! 
 
+    sence = new THREE.Scene();
 
-      //************************************************************//
-      //
-      // SHADERS
-      //
-      v_shader = gl.createShader( gl.VERTEX_SHADER );
-      f_shader = gl.createShader( gl.FRAGMENT_SHADER );
-      
-      // compile vertex shader
-      gl.shaderSource( v_shader, document.getElementById( 'vertexshader' ).innerText );
-      gl.compileShader( v_shader );
+    var fov = 75;
+    var zNear = 1;
+    var zFar = 10000;
 
-      if (!gl.getShaderParameter( v_shader, gl.COMPILE_STATUS)) {
-        console.log(gl.getShaderInfoLog( v_shader ));
-      }
+		var ratio = r2.clientWidth / r2.clientHeight; // use the container's clientWidth and clientHeight rather than window.innerWidth and window.innerHeight
+    	
+    camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+    camera.position.set(0, 0, 100);
 
-      // compile fragment shader
-      gl.shaderSource( f_shader, document.getElementById( 'fragmentshader' ).innerText );
-      gl.compileShader( f_shader );
+   	var renderer = new THREE.WebGLRenderer({antialias:true});
+   	renderer.setSize( r2.clientWidth, r2.clientHeight ); // again use the container
+  	r2.appendChild( renderer.domElement ); // and append the domElement to the container
 
-      if (!gl.getShaderParameter( f_shader, gl.COMPILE_STATUS)) {
-        console.log(gl.getShaderInfoLog( f_shader ));
-      }
-
-      // attach and link the shaders
-      shaderprogram = gl.createProgram();
-      gl.attachShader( shaderprogram, v_shader );
-      gl.attachShader( shaderprogram, f_shader );
-
-      gl.linkProgram( shaderprogram );
-
-      gl.useProgram( shaderprogram );
+    var ambientLight = new THREE.AmbientLight();
+		scence.add(ambientLight);
+		var light = new THREE.DirectionalLight( 0xffffff, 5.0);
+		light.position.set(10, 50, 10);
+		sence.add( light );
 
 
-      // create multiple objects
-      objects = [];
-      objects.push( createAirplane());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createObstacle());
-      objects.push( createlazer(bullet));
+		var geometry = new THREE.BoxBufferGeometry(20, 20, 20);
+		var material = new THREE.MeshStandardMaterial({ color: 0x007a00});
+		cube = new THREE.Mesh(geometry, material);
+		scene.add(cube);
 
-      animate();
+    controls = new THREE.TrackballControls( camera, r2 ); // pass the container to the camera
 
+    animate();
+
+        var controller = {
+          'threejs_color': 0xffffff,
+        	'rotateX': function() {
+        		c.transform.rotateX(20);
+        		cube.rotateX(20);
+        	},
+        	'rotateY': function() {
+        		c.transform.rotateY(20);
+        		cube.rotateY(20);
+        	},
+        	'rotateZ': function() {
+        		c.transform.rotateZ(20);
+        		cube.rotateZ(20);
+        	},
+        	'add new': function() {
+        		
+        		c2 = new X.cube();
+        		c2.center = [50, 50, 50];
+        		r.add(c2);
+            material = new THREE.MeshStandardMaterial( {color: 0xff0000} )
+        		cube2 = new THREE.Mesh( geometry, material);
+        		cube2.position.set(50, 50, 50);
+        		scene.add(cubes);
+        	}
+
+        	
+        };
     };
 
 
 
-    function createAirplane() {
+    var gui = new dat.GUI();
 
-    //
-    // Part 1 Starts
-    //
-    var vertices = new Float32Array( [ -0.50, 0.50, 0.0,
-                                       -0.50, -0.65, 0.0,
-                                       -0.15, 0.20, 0.0,
-                                      
-                                       0.55, 0.20, 0.0,
-                                       -0.50, -0.25, 0.0,
-                                       1.00, -0.25, 0.0,
+    var cube1 = gui.addFolder('XTK cube');
+    cube1.add(c, 'visible');
+    cube1.add(c, 'opacity', 0, 1);
+    cube1.addColor(c, 'color');
+    cube1.open();
 
-                                       -0.50, -0.25, 0.00, 
-                                       -0.15, 0.20, 0.00,
-                                        0.55, 0.20, 0.00,
-
-                                      -0.50, -0.25, 0.00, 
-                                       0.55, 0.20, 0.00,
-                                       0.55, 0.00, 0.00,
-
-                                    ] );
-
-    var indices = new Uint8Array( [ 0, 1, 2,     
-                                    2, 3, 4,     
-                                    3, 4, 5,    
-                                    ] );  
-
-
-    var v_buffer = gl.createBuffer(); // create
-    gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
-    gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
-    gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
-
-    var i_buffer = gl.createBuffer(); // create
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
-    gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
-
-      //
-      // Part 1 Ends
-      //
-
-      var offset = [0.,0.,0.];
-      var color = [0.,1.,1.,1.];
-
-      //
-      // Bonus Part 3!
-      //
-      return ['airplane', v_buffer, vertices, offset, color, gl.TRIANGLES, i_buffer, indices];
-
-    }
-
-
-
-    function createObstacle() {
-
-      var vertices = new Float32Array( [ 0.0, 0.0, 0.0 ]);
-
-      var v_buffer = gl.createBuffer(); // create
-      gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
-      gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
-      gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
-
-      //
-      // Part 2 Starts
-      //
-      // var offset = [0., 0., 0.];
-      var offset = [Math.random() * 2 - 1,Math.random() * 2 - 1, 0.];
-      
-      //
-      // Part 2 Ends
-      //
-
-      var color = [Math.random(),Math.random(),Math.random(),1.];
-      gl.drawArrays(gl.POINTS, 0, 9, 0)
-      return ['obstacle', v_buffer, vertices, offset, color, gl.POINTS];
-
-    }
     
-    function createlazer(bullet) {
+    var threejsUI = gui.addFolder('Three.js Cube');
+    threejsUI.add(cube, 'visible');
+    threejsUI.add(cube.material, 'opacity', 0, 1).onChange( function() {
+      cube.material.transparent = true;
+    });
+    threejsUI.addColor(controller, 'threejs_color').onChange( function() {
+                 cube.material.color.set( controller.threejs_color );
+               } );
+    threejsUI.open();
 
-   
-    var vertices = new Float32Array( [ -0.1, 0.05 * bullet, 0.0,
-                                       -0.1, -0.05 * bullet, 0.0,
-                                       0.1, 0.05 * bullet, 0.0,
-                                       0.1, 0.05 * bullet, 0.0,
-                                      ] );
-    var indices = new Uint8Array( [ 0, 1, 2,     
-                                    2, 3, 0,         
-                                    ] );         
-
-    var v_buffer = gl.createBuffer(); // create
-    gl.bindBuffer( gl.ARRAY_BUFFER, v_buffer ); // bind
-    gl.bufferData( gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW ); // put data in
-    gl.bindBuffer( gl.ARRAY_BUFFER, null ); // unbind
-
-    var i_buffer = gl.createBuffer(); // create
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
-    gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
-    gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
-
-      var offset = [objects[0][3][0] + .05,objects [0][3][1], 0];
-      var color = [0.6, 0.6, 0.2, 1.0];
-
-      return ['lazer', v_buffer, vertices, offset, color, gl.TRIANGLES, i_buffer, indices];
-
-    }
-
-    //
-    // Part 3 Starts (no coding required, just explanations in PDF)
-    //
-    function calculateBoundingBox(vertices, offset) {
-
-      var minx = 1000;
-      var maxx = -1000;
-      var miny = 1000;
-      var maxy = -1000;
-      var minz = 1000;
-      var maxz = -1000;
-
-      for (var v=0; v<vertices.length; v+=3) {
-
-        var currentx = vertices[v] + offset[0];
-        var currenty = vertices[v+1] + offset[1];
-        var currentz = vertices[v+2] + offset[2];
-
-        minx = Math.min( minx, currentx );
-        miny = Math.min( miny, currenty );
-        minz = Math.min( minz, currentz );
-
-        maxx = Math.max( maxx, currentx );
-        maxy = Math.max( maxy, currenty );
-        maxz = Math.max( maxz, currentz );
-
-      }
-
-      return [minx, maxx, miny, maxy, minz, maxz];
-
-    }
-
-    function detectCollision(bbox, point) {
-
-      var collision = false;
-
-      if (point[0] >= bbox[0] && point[0] <= bbox[1]) {
-        if (point[1] >= bbox[2] && point[1] <= bbox[3]) {
-          if (point[2] >= bbox[4] && point[2] <= bbox[5]) {
-
-            collision = true;
-
-          }
-        }
-      }
-
-      return collision;
-
-    }
-    //
-    // Part 3 Ends
-    //
-
-
-
-    //
-    // Part 4 Starts
-    //
-    window.onkeyup = function(e) {
-
-      if ( e.keyCode == 38 ) {
-        // player pressed up
-        step_y = 0.01;
-        direction_y = 1;
-        document.getElementById('up').style.color = "white";
-
-      } else if (e.keyCode == 40 ) {
-        // player pressed down
-        step_y = 0.01;
-        direction_y = -1;
-        document.getElementById('down').style.color = "white";
-
-
-      } else if (e.keyCode == 37 ) {
-        // player pressed left
-        step_x = 0.01;
-        direction_x = -1;
-        document.getElementById('left').style.color = "white";
-
-
-      } else if (e.keyCode == 39 ) {
-        // player pressed right
-        step_x = 0.01;
-        direction_x = 1;
-        document.getElementById('right').style.color = "white";
-      }
-        else if (e.keyCode == 32){
-        objects[objects.length-1] = createlazer(bullet);
-        document.getElementById('space').style.color = "white";
-      }
-
-    };
-    //
-    // Part 4 Ends
-    //
-    window.onkeyup = function(e) {
-
-      if ( e.keyCode == 38 ) {
-        // player pressed up
-        step_y = 0.0;
-        document.getElementById('up').style.color = "black";
-
-      } else if (e.keyCode == 40 ) {
-        // player pressed down
-        step_y = 0.0;
-        document.getElementById('down').style.color = "black";
-
-
-      } else if (e.keyCode == 37 ) {
-        // player pressed left
-        step_x = 0.0;
-        document.getElementById('left').style.color = "black";
-
-
-      } else if (e.keyCode == 39 ) {
-        // player pressed right
-        step_x = 0.0;
-        document.getElementById('right').style.color = "black";
-      }
-        else if (e.keyCode == 32){
-        document.getElementById('space').style.color = "black";
-      }
-
-    };
+    var both = gui.addFolder('Both Cubes');
+    both.add(controller, 'rotateX');
+    both.add(controller, 'rotateY');
+    both.add(controller, 'rotateZ');
+    both.add(controller, 'add new');
+    both.open();
     
 
 
+      function animate() {
+      	requestAnimationFrame(animate);
+      	controls.update();
+      	renderer.render(scene, camera);
+      };
 
-
-    var framecounter = 0;
-
-    function animate() {
-
-      framecounter += 1;
-
-      if (framecounter > 150) {
-
-        // roughly every five seconds with 30 FPS
-
-        // update score
-        document.getElementById('scoreboard').innerHTML = parseInt(document.getElementById('scoreboard').innerHTML) + 100;
-
-        //
-        // Bonus Part 2!
-        //
-
-
-        framecounter = 0;
-
-      }
-
-      gl.clearColor( 0., 0., 0., 0.)
-      gl.clear( gl.COLOR_BUFFER_BIT );
-
-
-
-      for( var o = 0; o < objects.length; o++ ) {
-
-        var current_objecttype = objects[o][0];
-        var current_v_buffer = objects[o][1];
-        var current_vertices = objects[o][2];
-        var current_offset = objects[o][3];
-        var current_color = objects[o][4];
-        var current_drawtype = objects[o][5];
-
-        var current_v_count = current_vertices.length;
-        
-        if (current_objecttype == 'airplane') {
-
-          // update offsets
-          if ( current_offset[0] <= -1. ) {
-            // bumped into left end of screen
-            direction_x = 1;
-          } else if ( current_offset[0] >= 1. ) {
-            // bumped into right end of screen
-            direction_x = -1;
-          }
-          current_offset[0] += direction_x*step_x;
-
-          if ( current_offset[1] <= -1. ) {
-            // bumped into left end of screen
-            direction_y = 1;
-          } else if ( current_offset[1] >= 1. ) {
-            // bumped into right end of screen
-            direction_y = -1;
-          }
-          current_offset[1] += direction_y*step_y;
-
-
-          // get the bounding box of this airplane
-          var bbox_plane = calculateBoundingBox( current_vertices, current_offset);
-
-
-        } else if (current_objecttype == 'obstacle') {
-
-
-          //
-          // Bonus Part 1!
-          //
-
-
-          // collision detection using the bounding box of this airplane
-          if (detectCollision(bbox_plane, current_offset)) {
-
-            document.getElementById('scoreboard').innerHTML += ' AND...GAME OVER!'
-
-            return;
-
-          }
-
-
-        }
-
-
-        //************************************************************//
-        //
-        // CONNECT SHADER WITH GEOMETRY
-        //
-        
-        gl.bindBuffer( gl.ARRAY_BUFFER, current_v_buffer );
-
-        // gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, current_i_buffer );
-
-        // find the attribute in the shader source
-        var a_position = gl.getAttribLocation( shaderprogram, 'a_position' );
-
-        gl.vertexAttribPointer( a_position, 3, gl.FLOAT, false, 0, 0 );
-
-        gl.enableVertexAttribArray ( a_position );
-
-        // find the uniform in the shader source
-        var u_offset = gl.getUniformLocation( shaderprogram, 'u_offset' );
-
-        gl.uniform3fv( u_offset, current_offset)
-
-        var u_color = gl.getUniformLocation( shaderprogram, 'u_color' );
-        
-        gl.uniform4fv( u_color, new Float32Array(current_color) );
-
-        //************************************************************//
-        //
-        // DRAW!
-        //
-
-        //
-        // Bonus Part 3!
-        //
-        gl.drawArrays( current_drawtype, 0, current_v_count/3, 0 );
-
-      }
-
-
-      requestAnimationFrame(animate);
-
-    };
-
-  </script>
-  <body>
-    <canvas id="c"></canvas>
-    <div id="scoreboard">0</div>
-    <div id="controller">
-      [<button id="left" onclick="window.location.reload()">LEFT</button>] 
-      [<button id="right" onclick="window.location.reload()">RIGHT</button>]
-      [<button id="up" onclick="window.location.reload()">UP</button>]
-      [<button id="down" onclick="window.location.reload()">DOWN</button>]
-      [<button id="space" onclick="window.location.reload()">SPACE</button>]
-    </div>
-  </body>
+    </script>
+	</head>
+	   <body>
+		    <div id="r1"></div>
+		    <div id="r2"></div>
+	   </body>
 </html>
-
