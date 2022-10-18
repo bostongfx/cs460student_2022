@@ -1,128 +1,151 @@
 <html>
   <head>
-    <meta charset="UTF-8" />
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+
     <style>
       html, body { 
-        background-color:#000;
+        background-color: #000;
         margin: 0;
         padding: 0;
         height: 100%;
         overflow: hidden !important;  
       }
+
+      #r1 {
+        width: 50%;
+        height: 100%;
+        float: left;
+      }
+
+      #r2 {
+        width: 50%;
+        height: 100%;
+        float: left;
+      }
     </style>
+
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js"></script>
     <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
     <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
-    <script>
+
+
+    <script type="text/javascript">
+
+      var r, c;
       window.onload = function() {
 
+        r = new X.renderer3D();
+        r.container = 'r1'; 
+        r.init();
+
+        c = new X.cube();
+        r.add(c);
+        r.render();
+        r2 = document.getElementById('r2'); 
         scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera( 75, r2.clientWidth / r2.clientHeight, 1, 10000 );
+        camera.position.set( 0, 0, 100 );
 
-        fov = 75;
-        ratio = window.innerWidth / window.innerHeight;
-        zNear = 1;
-        zFar = 10000;
-        // console.log(ratio);
-        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-        camera.position.set( 0, 0, 100);
-
-        renderer = new THREE.WebGLRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( renderer.domElement );
-        
-        geometry = new THREE.PlaneGeometry(10000, 10000);
-        material = new THREE.MeshBasicMaterial({ visible : false});
-        invisible_plane = new THREE.Mesh( geometry, material );
-        var count = 0;
-        scene.add( invisible_plane );
-        renderer.domElement.onmousemove = function(e) {
-          if (!e.shiftKey) {
-            e.preventDefault();
-            return false;
-          }
-          console.log('yes! you clicked!');
-          console.log(count = count + 1);
-          pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
-
-          console.log('Pixel coordinates', pixel_coords);
-
-          vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
-                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
-
-          console.log('Viewport coordinates', vp_coords);
-
-          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
-
-          raycaster = new THREE.Raycaster();
-          raycaster.setFromCamera(vp_coords_near, camera);
-          intersects = raycaster.intersectObject(invisible_plane);
-
-          console.log('Ray to Invisible Plane', intersects[0].point);
-          p = intersects[0].point;
-          geometry_1 = new THREE.SphereBufferGeometry( 60, 60, 60);
-          material_1 = new THREE.MeshStandardMaterial({ color: 0x00ffff });
-          sphere = new THREE.Mesh( geometry_1, material_1);
-          scene.add(sphere);
-          geometry_2 = new THREE.OctahedronBufferGeometry( 80);
-          material_2 = new THREE.MeshStandardMaterial({ color: 0x0f0f0f });
-          octahedron = new THREE.Mesh( geometry_2, material_2);
-          scene.add(octahedron);
-          geometry_3 = new THREE.ConeBufferGeometry( 90, 90);
-          material_3 = new THREE.MeshStandardMaterial({ color: 0xff00fff });
-          cone = new THREE.Mesh( geometry_3, material_3);
-          scene.add(cone);
-          sphere.position.set(p.x, p.y, p.z);
-          octahedron.position.set(p.x, p.y, p.z);
-          cone.position.set(p.x, p.y, p.z);
-
-
-        }
-
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize( r2.clientWidth, r2.clientHeight );
+        r2.appendChild( renderer.domElement );
 
         ambientLight = new THREE.AmbientLight( 0x404040 );
         scene.add( ambientLight );
 
         light = new THREE.DirectionalLight( 0xffffff, 5.0 );
-        light.position.set( 10, 100, 1000 );
+        light.position.set( 10, 100, 10 );
         scene.add( light );
 
+        var geometry = new THREE.BoxBufferGeometry( 20, 20, 20 );
+        var material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+        cube = new THREE.Mesh( geometry, material );
 
-        geometry_1 = new THREE.SphereBufferGeometry( 60, 60, 60);
-        material_1 = new THREE.MeshStandardMaterial({ color: 0x00ffff });
-        sphere = new THREE.Mesh( geometry_1, material_1);
-        scene.add(sphere);
-        geometry_2 = new THREE.OctahedronBufferGeometry( 80);
-        material_2= new THREE.MeshStandardMaterial({ color: 0x0f0f0f });
-        octahedron = new THREE.Mesh( geometry_2, material_2);
-        scene.add(octahedron);
-        geometry_3 = new THREE.ConeBufferGeometry( 90, 90);
-        material_3 = new THREE.MeshStandardMaterial({ color: 0xff00fff });
-        cone = new THREE.Mesh( geometry_3, material_3);
-        scene.add(cone);
-
-
+        scene.add( cube );
 
         controls = new THREE.TrackballControls( camera, renderer.domElement );
 
         animate();
 
+        function addXTK(){
+          c2 = new X.cube();
+          c2.center = [50,50,50];
+          r.add(c2);
+          r.render;
+        }
+    
+        function addThreeJS(){
+          geometry = new THREE.BoxBufferGeometry(3, 3, 3);
+          material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+          cube2 = new THREE.Mesh( geometry, material);
+          cube2.position.set(50,50,50);
+          scene.add(cube2);
+        }
+       
+        controller = {
+          'add new' : function(){
+            addXTK(); 
+            addThreeJS(); 
+          },
+          
+          'threejs_color': 0xffffff,
 
-        ;
+          'rotateX': function() {
+            c.transform.rotateX(20);
+            cube.rotateX(20); 
+          },
+
+          'rotateY': function() {
+            c.transform.rotateY(20);
+            cube.rotateY(20);
+          },
+
+          'rotateZ': function() {
+            c.transform.rotateZ(20);
+            cube.rotateZ(20);
+          }
+        }
 
 
+        var gui = new dat.GUI();
+        var cubeGui = gui.addFolder('XTK Cube');
+        cubeGui.add(c, 'visible');
+        cubeGui.add(c, 'opacity', 0, 1);
+        cubeGui.addColor(c, 'color');
 
+        var threejsUI = gui.addFolder('Three.js Cube');
+        threejsUI.add(cube, 'visible');
+        threejsUI.add(cube.material, 'opacity', 0, 1).onChange( function() {
+          cube.material.transparent = true;
+        });       
+        threejsUI.addColor(controller, 'threejs_color').onChange( function() {
+          cube.material.color.set( controller.threejs_color );
+        } );
+        threejsUI.open();
 
+        var both = gui.addFolder('Both Cubes');
+        both.add(controller, 'rotateX');
+        both.add(controller, 'rotateY');
+        both.add(controller, 'rotateZ');
+        both.add(controller, 'add new');
+        both.open();
       };
 
       function animate() {
-
         requestAnimationFrame( animate );
-
         controls.update();
         renderer.render( scene, camera );
-
       };
 
     </script>
+
   </head>
-  <body></body>
-</html> 
+
+  <body>
+    <div id='r1'></div>
+    <div id='r2'></div>
+  </body>
+
+</html>
