@@ -41,7 +41,7 @@
                     // Setup Three.js scene
                     var r2 = document.getElementById("r2"); 
                     scene = new THREE.Scene();
-                    var fov = 80;
+                    var fov = 81;
                     var zNear = 1;
                     var zFar = 8000;
                     var ratio = r2.clientWidth / r2.clientHeight;
@@ -132,6 +132,7 @@
                     });
                     threejsUI.open();
                     // Extend the helper object for dat.GUI and rotate both cubes
+
                     var both = gui.addFolder("Both Cubes");
                     both.add(controller, "rotateX");
                     both.add(controller, "rotateY");
