@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		
+
+		<style>
+			html, body {
+				background-color: #000;
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden !important;
+			}
+
+			#r1 {
+				width: 50%;
+				height: 100%;
+				float: left;
+			}
+
+			#r2 {
+				width: 50%;
+				height: 100%;
+				float: left;
+			}
+		</style>
+
+<script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+<script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js" type="text/javascript"></script>
+<script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js" type="text/javascript"></script>
+
+
+		<script type="text/javascript">
+			window.onload = function() {
+				xRender = new X.renderer3D();
+				xRender.container = 'r1';
+				xRender.init();
+
+				r2 = document.getElementById('r2');
+
+				threeScene = new THREE.Scene();
+
+				fov = 75;
+				ratio = r2.clientWidth / r2.clientHeight;
+				zNear = 1;
+				zFar = 10000;
+				threeCamera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+				threeCamera.position.set(0, 0, 75);
+
+				threeRender = new THREE.WebGLRenderer({ antialias: true });
+				threeRender.setSize(r2.clientWidth, r2.clientHeight);
+				r2.appendChild(threeRender.domElement);
+
+				ambientLight = new THREE.AmbientLight(0x808080, 1);
+				threeScene.add(ambientLight);
+				directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+				directionalLight.position.set(0, 0, 25);
+				threeScene.add(directionalLight);
+
+				threeControls = new THREE.TrackballControls(threeCamera, r2);
+				c = new X.cube();
+				xRender.add(c);
+				c.center = [0, 0, 0];
+				xRender.camera.position = [0, 0, -100];
+
+				geometry = new THREE.BoxBufferGeometry(20, 20, 20);
+				material = new THREE.MeshStandardMaterial({ color: 0xffffff });
+				threeCube = new THREE.Mesh(geometry, material);
+				threeScene.add(threeCube);  
+
+				gui = new dat.GUI();
+
+				var controller = {
+					'threejs_color': 0xffffff,
+					
+					'rotateX': function() {
+						c.transform.rotateX(20);
+						threeCube.rotateX(20);
+					},
+					'rotateY': function() {
+						c.transform.rotateY(20);
+						threeCube.rotateY(20);
+					},
+					'rotateZ': function() {
+						c.transform.rotateZ(20);
+						threeCube.rotateZ(20);
+					},
+					'add new': function() {
+						var pos = [50, 50, 50];
+
+						newXtkCube = new X.cube();
+						newXtkCube.center = pos;
+						xRender.add(newXtkCube);
+
+						newMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+						newThreeCube = new THREE.Mesh(geometry, newMaterial);
+						newThreeCube.position.set(pos[0], pos[1], pos[2]);
+						threeScene.add(newThreeCube);
+					}
+				}
+        var xtkGui = gui.addFolder('XTK cube');
+				xtkGui.open();
+				xtkGui.add(c, 'visible');
+				xtkGui.add(c, 'opacity', 0, 1);
+				xtkGui.addColor(c, 'color');
+
+				var threejsUI = gui.addFolder('Three.js cube');
+				threejsUI.open();
+				threejsUI.add(threeCube, 'visible');
+				threejsUI.add(threeCube.material, 'opacity', 0, 1).onChange(function() {
+					threeCube.material.transparent = true
+				});
+				threejsUI.addColor(controller, 'threejs_color').onChange(function() {
+					threeCube.material.color.set(controller.threejs_color)
+				});
+
+				var both = gui.addFolder('Both cubes');
+				both.open();
+				both.add(controller, 'rotateX');
+				both.add(controller, 'rotateY');
+				both.add(controller, 'rotateZ');
+				both.add(controller, 'add new');
+				xRender.render();
+				animate(); }
+			function animate() {
+				requestAnimationFrame(animate);
+				threeControls.update();
+				threeRender.render(threeScene, threeCamera);
+			};
+		</script>
+	</head>
+	<body>
+		<div id="r1"></div>
+		<div id="r2"></div>
+	</body>
+</html>
