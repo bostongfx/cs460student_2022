@@ -1,0 +1,147 @@
+<httml>
+    <head>
+        <style>
+            html,
+            body {
+                background-color: #000;
+                margin: 0;
+                padding: 0;
+                height: 100%;
+                overflow: hidden !important;
+            }
+
+            #r1 {
+                width: 50%;
+                height: 100%;
+                float: left;
+            }
+
+            #r2 {
+                width: 50%;
+                height: 100%;
+                float: left;
+            }
+        </style>
+        <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+        <script type="text/javascript" src="https://get.goXTK.com/xtk_xdat.gui.js"></script>
+
+        <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+        <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+
+        <script type='text/javascript'>
+            window.onload = function () {
+                //creat 3D renderer
+                r = new X.renderer3D();
+                    r.container = "r1";
+                    r.init();
+                    c = new X.cube();
+                    r.add(c);
+                    r.render();
+
+                    // Setup Three.js scene
+                    var r2 = document.getElementById("r2"); 
+                    scene = new THREE.Scene();
+                    var fov = 80;
+                    var zNear = 1;
+                    var zFar = 8000;
+                    var ratio = r2.clientWidth / r2.clientHeight;
+                    var camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+                    camera.position.set(0, 0, 150);
+                    var renderer = new THREE.WebGLRenderer({antialias: true });
+                    renderer.setSize(r2.clientWidth, r2.clientHeight); 
+                    r2.appendChild(renderer.domElement); 
+                    var ambientLight = new THREE.AmbientLight(0x404040);
+                    scene.add(ambientLight);
+                    var Light = new THREE.DirectionalLight(0xffffff, 10.0);
+                    Light.position.set(10, 80, 10);
+                    scene.add(Light);
+                    var controls = new THREE.TrackballControls(camera, r2); 
+                    var geometry = new THREE.BoxGeometry(20, 20, 20);
+                    var material = new THREE.MeshStandardMaterial({
+                    color: 0xffffff});
+                    var cube = new THREE.Mesh(geometry, material);
+                    scene.add(cube);
+                    animate();
+                    // amimation loop
+                    function animate() {
+                    requestAnimationFrame(animate);
+                        controls.update();
+                        renderer.render(scene, camera);
+                    }
+
+                    // Introduce the helper object for dat.GUI
+                    var controller = {
+                    threejs_color: 0xffffff,
+                        rotateX: function () {
+                        c.transform.rotateX(20);
+                        cube.rotateX(20);
+                        },
+                        rotateY: function () {
+                        c.transform.rotateY(20);
+                        cube.rotateY(20);
+                        },
+                        rotateZ: function () {
+                        c.transform.rotateZ(20);
+                        cube.rotateZ(20);
+                        },
+
+                        // adds a new cube
+                        "add new": function () {
+                        c1 = new X.cube();
+                            c1.center = [50, 50, 50];
+                            r.add(c1);
+
+                            geometry = new THREE.BoxBufferGeometry(22, 20, 20);
+                            material = new THREE.MeshStandardMaterial({
+                    color: 0xffffff,
+                                wireframe: false,
+                            });
+                            cube2 = new THREE.Mesh(geometry, material);
+                            cube2.position.set(50, 50, 50);
+                            scene.add(cube2);
+
+                            geometry = new THREE.PlaneBufferGeometry(10000, 10000);
+                            material = new THREE.MeshBasicMaterial({
+                                visible: false,
+                            });
+
+                            invisible_plane = new THREE.Mesh(geometry, material);
+
+                            scene.add(invisible_plane);
+
+                            controls = new THREE.TrackballControls(camera, r2);
+                  
+                       
+                        },
+                    };
+
+                    // Connect XTK to dat.GUI to control cube properties
+                    var gui = new dat.GUI();
+                    var cubeGui = gui.addFolder("cube");
+                    cubeGui.add(c, "visible");
+                    cubeGui.addColor(c, "color");
+                    cubeGui.add(c, "opacity", 0, 1);
+                    // Connect Three.js to dat.GUI to control cube properties
+                    var threejsUI = gui.addFolder("Three.js Cube");
+                    threejsUI.add(cube, "visible");
+                    threejsUI.add(cube.material, "opacity", 0, 1).onChange(function () {
+                    cube.material.transparent = true;
+                    });
+                    threejsUI.addColor(controller, "threejs_color").onChange(function () {
+                    cube.material.color.set(controller.threejs_color);
+                    });
+                    threejsUI.open();
+                    // Extend the helper object for dat.GUI and rotate both cubes
+                    var both = gui.addFolder("Both Cubes");
+                    both.add(controller, "rotateX");
+                    both.add(controller, "rotateY");
+                    both.add(controller, "rotateZ");
+                    both.add(controller, "add new");
+                    both.open();
+                };</script>
+    </head>
+<body>
+    <div id="r1"></div>
+    <div id="r2"></div>
+</body>
+ </httml>
