@@ -37,9 +37,9 @@ window.onload = function() {
     r1.container = document.getElementById("r1");
     r1.init();
     r1.camera.position = [0, 0, -100];
-    var c = new X.cube();
-    c.center = [0, 0, 0];
-    r1.add(c);
+    var xtk = new X.cube();
+    xtk.center = [0, 0, 0];
+    r1.add(xtk);
     r1.render();
 
     // part3 : Setup the Three.js
@@ -57,17 +57,18 @@ window.onload = function() {
     renderer = new THREE.WebGLRenderer();
     renderer.setSize(r2.clientWidth, r2.clientHeight); // again use the container
     r2.appendChild(renderer.domElement); // and append the domElement to the container
-        
+    
+    // light 
     ambientLight = new THREE.AmbientLight();
     scene.add(ambientLight);
-
+    
     light = new THREE.DirectionalLight(0xffffff, 5.0);
     light.position.set(10, 100, 10);
     scene.add(light);
 
 
     // Create cube
-    geometry = new THREE.BoxBufferGeometry(25, 25, 25);
+    geometry = new THREE.BoxBufferGeometry(20, 20, 20);
     material = new THREE.MeshStandardMaterial( {color: 0xffffff });
     cube = new THREE.Mesh(geometry, material);
     scene.add(cube);
@@ -107,9 +108,9 @@ window.onload = function() {
 
     var gui = new dat.GUI();
     var cube1 = gui.addFolder('XTK Cube');
-    cube1.add(c, 'visible');
-    cube1.add(c, 'opacity', 0, 1);
-    cube1.addColor(c, 'color');
+    cube1.add(xtk, 'visible');
+    cube1.add(xtk, 'opacity', 0, 1);
+    cube1.addColor(xtk, 'color');
     cube1.open();
 
     var threejsUI = gui.addFolder('Three.js Cube');
