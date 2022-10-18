@@ -1,3 +1,3 @@
-Assignment 3 - due 9/26 !
+Assignment 4: WebGL without a framework!
 name:shen xie
 
