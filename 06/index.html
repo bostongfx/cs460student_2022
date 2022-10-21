@@ -29,7 +29,7 @@
 
       var scene, camera, renderer, ambientLight, light, controls;
       var floor;
-      var controller, effect;
+      var robot, controller, effect;
 
       window.onload = function() {
 
@@ -71,13 +71,16 @@
 
 
         // ROBOT GOES HERE!
-        var robot = new Robot(0, 0, 0);
+        robot = new Robot(0, 0, 0);
         robot.show(scene);
 
 
         // dat.gui
         controller = {
           anaglyph: false,
+          raise_left_arm: false,
+          lower_left_arm: false,
+          kick: false,
         }
 
         var gui = new dat.GUI();
@@ -90,6 +93,18 @@
         moving.add(robot.head.position, "y", -1000, 1000);
         moving.add(robot.head.position, "z", -1000, 1000);
         moving.open();
+
+        var anims = gui.addFolder("Animation");
+        anims.add(controller, 'raise_left_arm').onChange(() => {
+          robot.raise_left_arm();
+        });
+        anims.add(controller, 'lower_left_arm').onChange(() => {
+          robot.lower_left_arm();
+        });
+        anims.add(controller, 'kick').onChange(() => {
+          robot.kick();
+        });
+        anims.open();
         // end dat.gui
 
 
@@ -101,6 +116,8 @@
       function animate() {
 
         requestAnimationFrame( animate );
+
+        robot.onAnimate();
 
         controls.update();
         if (controller.anaglyph) {
