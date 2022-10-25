@@ -1,5 +1,3 @@
-var T = -Math.PI;
-
 Robot = function (x, y, z) {
   //head
   this.head = new THREE.Bone();
@@ -98,7 +96,11 @@ Robot = function (x, y, z) {
   Robot.prototype.kick = function () {
     this.movement = "kick";
   };
+  Robot.prototype.kick_back = function () {
+    this.movement = "kick back";
+  };
   Robot.prototype.onAnimate = function () {
+    var T = -Math.PI;
     if (this.movement == "raise left arm") {
       q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
       this.left_upper_arm.quaternion.slerp(q, 0.1);
@@ -108,12 +110,16 @@ Robot = function (x, y, z) {
     } else if (this.movement == "kick") {
       // ... TODO slerping and check once it is done for a backwards slerp
       // you can use the identity quaternion for a backwards slerp
-      q = new THREE.Quaternion(Math.sin(T / 4), 0, 0, Math.cos(T / 4));
-      this.right_upper_leg.quaternion.slerp(q, 0.2);
-      if (q.w < 0.72) {
-        q2 = new THREE.Quaternion(0, 0, 0, 1);
-        this.right_upper_leg.quaternion.slerp(q2, 0.05);
+      console.log(this.right_upper_leg.quaternion.w);
+      if (this.right_upper_leg.quaternion.w < 0.72) {
+        this.movement = "kick back";
+      } else {
+        q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
+        this.right_upper_leg.quaternion.slerp(q, 0.2);
       }
+    } else if (this.movement == "kick back") {
+      q = new THREE.Quaternion(0, 0, 0, Math.cos(T / 2));
+      this.right_upper_leg.quaternion.slerp(q, 0.2);
     }
   };
 };

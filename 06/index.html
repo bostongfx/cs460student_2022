@@ -47,7 +47,7 @@
         var zNear = 1;
         var zFar = 10000;
         camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-        camera.position.set(0, 0, 500);
+        camera.position.set(0, 0, 300);
 
         renderer = new THREE.WebGLRenderer({ alpha: true });
         renderer.setSize(window.innerWidth, window.innerHeight);
@@ -121,11 +121,11 @@
         controls.update();
 
         if (controller.anaglyph) {
-          effect.render(scene, camera);
           renderer.setClearAlpha(1);
+          effect.render(scene, camera);
         } else {
-          renderer.render(scene, camera);
           renderer.setClearAlpha(0);
+          renderer.render(scene, camera);
         }
       }
     </script>
