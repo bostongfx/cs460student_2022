@@ -7,7 +7,7 @@ Robot = function(x, y, z) {
   
   
 	this.neck = new THREE.Bone();
-	this.neck.position.y = -20;
+	this.neck.position.y = -10;
 	this.head.add( this.neck );
   
 	// LEFT ARM
@@ -81,109 +81,106 @@ Robot = function(x, y, z) {
   
   };
   
+  // Robot.prototype.show = function(scene) {
+  
+  //   // create group and point to the robot head
+  //   this.group = new THREE.Group();
+  //   this.group.add( this.head );
+  //   scene.add( this.group );
+  
+  //   // use the skeleton helper to visualize the skeleton
+  //   this.helper = new THREE.SkeletonHelper( this.group );
+  //   this.helper.material.linewidth = 3;
+  //   scene.add( this.helper );
+  
+  //   // no movement by default
+  //   this.movement = '';
+  
+  // };
+  
+  // Part 8 
   Robot.prototype.show = function(scene) {
   
-	// create group and point to the robot head
-	this.group = new THREE.Group();
-	this.group.add( this.head );
-	scene.add( this.group );
+	var rGroup = new THREE.Group();
+	rGroup.add( this.head );
   
-	// use the skeleton helper to visualize the skeleton
-	this.helper = new THREE.SkeletonHelper( this.group );
-	this.helper.material.linewidth = 3;
-	scene.add( this.helper );
+	var helper = new THREE.SkeletonHelper( rGroup );
+	helper.material.linewidth = 30; // make the skeleton thick
   
-	// no movement by default
-	this.movement = '';
+	scene.add(rGroup);
+	scene.add(helper);
   
   };
   
-  Robot.prototype.raiseLeftArm = function() {
   
-	this.movement = 'raise_left_arm';
+  
+  Robot.prototype.raise_left_arm = function() {
+  
+	this.movement = 'raise left arm';
   
   };
   
-  Robot.prototype.lowerLeftArm = function() {
-  
-	  this.movement = 'lower_left_arm';
-  
+  Robot.prototype.lower_left_arm = function() {
+	  this.movement = 'lower left arm';
   };
   
   Robot.prototype.kick = function() {
-  
 	  this.movement = 'kick';
-  
   };
   
-  Robot.prototype.dance = function() { //Credit to Alvin
-	  var tree = this
-	  setInterval(function() {
-		  var num = Math.floor(Math.random() * 3);
-		  if (num == 0) {
-  
-			  tree.raiseLeftArm();
-  
-		  } else if (num == 1) {
-  
-			  tree.lowerLeftArm();
-  
-		  } else if (num == 2) {
-  
-			  tree.kick();
-  
-		  }
-	  }, 45);
+  Robot.prototype.dance = function() {
+	  this.movement = 'dance';
   };
   
   
-  Robot.prototype.onAnimate = function() {
   
-	if (this.movement == 'raise_left_arm') { //animate raising the left arm
+  Robot.prototype.onAnimate = function(){
   
-	  var T = -Math.PI;
-	  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
-										  x = Math.sin(T/2),   // x
-										  y = 0,               // y
-										  z = 0,               // z
-										  w = Math.cos(T/2)),  // w
-										  0.1 );
+	  if ( this.movement == 'raise left arm' ) {
+		  T = Math.PI 
   
+		  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
+			  Math.sin(T/2) ,
+			  0,
+			  0,
+			  Math.cos(T/2),
+			  ), 0.01 );
   
-	} else if (this.movement == 'lower_left_arm') { //animate lowering the left arm
-	  var T = -Math.PI;
-	  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
-										   x = 0,   			   // x
-										   y = 0,               // y
-										   z = 0,               // z
-										   w = Math.cos(T/2)),  // w
-										  0.1 );
+	  }else if(this.movement == 'lower left arm'){
+		  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
+			  0,0,0,1), 0.01 );
   
-	} else if (this.movement == 'kick') { //animate kicking
+	  }else if(this.movement == 'kick'){
+		  T = Math.PI;
   
-	  // check if slerp reached almost the end
-	  if (this.right_upper_leg.quaternion.w < 0.72) {
+		  this.left_upper_leg.quaternion.slerp( new THREE.Quaternion(
+			  Math.sin(T/2),
+			  0,
+			  Math.sin(T/2),
+			  Math.cos(T/2),
+			  ), 0.01 );
   
-		// signal that the kick is done and the leg should move back
-		this.movement = 'kick done';
+	  }else if(this.movement == 'dance'){ // a very simple one :(
+		  T = Math.PI;
   
-	  } else {
+		  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
+			  Math.sin(T/2) ,
+			  0,
+			  0,
+			  Math.cos(T/2),
+			  ), 0.01 );
   
-		var T = -Math.PI/2;
-		this.right_upper_leg.quaternion.slerp( new THREE.Quaternion( 
-												  x = Math.sin( T / 2 ),   // x
-												  y = 0,                   // y
-												  z = 0,                   // z
-												  w = Math.cos( T / 2 ) ), // w
-											  0.1 );
+		  this.left_upper_arm.quaternion.slerp( new THREE.Quaternion(
+			  0,0,0,1), 0.01 );
   
-	  }
+		  this.left_upper_leg.quaternion.slerp( new THREE.Quaternion(
+			  Math.sin(T/2),
+			  0,
+			  Math.sin(T/2),
+			  Math.cos(T/2),
+			  ), 0.01 );
   
-	} else if (this.movement == 'kick done') {
+      }
   
-	  // reset leg back to identity
-	  this.right_upper_leg.quaternion.slerp( new THREE.Quaternion(0,0,0,1), 0.1 );
-  
-	}
   };
   
