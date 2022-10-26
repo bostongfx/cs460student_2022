@@ -129,7 +129,7 @@ class Robot {
 			qEnd.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI/2);
 			qStart.slerp(qEnd, 0.1);
 			// Quaternion.equals() didn't seem to work
-			if(qStart.x.toFixed(2) === qEnd.x.toFixed(2)) {
+			if(qStart.w.toFixed(2) === qEnd.w.toFixed(2)) {
 				this.movement = 'kick down';
 			}
 		} else if (this.movement == 'kick down') {
