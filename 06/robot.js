@@ -9,7 +9,7 @@ Robot = function (x, y, z) {
 
   //torso
   this.torso = new THREE.Bone();
-  this.torso.position.y = -30;
+  this.torso.position.y = -20;
 
   this.head.add(this.neck);
   this.neck.add(this.torso);
@@ -22,7 +22,7 @@ Robot = function (x, y, z) {
 
   this.left_lower_arm = new THREE.Bone();
   this.left_lower_arm.position.x = 5;
-  this.left_lower_arm.position.y = -10;
+  this.left_lower_arm.position.y = -8;
   this.left_upper_arm.add(this.left_lower_arm);
 
   this.left_hand = new THREE.Bone();
@@ -38,7 +38,7 @@ Robot = function (x, y, z) {
 
   this.right_lower_arm = new THREE.Bone();
   this.right_lower_arm.position.x = -5;
-  this.right_lower_arm.position.y = -10;
+  this.right_lower_arm.position.y = -8;
   this.right_upper_arm.add(this.right_lower_arm);
 
   this.right_hand = new THREE.Bone();
@@ -48,8 +48,8 @@ Robot = function (x, y, z) {
 
   // left leg
   this.left_upper_leg = new THREE.Bone();
-  this.left_upper_leg.position.x = 2.5;
-  this.left_upper_leg.position.y = -2.5;
+  this.left_upper_leg.position.x = 5;
+  this.left_upper_leg.position.y = -5;
   this.torso.add(this.left_upper_leg);
 
   this.left_lower_leg = new THREE.Bone();
@@ -64,8 +64,8 @@ Robot = function (x, y, z) {
 
   //right leg
   this.right_upper_leg = new THREE.Bone();
-  this.right_upper_leg.position.x = -2.5;
-  this.right_upper_leg.position.y = -2.5;
+  this.right_upper_leg.position.x = -5;
+  this.right_upper_leg.position.y = -5;
   this.torso.add(this.right_upper_leg);
 
   this.right_lower_leg = new THREE.Bone();
@@ -99,18 +99,24 @@ Robot = function (x, y, z) {
   Robot.prototype.kick_back = function () {
     this.movement = "kick back";
   };
+  Robot.prototype.dance = function () {
+    this.movement = "dance";
+  };
   Robot.prototype.onAnimate = function () {
     var T = -Math.PI;
     if (this.movement == "raise left arm") {
       q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
       this.left_upper_arm.quaternion.slerp(q, 0.1);
     } else if (this.movement == "lower left arm") {
-      q = new THREE.Quaternion(0, 0, 0, Math.cos(T / 2));
+      q = new THREE.Quaternion(0, 0, 0, 1);
       this.left_upper_arm.quaternion.slerp(q, 0.1);
+    } else if (this.movement == "lower right arm") {
+      q = new THREE.Quaternion(0, 0, 0, 1);
+      this.right_upper_arm.quaternion.slerp(q, 0.1);
     } else if (this.movement == "kick") {
       // ... TODO slerping and check once it is done for a backwards slerp
       // you can use the identity quaternion for a backwards slerp
-      console.log(this.right_upper_leg.quaternion.w);
+      // console.log(this.right_upper_arm.quaternion.w);
       if (this.right_upper_leg.quaternion.w < 0.72) {
         this.movement = "kick back";
       } else {
@@ -118,8 +124,31 @@ Robot = function (x, y, z) {
         this.right_upper_leg.quaternion.slerp(q, 0.2);
       }
     } else if (this.movement == "kick back") {
-      q = new THREE.Quaternion(0, 0, 0, Math.cos(T / 2));
+      q = new THREE.Quaternion(0, 0, 0, 1);
       this.right_upper_leg.quaternion.slerp(q, 0.2);
+    } else if (this.movement == "dance") {
+      if (this.right_upper_arm.quaternion.w < 0.75) {
+        q = new THREE.Quaternion(0, 0, 0, 1);
+        this.right_upper_arm.quaternion.slerp(q, 0.01);
+      } else {
+        q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
+        this.right_upper_arm.quaternion.slerp(q, 0.2);
+      }
+      if (this.right_upper_leg.quaternion.w < 0.72) {
+        q = new THREE.Quaternion(0, 0, 0, 1);
+        this.right_upper_leg.quaternion.slerp(q, 0.01);
+      } else {
+        q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
+        this.right_upper_leg.quaternion.slerp(q, 0.2);
+      }
+      if (this.left_lower_arm.quaternion.w < 0.75) {
+        q = new THREE.Quaternion(0, 0, 0, 1);
+        this.left_lower_arm.quaternion.slerp(q, 0.01);
+      } else {
+        q = new THREE.Quaternion(Math.sin(T / 2), 0, 0, Math.cos(T / 2));
+        this.left_lower_arm.quaternion.slerp(q, 0.1);
+      }
     }
+    console.log(this.movement);
   };
 };

@@ -93,6 +93,9 @@
           kick: function () {
             r.kick();
           },
+          dance: function () {
+            r.dance();
+          },
         };
         var gui = new dat.GUI();
         var rendering = gui.addFolder("Rendering");
@@ -106,7 +109,7 @@
         moving.add(controller, "raise left arm");
         moving.add(controller, "lower left arm");
         moving.add(controller, "kick");
-        // moving.add(controller, "dance");
+        moving.add(controller, "dance");
         moving.open();
 
         animate();
