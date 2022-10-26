@@ -61,12 +61,30 @@
         floor.position.y = -100;
         floor.rotateX(-30);
         scene.add( floor );
-
+        
+        //adding bonus part-1 placing robot with shiftclick
+        window.onclick = function(e) {
+          if (!e.shiftKey) {
+            e.preventDefault();
+            return false;
+          }
+           pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+          vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
+                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
+          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          intersects = raycaster.intersectObject( floor );
+          r.head.position.x = intersects[0].point.x;
+          r.head.position.y = intersects[0].point.y+100; // move robot a bit up 
+          r.head.position.z = intersects[0].point.z;
+        };
         controls = new THREE.TrackballControls( camera, renderer.domElement );
 
         //Robot goes here
         r = new Robot(0, 0, 0);
         r.show(scene);
+        animate();
 
         var controller = {
           anaglyph: false,
@@ -93,21 +111,24 @@
         rendering.open();
 
         var moving = gui.addFolder( "Movement" );
-        moving.add(r.head.position, "x", -100, 1000 );
-        moving.add(r.head.position, "y", -100, 1000 );
-        moving.add(r.head.position, "z", -100, 1000 );
-        moving.add(controller, "raiseleftarm");
-        moving.add(controller, "lowerleftarm");
-        moving.add(controller, "kick");
-        moving.add(controller, "dance");
-        moving.add(controller, "stand");
+        moving.add(r.head.position, "x", -100, 1000 ).listen();
+        moving.add(r.head.position, "y", -100, 1000 ).listen();
+        moving.add(r.head.position, "z", -100, 1000 ).listen();
         moving.open();
+        var action  = gui.addFolder("Actions")
+        action.add(controller, "raiseleftarm");
+        action.add(controller, "lowerleftarm");
+        action.add(controller, "kick");
+        action.add(controller, "dance");
+        action.add(controller, "stand");
+        action.open();
 
+        
+        
+        effect = new THREE.AnaglyphEffect( renderer );
+        effect.setSize( window.innerWidth, window.innerHeight );
 
-        animate();
-
-
-      };
+      
 
       function animate() {
 
@@ -115,10 +136,14 @@
 
         r.onAnimate();
         controls.update();
-
-
-        renderer.render( scene, camera );
-
+        if (!controller.anaglyph) {
+          renderer.render( scene, camera );
+        }
+        else {
+          renderer.setClearAlpha(1);
+          effect.render( scene, camera );
+        }
+      };
       };
 
     </script>
