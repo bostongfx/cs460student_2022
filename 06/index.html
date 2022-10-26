@@ -76,7 +76,8 @@
         controls = new THREE.TrackballControls( camera, renderer.domElement );
 
         // controller is an abstract class for turning on and off the anaglyph effect,
-        // and for calling the motion functions on the skeleton through the dat.gui menus
+        // and for calling the motion functions on the skeleton through the dat.gui menus.
+        // I made controller a global variable so I could call it in animate()
         controller = {
           anaglyph: false,
           'raise_left_arm': function() {
@@ -96,6 +97,7 @@
 
 
         // ROBOT GOES HERE!
+        // I made r a global variable so I could call it in animate()
         r = new Robot(0, 50, 350); // any position works
         r.show(scene);
 
@@ -111,6 +113,9 @@
         // Need to use controller to manipulate the robot since the Robot class
         // constructor does not have any input parameter relating to a Robot's
         // movement element, and "add" requires such a parameter in order to work.
+        // I figured this problem out after looking at the documentation here:
+        // https://github.com/dataarts/dat.gui/blob/master/API.md
+        // and by looking at the index.html for Assignment 5
         anim.add(controller, "raise_left_arm");
         anim.add(controller, "lower_left_arm");
         anim.add(controller, "kick");
