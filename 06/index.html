@@ -1,3 +1,4 @@
+
 <html>
   <head>
     <meta charset="UTF-8" />
@@ -48,7 +49,9 @@
 
         ambientLight = new THREE.AmbientLight();
         scene.add( ambientLight );
-@@ -49,11 +54,12 @@
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
 
 
         var floorTexture = new THREE.TextureLoader().load( 'board.jpg' );
@@ -62,7 +65,8 @@
         floor = new THREE.Mesh( floorGeometry, floorMaterial );
         floor.position.y = -100;
         floor.rotateX(-30);
-@@ -63,22 +69,118 @@
+        scene.add( floor );
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
 
 
         // ROBOT GOES HERE!
@@ -185,3 +189,7 @@
 
       };
 
+    </script>
+  </head>
+  <body></body>
+</html>
