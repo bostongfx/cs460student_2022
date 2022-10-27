@@ -16,6 +16,8 @@
 		<script src="https://get.goxtk.com/xtk_xdat.gui.js" type="text/javascript"></script>
 		<script src="https://threejs.org/examples/js/libs/stats.min.js" type="text/javascript"></script>
 
+		<script src="https://threejs.org/examples/js/effects/AnaglyphEffect.js"></script>
+
 	</head>
 	<body>
 
@@ -85,6 +87,9 @@
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
+
+				effect = new THREE.AnaglyphEffect( renderer );
+				effect.setSize( window.innerWidth, window.innerHeight );
 
 				stats = new Stats();
 				container.appendChild( stats.dom );
@@ -285,6 +290,8 @@
 				requestAnimationFrame( animate );
 
 				renderer.render( scene, camera );
+
+				effect.render( scene, camera );
 
 				stats.update();
 
