@@ -72,7 +72,19 @@
 
 
         var controller = {
-          anaglyph: false
+          anaglyph: false,
+          'raise left arm': function(){
+            r.raise_left_arm();
+          },
+          'lower left arm': function(){
+            r.lower_left_arm();
+          },
+          'kick':function(){
+            r.kick();
+          },
+          'dance': function(){
+            r.dance();
+          }
         };
 
         var gui = new dat.GUI();
@@ -86,14 +98,15 @@
         moving.add(r.head.position, "y", -1000, 1000);
         moving.add(r.head.position, "z", -1000, 1000);
         moving.open();
-        raise_left_arm = gui.addFolder("raise_left_arm");
-        //raise_left_arm.open();
-        lower_left_arm = gui.addFolder("lower_left_arm");
-        //lower_left_arm.open();
-        kick = gui.addFolder("kick");
-       // kick.open();
-        dance = gui.addFolder("Dance");
-        dance.open();
+        var raise_left_arm = gui.addFolder("raise_left_arm");
+        raise_left_arm.add(controller, 'raise left arm');
+        var lower_left_arm = gui.addFolder("lower_left_arm");
+        lower_left_arm.add(controller, 'lower left arm');
+        var kick = gui.addFolder("kick");
+       kick.add(controller, 'kick');
+        var dance = gui.addFolder("Dance");
+        dance.add(controller, 'dance');
+        
         controls = new THREE.TrackballControls(camera, renderer.domElement);
         animate();
 
@@ -103,8 +116,9 @@
       function animate() {
 
         requestAnimationFrame( animate );
-        r.kick();
 
+        r.onAnimate();
+        //r.dance();
         // TODO
 
         controls.update();

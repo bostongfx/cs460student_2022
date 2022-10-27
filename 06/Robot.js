@@ -123,7 +123,7 @@ class Robot{
         rGroup.add(this.head);
 
         var helper = new THREE.SkeletonHelper(rGroup);
-        helper.material.linewidth = 100; // making the skeleton thick
+        helper.material.linewidth = 10; // making the skeleton thick
 
         scene.add(rGroup);
         scene.add(helper);
@@ -142,7 +142,7 @@ class Robot{
 
     onAnimate = function(){
         console.log('onAnimate Called');
-        //if(this.movement == 'raise left arm')
+        
         var axis=[1,0,0];
         var T = Math.PI;
         var x = Math.sin(T/2)*axis[0];
@@ -150,12 +150,36 @@ class Robot{
         var z = Math.sin(T/2)*axis[2];
         var w = Math.cos(T/2);
             var q = new THREE.Quaternion(x, y, z, w);
-        this.right_upper_arm.Quaternion.slerp(q, 0.10);
-    //else if(this.movement == 'lower left arm'){
+            if (this.movement == 'raise left arm'){
+        this.left_upper_arm.quaternion.slerp(q, 0.10);
+    }
+    else if(this.movement == 'lower left arm'){
+        this.left_lower_arm.quaternion.slerp(q, 0.10);
 
-    //} else if(this.movement == 'kick'){
+    } else if(this.movement == 'kick'){
+
+        this.right_lower_leg.quaternion.slerp(q, 0.10);
+        this.right_foot.position.x= 5;
+        this.right_foot.position.y= -5;
 
     };
+    };
 
+    dance = function(){
+        console.log("Dance called");
+        var axis=[1,1,0];
+        var T = Math.PI;
+        var x = Math.sin(T/2)*axis[1];
+        var y =  Math.sin(T/2)*axis[1];
+        var z = Math.sin(T/2)*axis[2];
+        var w = Math.cos(T/2);
+            var q = new THREE.Quaternion(x, y, z, w);
+            
+            this.left_upper_arm.quaternion.slerp(q, 0.60);
+            this.right_upper_arm.quaternion.slerp(q, 0.50);
+            this.left_upper_leg.quaternion.slerp(q, 0.60);
+            
+
+    };
     
 }
