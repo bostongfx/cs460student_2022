@@ -10,7 +10,7 @@ class Robot{
 
 		this.head.position.set( x, y, z );
 
-		this.neck.position.y = -15;
+		this.neck.position.y = -10;
 		this.torso.position.y = -30;
 
 		this.head.add(this.neck);
@@ -26,7 +26,7 @@ class Robot{
 		this.leftUpperArm.position.y = -5;
 		this.leftUpperArm.position.x = 5;
 
-		this.leftLowerArm.position.y = -20;
+		this.leftLowerArm.position.y = -15;
 		this.leftLowerArm.position.x = 5;
 
 		this.leftHand.position.y = -5;
