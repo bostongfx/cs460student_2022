@@ -157,7 +157,7 @@ Robot.prototype.show = function(scene) {
         } else if (this.movement == 'kick') {
            
             // SLERP CHECK
-            if (this.right_upperleg. quaternion.w < 0.60 ) {
+            if (this.right_upperleg.quaternion.w < 0.60 ) {
                 this.movement = 'leg kicked';
 
             } else {
