@@ -63,6 +63,13 @@
           }
         };
 
+        pablo2 = {
+ 
+          'parameter1': 100
+
+          }
+
+
         var gui = new dat.GUI();
         // connecting XTK cube to dat.GUI and accessing visible and color properties
         var cubeGui = gui.addFolder('cube');
@@ -71,6 +78,8 @@
 		      cube_1.modified();
 	      });
         cubeGui.addColor(cube_1, 'color');
+        cubeGui.add(pablo2, 'parameter1', 0, 1000);
+        // cubeGui.add(window, 'pablo');
         cubeGui.open();
 
  
@@ -122,6 +131,10 @@
       both.add(controller, 'rotateZ');
       both.add(controller, 'add new');
       both.open();
+
+      function pablo() {
+        console.log('pablo');
+      };
 
       //additional functions called within controller's add new functionality
       function addXTKCube() {
