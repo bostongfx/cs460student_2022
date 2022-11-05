@@ -1,6 +1,7 @@
 class Robot {
 
 	constructor(x, y, z) {
+		this.robot = new THREE.Group();
 		// head, neck and torso:
 		var fromHelper = HELPER.cylinderSkeletonMesh(3, 5, 'blue');
 		var geometry = fromHelper[0];
@@ -14,6 +15,20 @@ class Robot {
 
 		this.root = bones[0];
 		this.root.position.set(x, y, z);
+
+		// add a sphere for a head
+		// texture is of "koro-sensei" from Assassination Classroom!
+		// Character by Yusei Matsui
+		var korosphere = new THREE.SphereGeometry(20, 20, 20);
+		var texture = new THREE.TextureLoader().load('korotexture.png');
+		var koromaterial = new THREE.MeshStandardMaterial(
+			{map: texture, roughness: 1}
+		);
+		this.koromesh = new THREE.Mesh(korosphere, koromaterial);
+		this.koromesh.position.x = x;
+		this.koromesh.position.y = y+15;
+		this.koromesh.position.z = z;
+		this.robot.add(this.koromesh);
 
 		// bones is a 4 element array
 		// element 0 is anchor point
@@ -125,10 +140,12 @@ class Robot {
 		this.right_foot.position.x = 2;
 		this.right_foot.position.y = -1;
 		this.right_foot.position.z = 5;
+
+		this.robot.add(this.bodyMesh);
 	}
 
 	show = function(scene) {
-		scene.add(this.bodyMesh);
+		scene.add(this.robot);
 	}
 
 	raise_left_arm = function() {

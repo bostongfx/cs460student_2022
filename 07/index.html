@@ -89,9 +89,9 @@
         rendering.open();
 
         var moving = gui.addFolder("Movement");
-        moving.add(army[0].root.position, "x", -1000, 1000);
-        moving.add(army[0].root.position, "y", -1000, 1000);
-        moving.add(army[0].root.position, "z", -1000, 1000);
+        moving.add(army[0].robot.position, "x", -1000, 1000);
+        moving.add(army[0].robot.position, "y", -1000, 1000);
+        moving.add(army[0].robot.position, "z", -1000, 1000);
         moving.open();
 
         var anims = gui.addFolder("Animation");
