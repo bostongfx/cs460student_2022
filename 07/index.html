@@ -31,6 +31,7 @@
       var scene, camera, renderer, ambientLight, light, controls;
       var floor;
       var robot, controller, effect;
+      var army = [];
 
       window.onload = function() {
 
@@ -70,11 +71,9 @@
 
         controls = new THREE.TrackballControls( camera, renderer.domElement );
 
-
         // ROBOT GOES HERE!
-        robot = new Robot(0, 0, 0);
+        robot = new Robot(0, -32, 0);
         robot.show(scene);
-
 
         // dat.gui
         controller = {
@@ -90,9 +89,9 @@
         rendering.open();
 
         var moving = gui.addFolder("Movement");
-        moving.add(robot.head.position, "x", -1000, 1000);
-        moving.add(robot.head.position, "y", -1000, 1000);
-        moving.add(robot.head.position, "z", -1000, 1000);
+        moving.add(robot.root.position, "x", -1000, 1000);
+        moving.add(robot.root.position, "y", -1000, 1000);
+        moving.add(robot.root.position, "z", -1000, 1000);
         moving.open();
 
         var anims = gui.addFolder("Animation");
@@ -108,9 +107,7 @@
         anims.open();
         // end dat.gui
 
-
         animate();
-
 
       };
 
@@ -129,6 +126,32 @@
           renderer.setClearAlpha(0);
         }
       };
+
+      window.onclick = function(e) {
+        if(!e.shiftKey) {
+          e.preventDefault();
+          return false;
+        }
+
+        pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+        vp_coords = new THREE.Vector2(
+          (pixel_coords.x / window.innerWidth) *2 -1,
+          -(pixel_coords.y / window.innerHeight) *2 +1
+        );
+        vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+        raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(vp_coords_near, camera);
+        intersects = raycaster.intersectObject(floor);
+
+        if (intersects.length > 0) {
+          army.push(new Robot(
+            intersects[0].point.x,
+            intersects[0].point.y+68,
+            intersects[0].point.z
+          ));
+          army[army.length-1].show(scene);
+        }
+      }
 
     </script>
   </head>
