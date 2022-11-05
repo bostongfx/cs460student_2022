@@ -28,8 +28,8 @@ class Robot {
 
 		this.bodyMesh = mesh;
 
-		// left arm : left upper arm, left lower arm, left hand
-		var fromHelper = HELPER.cylinderSkeletonMesh(3, 5, 'blue');
+		// left arm
+		var fromHelper = HELPER.cylinderSkeletonMesh(4, 5, 'red');
 		var geometry = fromHelper[0];
 		var material = fromHelper[1];
 		var bones = fromHelper[2];
@@ -38,79 +38,93 @@ class Robot {
 		var skeleton = new THREE.Skeleton(bones);
 		mesh.add(bones[0]);
 		mesh.bind(skeleton);
-
-		//this.left_shoulder = new THREE.Bone();
-		//this.left_shoulder.position.x = -1;
+		this.bodyMesh.add(mesh);
 		this.neck.add(bones[0]); // arm comes from neck
 
-		this.left_upper_arm = bones[1];
+		this.left_shoulder = bones[1];
+		this.left_shoulder.position.x = -1;
+		this.left_upper_arm = bones[2];
 		this.left_upper_arm.position.x = -5;
 		this.left_upper_arm.position.y = -5;
-		this.left_lower_arm = bones[2];
+		this.left_lower_arm = bones[3];
 		this.left_lower_arm.position.x = -5;
 		this.left_lower_arm.position.y = -10;
-		this.left_hand = bones[3];
+		this.left_hand = bones[4];
 		this.left_hand.position.x = -3;
 		this.left_hand.position.y = -1;
 
+		// right arm
+		var fromHelper = HELPER.cylinderSkeletonMesh(4, 5, 'red');
+		var geometry = fromHelper[0];
+		var material = fromHelper[1];
+		var bones = fromHelper[2];
 
-		// code from 06
-		/*
-		this.neck.add(this.left_shoulder);
-		this.left_shoulder.add(this.left_upper_arm);
-		this.left_upper_arm.add(this.left_lower_arm);
-		this.left_lower_arm.add(this.left_hand);
+		var mesh = new THREE.SkinnedMesh(geometry, material);
+		var skeleton = new THREE.Skeleton(bones);
+		mesh.add(bones[0]);
+		mesh.bind(skeleton);
+		this.bodyMesh.add(mesh);
+		this.neck.add(bones[0]); // arm comes from neck
 
-		// right side arm
-		// adding a shoulder
-		this.right_shoulder = new THREE.Bone();
+		this.right_shoulder = bones[1];
 		this.right_shoulder.position.x = 1;
-		this.right_upper_arm = new THREE.Bone();
+		this.right_upper_arm = bones[2];
 		this.right_upper_arm.position.y = -5;
 		this.right_upper_arm.position.x = 5;
-		this.right_lower_arm = new THREE.Bone();
+		this.right_lower_arm = bones[3];
 		this.right_lower_arm.position.y = -10;
 		this.right_lower_arm.position.x = 5;
-		this.right_hand = new THREE.Bone();
+		this.right_hand = bones[4];
 		this.right_hand.position.x = 3;
 		this.right_hand.position.y = -1;
 
-		this.neck.add(this.right_shoulder);
-		this.right_shoulder.add(this.right_upper_arm);
-		this.right_upper_arm.add(this.right_lower_arm);
-		this.right_lower_arm.add(this.right_hand);
+		// left leg
+		var fromHelper = HELPER.cylinderSkeletonMesh(3, 5, 'purple');
+		var geometry = fromHelper[0];
+		var material = fromHelper[1];
+		var bones = fromHelper[2];
 
-		// legs
-		// left side leg
-		this.left_upper_leg = new THREE.Bone();
+		var mesh = new THREE.SkinnedMesh(geometry, material);
+		var skeleton = new THREE.Skeleton(bones);
+		mesh.add(bones[0]);
+		mesh.bind(skeleton);
+		this.bodyMesh.add(mesh);
+		this.torso.add(bones[0]); // leg comes from torso
+
+		this.left_upper_leg = bones[1];
 		this.left_upper_leg.position.y = -10;
 		this.left_upper_leg.position.x = -5;
-		this.left_lower_leg = new THREE.Bone();
+		this.left_lower_leg = bones[2];
 		this.left_lower_leg.position.y = -10;
 		this.left_lower_leg.position.x = -2;
-		this.left_foot = new THREE.Bone();
+		this.left_foot = bones[3];
 		this.left_foot.position.x = -2;
+		this.left_foot.position.y = -1;
 		this.left_foot.position.z = 5;
 
-		this.torso.add(this.left_upper_leg);
-		this.left_upper_leg.add(this.left_lower_leg);
-		this.left_lower_leg.add(this.left_foot);
+		// right leg
+		var fromHelper = HELPER.cylinderSkeletonMesh(3, 5, 'purple');
+		var geometry = fromHelper[0];
+		var material = fromHelper[1];
+		var bones = fromHelper[2];
 
-		// right side leg
-		this.right_upper_leg = new THREE.Bone();
+		var mesh = new THREE.SkinnedMesh(geometry, material);
+		var skeleton = new THREE.Skeleton(bones);
+		mesh.add(bones[0]);
+		mesh.bind(skeleton);
+		this.bodyMesh.add(mesh);
+		this.torso.add(bones[0]); // leg comes from torso
+
+		this.right_upper_leg = bones[1];
 		this.right_upper_leg.position.y = -10;
 		this.right_upper_leg.position.x = 5;
-		this.right_lower_leg = new THREE.Bone();
+		this.right_lower_leg = bones[2];
 		this.right_lower_leg.position.y = -10;
 		this.right_lower_leg.position.x = 2;
-		this.right_foot = new THREE.Bone();
+		this.right_foot = bones[3];
 		this.right_foot.position.x = 2;
+		this.right_foot.position.y = -1;
 		this.right_foot.position.z = 5;
-
-		this.torso.add(this.right_upper_leg);
-		this.right_upper_leg.add(this.right_lower_leg);
-		this.right_lower_leg.add(this.right_foot);
-		*/
 	}
 
 	show = function(scene) {
