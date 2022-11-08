@@ -71,11 +71,11 @@
 
       robots = [];
 
-      robot = new Robot(  0,  0,   0, ranHex());
+      robot = new Robot(0, 0, 0, ranHex());
       robot.show(scene);
       robots.push(robot);
 
-      robot = new Robot( 100,  0, -50, ranHex());
+      robot = new Robot(100, 0, -50, ranHex());
       robot.show(scene);
       robots.push(robot)
 
@@ -83,11 +83,11 @@
       robot.show(scene);
       robots.push(robot)
 
-      robot = new Robot( 200,  0, -150, ranHex());
+      robot = new Robot(200, 0, -150, ranHex());
       robot.show(scene);
       robots.push(robot)
 
-      robot = new Robot( 300,  0, -200, ranHex());
+      robot = new Robot(300, 0, -200, ranHex());
       robot.show(scene);
       robots.push(robot)
 
@@ -107,7 +107,32 @@
           robots[0].head.position.x += 10;
         }
         ,
-        anaglyph: false
+
+        anaglyph: false,
+        'leftArmUp': function () {
+          for (var r in robots) {
+            robots[r].raise_left_arm();
+          }
+        }
+        ,
+        'leftArmDown': function () {
+          for (var r in robots) {
+            robots[r].lower_left_arm();
+          }
+        }
+        ,
+        'kick': function () {
+          for (var r in robots) {
+            robots[r].kick();
+          }
+        }
+        ,
+        'dance': function () {
+          
+          for (var r in robots) {
+            robots[r].dance();
+          }
+        }
 
 
       };
@@ -120,15 +145,15 @@
       cubeGui.add(controller, 'right');
       cubeGui.add(controller, 'anaglyph');
       cubeGui = gui.addFolder('Movements')
-      cubeGui.add(robots[0], 'raise_left_arm');
-      cubeGui.add(robots[0], 'lower_left_arm');
-      cubeGui.add(robots[0], 'kick');
-      cubeGui.add(robots[0], 'dance');
+      cubeGui.add(controller, 'leftArmUp');
+      cubeGui.add(controller, 'leftArmDown');
+      cubeGui.add(controller, 'kick');
+      cubeGui.add(controller, 'dance');
       cubeGui.open();
 
 
 
-    
+
 
 
       animate();
@@ -137,10 +162,10 @@
     };
 
     function ranHex() {
-          const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-          document.body.style.backgroundColor = "#" + randomColor;
-          return "#" + randomColor;
-        }
+      const randomColor = Math.floor(Math.random() * 16777215).toString(16);
+      document.body.style.backgroundColor = "#" + randomColor;
+      return "#" + randomColor;
+    }
 
     window.onclick = function (e) {
 
@@ -163,11 +188,12 @@
 
       if (intersects.length > 0) {
 
-        var x= intersects[0].point.x;
-        var y= intersects[0].point.y+100;
-        var z= intersects[0].point.z;
-        robot = new Robot(x,y,z,ranHex())
+        var x = intersects[0].point.x;
+        var y = intersects[0].point.y + 100;
+        var z = intersects[0].point.z;
+        robot = new Robot(x, y, z, ranHex())
         robot.show(scene)
+        robots.push(robot)
         //robot1.head.position.set(intersects[0].point.x,
         //  intersects[0].point.y + 100,
         //  intersects[0].point.z)
@@ -183,8 +209,8 @@
       requestAnimationFrame(animate);
 
       for (var r in robots) {
-          robots[r].OnAnimate();
-        }
+        robots[r].OnAnimate();
+      }
 
       controls.update();
 
