@@ -1,3 +1,5 @@
+// This robot.js file is derived from Professor Haehn's solution for Assignment 6,
+// rather than my own, due to time constraints.
 Robot = function(x, y, z) {
 
     // fromhelper is an array containing [geometry, material, bones]
