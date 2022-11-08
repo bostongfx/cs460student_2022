@@ -22,18 +22,23 @@ class Robot {
     mesh.bind(skeleton);
 
     // Head Making/
-    geometry = new THREE.SphereGeometry(15, 15, 15);
-    material = new THREE.MeshStandardMaterial({ color: color });
+    geometry = new THREE.SphereGeometry(13, 13, 13);
+    material = new THREE.MeshStandardMaterial( {
+      skinning: true, // IMPORTANT!
+      color: color,
+      side: THREE.DoubleSide,
+      flatShading: true
+    } );
     var headed = new THREE.Mesh(geometry, material);
 
 
 
     this.root = bones[0];
     this.root.position.set(x, y, z);
-
+    this.root.add(headed)
 
     this.head = bones[1];
-    this.head.add(headed)
+    //this.head.add(headed);
 
     this.neck = bones[2];
     this.neck.position.y = -10
@@ -291,6 +296,7 @@ Robot.prototype.OnAnimate = function () {
           shaketorso *= -1;
         }
 
+        this.root.position.x += shakehead;
         this.head.position.x += shakehead;
 
         this.neck.position.x += shakeneck;

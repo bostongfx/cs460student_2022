@@ -128,6 +128,9 @@
         }
         ,
         'dance': function () {
+          var music = document.getElementById('music');
+            music.autoplay = true;
+            music.load();
           
           for (var r in robots) {
             robots[r].dance();
@@ -228,6 +231,10 @@
   </script>
 </head>
 
-<body></body>
+<body>
+  <audio id='music'>
+    <source src="music.mp3">
+  </audio>
+</body>
 
 </html>
