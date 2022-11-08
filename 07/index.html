@@ -55,7 +55,8 @@
         light = new THREE.DirectionalLight( 0xffffff, 5.0 );
         light.position.set( 10, 100, 10 );
         scene.add( light );
-
+        
+        
 
         var floorTexture = new THREE.TextureLoader().load( 'grass.jpg' );
         var floorGeometry = new THREE.PlaneGeometry( 1000, 1000 );
@@ -68,14 +69,30 @@
         floor.rotateX(Math.PI/2);
         scene.add( floor );
 
-        all_robots = [];
+        const video = document.getElementById( 'video' );
+        const texture = new THREE.VideoTexture( video );
+        var scenegeometry = new THREE.PlaneBufferGeometry(4500,1000); 
+        var scenematerial = new THREE.MeshBasicMaterial( {
+         map: texture,
+    } );
+       plane = new THREE.Mesh(scenegeometry, scenematerial );
+       plane.rotateY(0);
+       plane.rotateX(0);
+       plane.rotateZ(0)
+       plane.position.x = 0
+       plane.position.y = 80
+       plane.position.z = -3000;
+       scene.add( plane );
+
+       
+
+        Robots = [];
 
         r = new Robot(0, 0, 0);
         r.show(scene);
 
-        all_robots.push(r);
-
-
+        Robots.push(r);
+        
         controller = {
           anaglyph: false,
           dance: function() {
@@ -90,8 +107,8 @@
             floor.material.map = texture;
             video.play();
 
-            for (var r in all_robots) {
-              r = all_robots[r];
+            for (var r in Robots) {
+              r = Robots[r];
               r.dance();
             }
           }
@@ -159,8 +176,8 @@
 
         requestAnimationFrame( animate );
 
-        for (r in all_robots) {
-          r = all_robots[r];
+        for (r in Robots) {
+          r = Robots[r];
           r.onAnimate();  
         }
         
