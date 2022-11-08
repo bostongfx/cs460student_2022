@@ -8,8 +8,7 @@ HELPER = {};
  * @param howwide: Radius of the cylinder.
  * @param color: Color of the cylinder.
  */
-HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
-  
+HELPER.cylinderSkeletonMesh = function (howmany, howwide, color) {
   var segmentheight = 10; // just a temporary value but it needs to match for geometry and bones
   var height = segmentheight * howmany;
 
@@ -34,30 +33,34 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   var skinIndices = [];
   var skinWeights = [];
 
-  for ( var i = 0; i < position.count; i ++ ) {
+  for (var i = 0; i < position.count; i++) {
+    vertex.fromBufferAttribute(position, i);
 
-    vertex.fromBufferAttribute( position, i );
+    var y = vertex.y + height / 2;
 
-    var y = ( vertex.y + height / 2 );
+    var skinIndex = Math.floor(y / segmentheight);
+    var skinWeight = (y % segmentheight) / segmentheight;
 
-    var skinIndex = Math.floor( y / segmentheight );
-    var skinWeight = ( y % segmentheight ) / segmentheight;
-
-    skinIndices.push( skinIndex, skinIndex + 1, 0, 0 );
-    skinWeights.push( 1 - skinWeight, skinWeight, 0, 0 );
-
+    skinIndices.push(skinIndex, skinIndex + 1, 0, 0);
+    skinWeights.push(1 - skinWeight, skinWeight, 0, 0);
   }
 
-  geometry.setAttribute( 'skinIndex', new THREE.Uint16BufferAttribute( skinIndices, 4 ) );
-  geometry.setAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeights, 4 ) );
+  geometry.setAttribute(
+    "skinIndex",
+    new THREE.Uint16BufferAttribute(skinIndices, 4)
+  );
+  geometry.setAttribute(
+    "skinWeight",
+    new THREE.Float32BufferAttribute(skinWeights, 4)
+  );
 
   // step 2: setup material
-  var material = new THREE.MeshStandardMaterial( {
+  var material = new THREE.MeshStandardMaterial({
     skinning: true, // IMPORTANT!
     color: color,
     side: THREE.DoubleSide,
-    flatShading: true
-  } );
+    flatShading: true,
+  });
 
   // step 3: setup bones
   var bones = [];
@@ -67,17 +70,14 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   // parentbone.position.y = -height / 2; // weeeeird
   bones.push(parentbone);
 
-  for (var i=0; i< howmany; i++) {
-
+  for (var i = 0; i < howmany; i++) {
     var currentbone = new THREE.Bone();
     currentbone.position.y = segmentheight;
 
     parentbone.add(currentbone);
     bones.push(currentbone); // add the bone
     parentbone = currentbone;
-    
   }
 
   return [geometry, material, bones];
-
 };
