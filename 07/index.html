@@ -11,7 +11,7 @@
       height: 100%;
       overflow: hidden !important;
 
-      background-image: url(tenor.gif);
+      background-image: url(gfx/tenor.gif);
       background-repeat: no-repeat;
       background-size: 100% 100%;
     }
@@ -53,7 +53,7 @@
       scene.add(light);
 
 
-      var floorTexture = new THREE.TextureLoader().load('wood.jpg');
+      var floorTexture = new THREE.TextureLoader().load('gfx/wood.jpg');
       var floorGeometry = new THREE.PlaneBufferGeometry(1000, 1000);
       var floorMaterial = new THREE.MeshBasicMaterial({
         map: floorTexture,
@@ -129,6 +129,29 @@
         ,
         'dance': function () {
           var music = document.getElementById('music');
+          console.log("Hewre is " +ranMusic())
+          switch(ranMusic()){
+          case 0:
+          var sorce = document.getElementById("sorce").src = "gfx/music.mp3";
+            break;
+          case 1:
+          var sorce = document.getElementById("sorce").src = "gfx/music1.mp3";
+            break;
+          case 2:
+          var sorce = document.getElementById("sorce").src = "gfx/music2.mp3";
+            break;
+          case 3:
+          var sorce = document.getElementById("sorce").src = "gfx/music3.mp3";
+            break;
+          case 4:
+          var sorce = document.getElementById("sorce").src = "gfx/music4.mp3";
+            break;
+          default:
+              console.log("default music");
+
+          }
+          //var sorce = document.getElementById("sorce").src = "gfx/music2.mp3";
+          
             music.autoplay = true;
             music.load();
           
@@ -139,7 +162,7 @@
 
 
       };
-      console.log(robots[0].raise_left_arm)
+      
 
       var cubeGui = gui.addFolder('Levitation.');
       cubeGui.add(controller, 'up');
@@ -163,6 +186,12 @@
 
 
     };
+
+    function ranMusic() {
+      const randomMusic = Math.floor(Math.random() * 5);
+      
+      return randomMusic;
+    }
 
     function ranHex() {
       const randomColor = Math.floor(Math.random() * 16777215).toString(16);
@@ -202,7 +231,7 @@
         //  intersects[0].point.z)
 
       }
-      console.log("You click")
+      
 
     };
 
@@ -233,7 +262,7 @@
 
 <body>
   <audio id='music'>
-    <source src="music.mp3">
+    <source id="sorce" src="gfx/music.mp3">
   </audio>
 </body>
 
