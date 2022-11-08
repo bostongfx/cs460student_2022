@@ -23,12 +23,7 @@ class Robot {
 
     // Head Making/
     geometry = new THREE.SphereGeometry(13, 13, 13);
-    material = new THREE.MeshStandardMaterial( {
-      skinning: true, // IMPORTANT!
-      color: color,
-      side: THREE.DoubleSide,
-      flatShading: true
-    } );
+    material = new THREE.MeshStandardMaterial({ color: color });
     var headed = new THREE.Mesh(geometry, material);
 
 
