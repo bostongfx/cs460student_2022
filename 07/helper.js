@@ -1,30 +1,17 @@
 HELPER = {};
 
-/**
- * This method returns [geometry, material, bones] to create a skeleton mesh
- * based on a cylinder.
- *
- * @param howmany: Number of bones.
- * @param howwide: Radius of the cylinder.
- * @param color: Color of the cylinder.
- */
 HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   
-  var segmentheight = 10; // just a temporary value but it needs to match for geometry and bones
+  var segmentheight = 10; 
   var height = segmentheight * howmany;
 
-  //
-  // inspired by https://threejs.org/docs/scenes/bones-browser.html
-  //
-
-  // step1: geometry
   var geometry = new THREE.CylinderBufferGeometry(
-    howwide, // radiusTop
-    howwide, // radiusBottom
-    height, // height
-    8, // radiusSegments
-    howmany * 3, // heightSegments
-    true // openEnded
+    howwide, 
+    howwide, 
+    height, 
+    8, 
+    howmany * 3, 
+    true 
   );
 
   var position = geometry.attributes.position;
@@ -51,20 +38,20 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   geometry.setAttribute( 'skinIndex', new THREE.Uint16BufferAttribute( skinIndices, 4 ) );
   geometry.setAttribute( 'skinWeight', new THREE.Float32BufferAttribute( skinWeights, 4 ) );
 
-  // step 2: setup material
+ 
   var material = new THREE.MeshStandardMaterial( {
-    skinning: true, // IMPORTANT!
+    skinning: true, 
     color: color,
     side: THREE.DoubleSide,
     flatShading: true
   } );
 
-  // step 3: setup bones
+  
   var bones = [];
 
-  // we always need a dummy parent bone as the anchor point
+  
   var parentbone = new THREE.Bone();
-  // parentbone.position.y = -height / 2; // weeeeird
+  
   bones.push(parentbone);
 
   for (var i=0; i< howmany; i++) {
@@ -73,7 +60,7 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
     currentbone.position.y = segmentheight;
 
     parentbone.add(currentbone);
-    bones.push(currentbone); // add the bone
+    bones.push(currentbone);    
     parentbone = currentbone;
     
   }
