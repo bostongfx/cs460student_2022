@@ -24,21 +24,23 @@
 
   <script type="text/javascript">
 
-start = function() {
-          if ( clicked ) {
-              return;
-          }
-
-
-          var clicker = document.getElementById('clicker');
-          clicker.style.display = 'none';
-
-          init();
-
+    start = function () {
+      if (clicked) {
+        return;
       }
 
-    window.onload = function () {
 
+      var clicker = document.getElementById('clicker');
+      clicker.style.display = 'none';
+
+      init();
+
+    }
+
+    window.onload = function () {
+      var music = document.getElementById('music');
+      music.autoplay = true;
+      music.load();
 
       var bool = true;
       var r = new X.renderer3D();
@@ -133,9 +135,11 @@ start = function() {
 
       // r.interactor.onMouseDown = function(){ c[0].color = [0,0,1];};
       var swtch = false;
+
       function heartbeat() {
         // r.onRender = function(){
         id = 0;
+
 
         for (var y = 0; y < 9; y++) {
           for (var x = 0; x < 9; x++) {
@@ -159,54 +163,12 @@ start = function() {
       function animation() {
 
         // start the music
-        var music = document.getElementById('music');
-        music.autoplay = true;
-        music.load();
-      };
-
-      function start_content() {
-
-        // reduce music volume
-        var music = document.getElementById('music');
-        music.volume = .2;
-        //
-        // this is (like the whole animation concept), a little hacky!!
-        //
-        for (var f in frames) {
-
-          setTimeout(function (f) {
-
-            if (f > 0) {
-              document.getElementById(frames[f - 1]).style.display = 'none';
-            }
-
-            if (frames[f] != null) {
-              document.getElementById(frames[f]).style.display = 'block';
-            } else {
-              music.volume = .1;
-
-              setTimeout(function (f) {
-                fadeout = setInterval(function (f) {
-                  if (music.volume <= 0.) {
-                    clearInterval(fadeout);
-                    return;
-                  }
-                  music.volume -= .05;
-
-                }, 500);
-              }, 3000);
-
-
-            }
-
-          }.bind(this, f), times[f]);
-
-        }
 
       };
-      setTimeout(function() {
-              animation(); start_content();
-            }, 500);
+
+
+
+
       setInterval(heartbeat, 500);
 
 
@@ -241,6 +203,20 @@ start = function() {
 
     };
 
+    window.onclick = function (e) {
+
+      if (!e.shiftKey) {
+
+        e.preventDefault();
+        return false;
+      }
+
+      var music = document.getElementById('music');
+      music.autoplay = true;
+      music.load();
+
+    };
+
 
 
   </script>
@@ -248,6 +224,7 @@ start = function() {
 
 <body>
   <h1>CS460 Assignment 2</h1>
+  <h3>Press shift + Right Click to hear hearth beat</h3>
   <div id="logo"><img style="height:60px" src="gfx/cs460.png"></div>
   <audio id='music'>
     <source src="heart.mp3">
