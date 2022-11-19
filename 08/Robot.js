@@ -201,19 +201,23 @@ this.torso.add(bones[0]);
     allRobots = [];
     for(var a in allRobots){
       a=allRobots[a];
+      if(a.root.position.equals(this.root.position)){
+        continue;
+      }
       if(a.root.position.distanceTo(this.root.position) < 10){
         this.root.rotateY(Math.PI/2);
       }
     } 
-if(this.root.position.z > 490 || this.root.position.z < -490){
-  this.root.rotateY(Math.PI/2);
-}else if(this.root.position.x > 490 || this.root.position.x < -490){
-  this.root.rotateY(Math.PI/2);
-}
-if(this.root.position.x > 10 && this.root.position.x < 20 && this.root.position.z > 50 && this.root.position.z < -50){
+    if(this.root.position.z > 490 || this.root.position.z < -490){
+    this.root.rotateY(Math.PI/2);
+} 
+  else if(this.root.position.x > 490 || this.root.position.x < -490){
   this.root.rotateY(Math.PI/2);
 }
-this.root.translateZ(40);
+if(this.root.position.x > 100 && this.root.position.x < 200 && this.root.position.z > -150 && this.root.position.z < -50){
+  this.root.rotateY(Math.PI/2);
+}
+this.root.translateZ(10);
   };
 
   Robot.prototype.onAnimate = function() {
@@ -238,16 +242,16 @@ this.root.translateZ(40);
       // check if slerp reached almost the end
       if (this.right_upperleg.quaternion.w < 0.93) {
        
-        this.movement = 'walk2';  // signal that the kick is done and the leg should move back
+        this.movement = 'walk2';  // signal to take the second leg up
       }
-      this.left_upperleg.quaternion.slerp(new THREE.Quaternion(0,0,0, 1), 0.1);
+      this.left_upperleg.quaternion.slerp(new THREE.Quaternion(0,0,0, 1), 0.5);
 
       var T = -Math.PI/4;
       this.right_upperleg.quaternion.slerp(new THREE.Quaternion(Math.sin(T/2),
-                                                      0, 
-                                                      0, 
-                                                      Math.cos(T/2)),
-                                                       0.1);
+                                                                          0, 
+                                                                          0, 
+                                                                          Math.cos(T/2)),
+                                                                            0.5);
       this.onStep();
     }
          else if(this.movement == 'walk2') {
@@ -255,14 +259,14 @@ this.root.translateZ(40);
             this.movement = 'walk';
           }
 
-          this.right_upperleg.quaternion.slerp(new THREE.Quaternion(0,0,0,1), 0.1);
+          this.right_upperleg.quaternion.slerp(new THREE.Quaternion(0,0,0,1), 0.5);
           
           var T = -Math.PI/4;
           this.left_upperleg.quaternion.slerp(new THREE.Quaternion(Math.sin(T/2), 
                                                                             0,
                                                                             0,
                                                                            Math.cos(T/2)),
-                                                                             0.1);                              
+                                                                             0.5);                              
              this.onStep();
          }
     
