@@ -182,7 +182,7 @@ Robot.prototype.walk = function() {
     this.movement = 'walk';
     };
 Robot.prototype.onStep = function() {
-    this.root.translateY(3);
+    this.root.translateZ(3);
 }
 
 Robot.prototype.show = function( scene) { //prototype is keyword for all methods
