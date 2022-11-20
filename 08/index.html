@@ -1,0 +1,264 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+
+        background-image: url(sky.jpg);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r75/three.js"></script>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/effects/AnaglyphEffect.js" type="text/javascript"></script>
+
+    <script src="robot.js" type="text/javascript"></script>
+    <script src="helper.js" type="text/javascript"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.min.js" type="text/javascript"></script>
+
+
+    <script>
+
+      var scene, camera, renderer, ambientLight, light, controls;
+      var floor;
+
+      var controller = {
+          anaglyph: false
+        }
+
+      var stored_bots = [];
+      var stored_shapes = [];
+
+      function getRandomColor() {
+        // initializing a Color as RGB values keeps code minimal
+        function getRandomRGB() {
+				  return Math.floor(Math.random()*256);
+			  }
+
+				return {color: `rgb(${getRandomRGB()}, ${getRandomRGB()}, ${getRandomRGB()})`};
+			}
+
+      window.onload = function() {
+
+        var gui = new dat.GUI();
+        var rendering = gui.addFolder( "Rendering" );
+        rendering.add( controller, 'anaglyph' );
+        rendering.open();
+
+
+        scene = new THREE.Scene();
+
+        var fov = 60;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 10000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( 0, 250, 750);
+
+        renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+
+        var floorTexture = new THREE.TextureLoader().load( 'board.jpg' );
+        var floorGeometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        var floorMaterial = new THREE.MeshBasicMaterial( {
+          map: floorTexture,
+          side: THREE.DoubleSide
+        } );
+        var robot_rotate_counter = 0;
+        floorMaterial.onBeforeCompile = function( shader ) {
+
+          shader.fragmentShader = shader.fragmentShader.replace(
+
+          `gl_FragColor = vec4( outgoingLight, diffuseColor.a );`,
+
+          `gl_FragColor = ( gl_FrontFacing ) ? vec4( outgoingLight, diffuseColor.a ) : vec4( diffuse, opacity );`
+
+          );
+        };
+        floor = new THREE.Mesh( floorGeometry, floorMaterial );
+        // floor.position.y = -100;
+        // floor.rotateX(-30);
+        floor.rotation.x = Math.PI / 2;
+        scene.add( floor );
+
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
+
+
+        // ROBOT GOES HERE!
+        robot1 = new Robot(0, floor.position.y+58, 0);
+        robot1.show(scene);
+        stored_bots.push(robot1);
+
+        var controller_movement = {
+          'raise_left_arm': function() {
+            robot1.raise_left_arm();
+          },
+          'lower_left_arm': function() {
+            robot1.lower_left_arm();
+          },
+          'kick': function() {
+            robot1.kick();
+          },
+          'dance': function() {
+            for (var i = 0; i < stored_bots.length; i++) {
+              stored_bots[i].dance();
+
+            }
+          },
+          'walk': function() {
+            for (var i = 0; i < stored_bots.length; i++) {
+              stored_bots[i].walk();
+
+            }
+          },
+          'click on floor to add obstacle': function() {
+            pass;
+          },
+          'click plus shift on floor to add robot': function() {
+            pass;
+          }
+        };
+
+        renderer.domElement.onclick = function(e){
+
+          pixel_coords = new THREE.Vector2( e.clientX, e.clientY);
+          //standardized to (-1,-1) to (+1, +1)
+          vp_coords = new THREE.Vector2( 
+                      ( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+                      -( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+          // console.log('Viewport coords', vp_coords);
+          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          intersects = raycaster.intersectObject(floor);
+          p = intersects[0].point;
+          // console.log("p", p)
+
+          if (e.shiftKey) {
+            robot_rotate_counter+=1;
+            var robot2 = new Robot(p.x, p.y+58, p.z);
+            if (robot_rotate_counter == 1) {
+              robot2.root.rotation.y = Math.PI / 2;
+            }
+            else if (robot_rotate_counter == 2) {
+              robot2.root.rotation.y = Math.PI / 2 * robot_rotate_counter;
+            } 
+            else if (robot_rotate_counter == 3) {
+              robot2.root.rotation.y = Math.PI / 2 * robot_rotate_counter;
+            } 
+            else {
+              robot2.root.rotation.y = Math.PI / 2 * robot_rotate_counter;
+              robot_rotate_counter = 0;
+            }
+            robot2.show(scene);
+            stored_bots.push(robot2);
+
+          }
+
+          else {
+            const geometry = new THREE.BoxGeometry( 50, 50, 50 );
+            const material = new THREE.MeshStandardMaterial(getRandomColor());
+            const cube = new THREE.Mesh( geometry, material );
+            scene.add( cube );
+            cube.position.set(p.x, p.y+25, p.z);
+            stored_shapes.push(cube);
+
+          }
+
+        };
+
+        animate();
+
+        // Robot dat.GUI controls
+        // var instructions = gui.addFolder("Instructions");
+        // instructions.add(controller_movement, 'click on floor to add obstacle');
+        // instructions.add(controller_movement, 'click plus shift on floor to add Robot');
+        // instructions.open();
+
+        var moving = gui.addFolder( "Movement" );
+        moving.add( robot1.root.position, "x", -200, 200 );
+        moving.add( robot1.root.position, "y", -200, 200 );
+        moving.add( robot1.root.position, "z", -200, 200 );
+        moving.open();
+
+        var anims = gui.addFolder("Animation");
+        anims.add(controller_movement, 'click on floor to add obstacle');
+        anims.add(controller_movement, 'click plus shift on floor to add robot');
+        anims.add(controller_movement, 'raise_left_arm');
+        anims.add(controller_movement, 'lower_left_arm');
+        anims.add(controller_movement, 'kick');
+        anims.add(controller_movement, 'dance');
+        anims.add(controller_movement, 'walk');
+        anims.open();
+      
+      };
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        for (var i = 0; i < stored_bots.length; i++) {
+          stored_bots[i].onAnimate();
+          if (stored_bots[i].root.position.x < -495.0 || stored_bots[i].root.position.x > 495.0) {
+            stored_bots[i].root.rotateY(Math.PI);
+          }
+          else if (stored_bots[i].root.position.z < -495.0 || stored_bots[i].root.position.z > 495.0) {
+            stored_bots[i].root.rotateY(Math.PI);
+          }
+          for (var j = i+1; j < stored_bots.length; j++) {
+            if (stored_bots[i] == stored_bots[j]) {
+              pass;
+            }
+            else {
+              // console.log("HOLY CRAP", stored_bots[j].root.position.distanceTo(stored_bots[i].root.position));
+              if (stored_bots[j].root.position.distanceTo(stored_bots[i].root.position) < 20) {
+                stored_bots[j].root.rotateY(Math.PI);
+                stored_bots[i].root.rotateY(Math.PI);
+              }
+            }
+          }
+          for (var k = 0; k < stored_shapes.length; k++) {
+            if (stored_bots[i].root.position.distanceTo(stored_shapes[k].position) < 60) {
+              console.log("HOLY CRAP2", stored_bots[i].root.position.distanceTo(stored_shapes[i].position));
+              stored_bots[i].root.rotateY(Math.PI);
+              }
+
+          }
+        
+
+        }
+
+        controls.update();
+        if (controller.anaglyph) {
+          renderer.setClearAlpha(1);
+          anaglyph = new THREE.AnaglyphEffect(renderer);
+          anaglyph.render( scene, camera);
+        } 
+        
+        else {
+          renderer.setClearAlpha(0);
+          renderer.render( scene, camera );
+        }
+
+      };
+
+    </script>
+  </head>
+  <body></body>
+</html>
