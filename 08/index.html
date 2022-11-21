@@ -150,11 +150,11 @@
         objects_list.push(object2);
         scene.add(object2);
 
-        pointLight1 = new THREE.PointLight( 0xff0000, 5.0 );
+        pointLight1 = new THREE.PointLight( 0xff0000, 1, 100 );
         pointLight1.position.set( 300, 100, 300 );
         scene.add( pointLight1 );
 
-        pointLight2 = new THREE.PointLight( 0x00ff00, 5.0 );
+        pointLight2 = new THREE.PointLight( 0x00ff00, 1, 100 );
         pointLight2.position.set( -300, 100, -300 );
         scene.add( pointLight2 );
         
