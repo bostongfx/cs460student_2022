@@ -17,19 +17,16 @@ class Robot {
 		this.root.position.set(x, y, z);
 
 		// add a sphere for a head
-		// texture is of "ironman-sensei" from Assassination Classroom!
+		// texture is of "koro-sensei" from Assassination Classroom!
 		// Character by Yusei Matsui
-		var ironmansphere = new THREE.SphereGeometry(20, 20, 20);
+		var korosphere = new THREE.SphereGeometry(20, 20, 20);
 		var texture = new THREE.TextureLoader().load('ironman2.png');
-		texture.needsUpdate = true;
-		var ironmanmaterial = new THREE.MeshStandardMaterial(
+		var koromaterial = new THREE.MeshStandardMaterial(
 			{map: texture, roughness: 1}
 		);
-		this.ironmanmesh = new THREE.Mesh(ironmansphere, ironmanmaterial);
-		this.ironmanmesh.position.x = x;
-		this.ironmanmesh.position.y = y+15;
-		this.ironmanmesh.position.z = z;
-		this.robot.add(this.ironmanmesh);
+		this.koromesh = new THREE.Mesh(korosphere, koromaterial);
+		this.root.add(this.koromesh);
+		this.koromesh.position.y += 15;
 
 		// bones is a 4 element array
 		// element 0 is anchor point
@@ -37,7 +34,7 @@ class Robot {
 		this.head = bones[1];
 		// element 2 is the neck
 		this.neck = bones[2];
-		this.neck.position.y = -15;
+		this.neck.position.y = -10;
 		// element 3 is the torso
 		this.torso = bones[3];
 		this.torso.position.y = -30;
@@ -157,7 +154,7 @@ class Robot {
 		this.movement = 'lower left arm';
 	}
 
-	raise_right_arm = function() {
+  raise_right_arm = function() {
 		this.movement = 'raise right arm'
 	}
 
@@ -169,19 +166,47 @@ class Robot {
 		this.movement = 'kick';
 	}
 
-	dance = function() {
+	walk = function() {
+		this.movement = 'walk';
+	}
+
+  dance = function() {
 		this.movement = 'dance'
+	}
+
+  obstacle = function() {
+    pass;
+  }
+
+
+
+	onStep = function() {
+		this.root.translateZ(1);
+		if(Math.abs(this.root.position.x) >= 500
+		|| Math.abs(this.root.position.z) >= 500) {
+			this.root.rotateY(Math.PI);
+		}
+		scene.children.forEach(child => {
+			if(child.type == "Group" && child.uuid != this.robot.uuid) {
+				var otherPos = child.children[0].children[0].position;
+				if(this.root.position.distanceTo(otherPos) < 100) {
+					this.root.rotateY(Math.random() * Math.PI);
+				}
+			}
+		});
 	}
 
 	onAnimate = function() {
 		if (this.movement == 'raise left arm') {
-
+			// I added the shoulder so that I could move the entire arm
+			// rather than only the lower arm
 			const qStart = this.left_shoulder.quaternion;
 			const qEnd = new THREE.Quaternion();
 			qEnd.setFromAxisAngle(new THREE.Vector3(0, 0, -1), Math.PI *2/3);
 			qStart.slerp(qEnd, 0.1);
 		} else if (this.movement == 'lower left arm') {
-
+			// I added the shoulder so that I could move the entire arm
+			// rather than only the lower arm
 			const qStart = this.left_shoulder.quaternion;
 			const qEnd = new THREE.Quaternion();
 			qEnd.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0);
@@ -199,11 +224,13 @@ class Robot {
 					qEnd.setFromAxisAngle(new THREE.Vector3(0, 0, 1), 0);
 					qStart.slerp(qEnd, 0.1);
 		} else if (this.movement == 'kick') {
-
+			// TODO slerping and check once it is done for a backwards slerp
+  		// you can use the identity quaternion for a backwards slerp
 			const qStart = this.right_upper_leg.quaternion;
 			const qEnd = new THREE.Quaternion();
 			qEnd.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI/2);
 			qStart.slerp(qEnd, 0.1);
+			// Quaternion.equals() didn't seem to work
 			if(qStart.w.toFixed(2) === qEnd.w.toFixed(2)) {
 				this.movement = 'kick down';
 			}
@@ -212,6 +239,36 @@ class Robot {
 			const qEnd = new THREE.Quaternion();
 			qEnd.setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0);
 			qStart.slerp(qEnd, 0.1);
+		} else if (this.movement == 'walk') {
+			const qStartLeft = this.left_upper_leg.quaternion;
+			const qEndLeft = new THREE.Quaternion();
+			qEndLeft.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI/4);
+			qStartLeft.slerp(qEndLeft, 0.1);
+			// Move other leg down!
+			const qStartOther = this.right_upper_leg.quaternion;
+			const qEndOther = new THREE.Quaternion();
+			qEndOther.setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0);
+			qStartOther.slerp(qEndOther, 0.1);
+			// detect time to stop
+			if(this.left_upper_leg.quaternion.w < 0.93) {
+				this.movement = 'walk2';
+			}
+			this.onStep();
+		} else if (this.movement == 'walk2') {
+			const qStartRight = this.right_upper_leg.quaternion;
+			const qEndRight = new THREE.Quaternion();
+			qEndRight.setFromAxisAngle(new THREE.Vector3(1, 0, 0), Math.PI/4);
+			qStartRight.slerp(qEndRight, 0.1);
+			// Move other leg down!
+			const qStartOther = this.left_upper_leg.quaternion;
+			const qEndOther = new THREE.Quaternion();
+			qEndOther.setFromAxisAngle(new THREE.Vector3(1, 0, 0), 0);
+			qStartOther.slerp(qEndOther, 0.1);
+			// detect time to swap
+			if(this.right_upper_leg.quaternion.w < 0.93) {
+				this.movement = 'walk';
+			}
+			this.onStep();
 		} else if (this.movement == 'dance') {
 
     if (typeof this.dancer === 'undefined') {
