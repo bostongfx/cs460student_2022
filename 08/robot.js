@@ -239,8 +239,33 @@ Robot = function(x, y, z) {
     this.movement = 'dance';
   
   };
+
+  Robot.prototype.walk = function() {
+
+    this.movement = 'walk';
+
+  }
+
+  Robot.prototype.onStep = function(robotList) {
+    this.root.translateZ(10);
+    // If the robot moves beyond the bounds of the floor, rotate it by 180 degrees
+    if ((this.root.position.z > 500) || (this.root.position.z < -500)) {
+        this.root.rotateY(Math.PI);
+    }
+    // Below: nonfunctional code attempting to do Part 8
+    /*
+    for (robot in robotList) {
+        if (!(this.root.position.equals(robot.root.position))){
+            if (this.root.position.distanceTo(robot) <= 50) {
+                this.root.rotateY(Math.PI);
+            }
+        }
+        
+    }
+    */
+  }
   
-  Robot.prototype.onAnimate = function() {
+  Robot.prototype.onAnimate = function(robotList) {
   
     if (this.movement == 'raise left arm') {
   
@@ -336,6 +361,49 @@ Robot = function(x, y, z) {
   
       }
   
-    }
+    // walk raises the left leg
+    } else if (this.movement == 'walk') {
+
+        // Raise the left upper leg by 45 degrees
+        var T = -Math.PI/2;
+        this.left_upperleg.quaternion.slerp( new THREE.Quaternion( Math.sin( T / 2 ),   // x
+                                                                    0,                   // y
+                                                                    0,                   // z
+                                                                    Math.cos( T / 2 ) ), // w
+                                              0.1 );
+        // Return the opposite leg to its original position
+        this.right_upperleg.quaternion.slerp( new THREE.Quaternion(0,0,0,1), 0.1 );
+        // Once the left leg has reached a certain point, tell the right leg to move
+        if (this.left_upperleg.quaternion.w < 0.93) {
+            this.movement = 'walk2';
+        }
+        // Move the robot along the Z axis
+        this.onStep(robotList);
+
+        
+       
+    // walk2 raises the right leg
+    } else if (this.movement == 'walk2') {
+
+        // Raise the right upper leg by 45 degrees
+        var T = -Math.PI/2;
+        this.right_upperleg.quaternion.slerp( new THREE.Quaternion( Math.sin( T / 2 ),   // x
+                                                                    0,                   // y
+                                                                    0,                   // z
+                                                                    Math.cos( T / 2 ) ), // w
+                                              0.1 ); 
+        // Return the opposite leg to its original position
+        this.left_upperleg.quaternion.slerp( new THREE.Quaternion(0,0,0,1), 0.1 );
+        // Once the right leg has reached a certain point, tell the left leg to move
+        if (this.right_upperleg.quaternion.w < 0.93) {
+            this.movement = 'walk';
+        }
+        // Move the robot along the Z axis
+        this.onStep(robotList);
+
+
+    
+        
+    } 
   
   };

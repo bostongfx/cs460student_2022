@@ -73,14 +73,15 @@
         } );
         floor = new THREE.Mesh( floorGeometry, floorMaterial );
         floor.position.y = -100;
-        floor.rotateX(-30);
+        // corrected rotateX input so floor is no longer tilted
+        floor.rotateX(Math.PI/2);
         scene.add( floor );
 
         // robotList is an array containing all the Robots in the scene,
         //and it is a global variable so it can be called in animate()
         robotList = [];
         // r is the starting Robot in robotList
-        var r = new Robot(0, -55, 0);
+        var r = new Robot(0, -30, 0);
         r.show(scene);
         robotList.push(r);
 
@@ -112,6 +113,11 @@
             for (robot in robotList) {
                 robotList[robot].dance();
             }
+          },
+          walk: function() {
+            for (robot in robotList) {
+                robotList[robot].walk();
+            }
           }
         }
 
@@ -131,6 +137,7 @@
         moving.add( controller, "lower_left_arm" );
         moving.add( controller, "kick" );
         moving.add( controller, "dance" );
+        moving.add( controller, "walk" );
         moving.open();
 
         // Set up trackball controls
@@ -168,6 +175,9 @@
 
         if (intersects.length > 0) {
 
+            console.log(intersects[0].point.x);
+            console.log(intersects[0].point.y);
+            console.log(intersects[0].point.z);
             // Place a new robot wherever the user clicked while holding shift
             newR = new Robot(0, -55, 0);
             newR.show(scene);
@@ -186,7 +196,7 @@
 
         // a loop is needed to call onAnimate() on all the Robots in robotList
         for (robot in robotList) {
-            robotList[robot].onAnimate();
+            robotList[robot].onAnimate(robotList);
         }
 
         controls.update();
