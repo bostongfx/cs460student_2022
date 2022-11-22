@@ -33,11 +33,12 @@
 
     var scene, camera, renderer, ambientLight, light, controls;
     var floor;
-
+    
 
     window.onload = function () {
 
       scene = new THREE.Scene();
+   
 
       var fov = 60;
       var ratio = window.innerWidth / window.innerHeight;
@@ -168,7 +169,7 @@
         },
         'walk': function () {
             for (var r in robots) {
-            robots[r].walk();
+            robots[r].walk(boundaries);
           }
         }
 

@@ -212,11 +212,11 @@ Robot.prototype.kick = function () {
 Robot.prototype.dance = function () {
   this.movement = 'dance';
 };
-Robot.prototype.walk = function (x,y,z) {
+Robot.prototype.walk = function (x,y) {
   this.movement = 'walk';
   this.boundaries.x = x;
   this.boundaries.y = y;
-  this.boundaries.z = z;
+  
 
   console.log("walk")
 
