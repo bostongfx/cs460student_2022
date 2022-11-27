@@ -67,14 +67,14 @@
         // scene.add(light);
 
         spotLight1 = new THREE.SpotLight(0xffffff);
-        spotLight1.position.set(10, 100, 10);
+        spotLight1.position.set(10, 150, 10);
         scene.add(spotLight1);
 
         spotLight2 = new THREE.SpotLight(0xffffff);
         spotLight2.position.set(100, 100, 10);
         scene.add(spotLight2);
 
-        var floorTexture = new THREE.TextureLoader().load("marble.jpg");
+        var floorTexture = new THREE.TextureLoader().load("board.jpg");
         var floorGeometry = new THREE.PlaneBufferGeometry(1000, 1000);
         var floorMaterial = new THREE.MeshBasicMaterial({
           map: floorTexture,
@@ -85,12 +85,7 @@
         floor.rotateX(Math.PI / 2);
         scene.add(floor);
 
-        var video = document.getElementById("video");
-        var texture = new THREE.VideoTexture(video);
-        floor.material.map = texture;
-        video.play();
-
-        // cylinder
+        // cylinders
         color_cylinder = new THREE.Color("skyblue");
         texture = new THREE.TextureLoader().load("cylinder.jpg");
         geometry = new THREE.CylinderGeometry(10, 10, 50, 32);
@@ -128,6 +123,11 @@
             }
           },
           walk: function () {
+            var video = document.getElementById("video");
+            var texture = new THREE.VideoTexture(video);
+            floor.material.map = texture;
+            video.play();
+
             for (var r in all_robots) {
               r = all_robots[r];
               r.walk();

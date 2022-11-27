@@ -165,18 +165,19 @@ Robot.prototype.onStep = function () {
 
   // avoid robots from coliding with each other
   for (var i in all_robots) {
-    if (!this.root.position.equals(all_robots[i].root.position)) {
-      if (this.root.position.distanceTo(all_robots[i].root.position) < 30) {
-        this.root.rotateY(180);
-      }
+    if (
+      !this.root.position.equals(all_robots[i].root.position) &&
+      this.root.position.distanceTo(all_robots[i].root.position) < 30
+    ) {
+      this.root.rotateY(180);
     }
   }
 
   console.log(cylinder.position);
   //avoid robots from colidng with the cylinder
   for (var i in all_robots) {
-    if (all_robots[i].root.position.distanceTo(cylinder.position) < 30) {
-      all_robots[i].root.rotateY(180);
+    if (all_robots[i].root.position.distanceTo(cylinder.position) < 70) {
+      all_robots[i].root.rotateY(90);
     }
   }
 };
