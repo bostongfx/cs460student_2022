@@ -2,12 +2,18 @@
   <head>
     <meta charset="UTF-8" />
     <style>
-      html, body { 
-        background-color:#000;
+      html,
+      body {
+        background-color: #000;
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
+        overflow: hidden !important;
+      }
+      footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
       }
     </style>
 
@@ -19,111 +25,342 @@
       }
     </script>
 
-    <script type='module'>
+    <script type="module">
+      import * as THREE from "three";
+      import { GUI } from "https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js";
+      import { TrackballControls } from "https://threejs.org/examples/jsm/controls/TrackballControls.js";
+      import { PLYLoader } from "https://threejs.org/examples/jsm/loaders/PLYLoader.js";
+      import { GLTFLoader } from "https://threejs.org/examples/jsm/loaders/GLTFLoader.js";
 
-      import * as THREE from 'three';
-      import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
-      import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
-      import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
+      let scene,
+        camera,
+        renderer,
+        effect,
+        ambientLight,
+        directionalLight,
+        directionalLight2,
+        pointLight1,
+        pointLight2,
+        light,
+        mesh,
+        toonMaterial,
+        phongMaterial,
+        controls,
+        controller,
+        helper,
+        helper2,
+        armadillo,
+        character_left,
+        character_right,
+        newMaterial,
+        color,
+        position1,
+        position2,
+        position3;
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
-
-      window.onload = function() {
-
-
+      window.onload = function () {
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.set( 0, 0, -500);
+        const bg = new THREE.TextureLoader().load("bg.jpg");
+        scene.background = bg;
 
-        renderer = new THREE.WebGLRenderer({ });
-        renderer.setSize( window.innerWidth, window.innerHeight );
-        document.body.appendChild( renderer.domElement );
-        
+        camera = new THREE.PerspectiveCamera(
+          60,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+        camera.position.set(0, 0, -500);
+
+        renderer = new THREE.WebGLRenderer({});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
         ambientLight = new THREE.AmbientLight();
-        scene.add( ambientLight );
+        scene.add(ambientLight);
 
-        directionalLight = new THREE.DirectionalLight( 0xffffff, 5.0 );
-        directionalLight.position.set( 10, 100, -100 );
-        scene.add( directionalLight );
-
+        directionalLight = new THREE.DirectionalLight(0xffffff, 5.0);
+        directionalLight.position.set(10, 150, -100);
+        scene.add(directionalLight);
+        helper = new THREE.DirectionalLightHelper(directionalLight, 5);
+        scene.add(helper);
 
         // TODO Part 3 (add 2 pointlights)
+        pointLight1 = new THREE.PointLight(0xffffff, 1);
+        pointLight1.position.set(50, 50, -150);
+        pointLight2 = new THREE.PointLight(0xffffff, 1);
+        pointLight2.position.set(50, 150, -200);
+        scene.add(pointLight1, pointLight2);
 
+        const sphereSize = 5;
+        const pointLightHelper1 = new THREE.PointLightHelper(
+          pointLight1,
+          sphereSize
+        );
+        const pointLightHelper2 = new THREE.PointLightHelper(
+          pointLight2,
+          sphereSize
+        );
+        scene.add(pointLightHelper1, pointLightHelper2);
 
-
+        // mesh 1
         var loader = new PLYLoader();
-        loader.load('armadillo.ply', function (geometry) {
-
+        loader.load("armadillo.ply", function (geometry) {
           geometry.computeVertexNormals();
 
-          toonMaterial = new THREE.MeshToonMaterial( {
-             color: 0x21ce70
-          } );
+          toonMaterial = new THREE.MeshToonMaterial({
+            color: 0x21ce70,
+          });
+          armadillo = new THREE.Mesh(geometry, toonMaterial);
 
-          mesh = new THREE.Mesh( geometry, toonMaterial );
-          
-          scene.add( mesh );
-
-        } );
+          scene.add(armadillo);
+        });
 
         // TODO Part 1, load another mesh
-
-        // TODO Part 2, use a different material for this mesh
-
-
+        // mesh 2
+        var loader2 = new GLTFLoader();
+        loader2.load("scene.gltf", function (geometry) {
+          character_left = geometry.scene;
+          // TODO Part 2, use a different material for this mesh
+          newMaterial = new THREE.MeshPhongMaterial({ color: 0x21ce70 });
+          character_left.traverse((o) => {
+            if (o.isMesh) o.material = newMaterial;
+          });
+          scene.add(character_left);
+          character_left.scale.set(100, 100, 100);
+          character_left.rotateY(Math.PI);
+          character_left.position.y = -60;
+          character_left.position.x = 120;
+        });
+        var loader3 = new GLTFLoader();
+        loader3.load("scene.gltf", function (geometry) {
+          character_right = geometry.scene;
+          scene.add(character_right);
+          character_right.scale.set(100, 100, 100);
+          character_right.rotateY(Math.PI);
+          character_right.position.y = -60;
+          character_right.position.x = -120;
+        });
 
         controller = {
-          'color': 0xffffff // we can use this single color
-                            // container for all colors in the scene 
-                            // if we modify the onChange callback (see below)
+          color: 0xffffff, // we can use this single color
+          // container for all colors in the scene
+          // if we modify the onChange callback (see below)
 
           // TODO Bonus Part 1
+          armadillo_material: "toon",
+          character_material: "phong",
           // TODO Bonus Part 2
-        }
-
+          add_light: function () {
+            add_light();
+          },
+          remove_light: function () {
+            remove_light();
+          },
+        };
 
         var gui = new GUI();
-        var ambientFolder = gui.addFolder('Ambient Light');
-        ambientFolder.addColor(controller, 'color').onChange( function(value) { ambientLight.color.setHex(value); });
+
+        var ambientFolder = gui.addFolder("Ambient Light");
+        ambientFolder.addColor(controller, "color").onChange(function (value) {
+          ambientLight.color.setHex(value);
+        });
         ambientFolder.open();
 
-        var directionalFolder = gui.addFolder('Directional Light');
-        directionalFolder.addColor(controller, 'color').onChange( function(value) { directionalLight.color.setHex(value); });
-        directionalFolder.add(directionalLight.position, 'x', -100, 100);
-        directionalFolder.add(directionalLight.position, 'y', -100, 100);
-        directionalFolder.add(directionalLight.position, 'z', -100, 100);
+        var directionalFolder = gui.addFolder("Directional Light");
+        directionalFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            directionalLight.color.setHex(value);
+          });
+        directionalFolder.add(directionalLight.position, "x", -200, 200);
+        directionalFolder.add(directionalLight.position, "y", -200, 200);
+        directionalFolder.add(directionalLight.position, "z", -200, 200);
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
+        var pointLightFolder = gui.addFolder("Point Light 1");
+        pointLightFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            pointLight1.color.setHex(value);
+          });
+        pointLightFolder.add(pointLight1.position, "x", -100, 100);
+        pointLightFolder.add(pointLight1.position, "y", -100, 100);
+        pointLightFolder.add(pointLight1.position, "z", -100, 100);
+        pointLightFolder.open();
+
+        pointLightFolder = gui.addFolder("Point Light 2");
+        pointLightFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            pointLight2.color.setHex(value);
+          });
+        pointLightFolder.add(pointLight2.position, "x", -100, 100);
+        pointLightFolder.add(pointLight2.position, "y", -100, 100);
+        pointLightFolder.add(pointLight2.position, "z", -100, 100);
+        pointLightFolder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
+        var materialColorFolder = gui.addFolder("Material Color");
+        materialColorFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            armadillo.material.color.setHex(value);
+            newMaterial.color.setHex(value);
+          });
+
+        materialColorFolder.open();
+
+        var Material = gui.addFolder("Material");
+
+        // material for character
+        gui
+          .add(controller, "character_material", [
+            "basic",
+            "toon",
+            "standard",
+            "phong",
+          ])
+          .onChange(function (value) {
+            if (value == "phong") {
+              newMaterial = new THREE.MeshPhongMaterial({
+                color: controller.color,
+              });
+              character_left.traverse((o) => {
+                if (o.isMesh) o.material = newMaterial;
+              });
+            } else if (value == "basic") {
+              newMaterial = new THREE.MeshBasicMaterial({
+                color: controller.color,
+              });
+              character_left.traverse((o) => {
+                if (o.isMesh) o.material = newMaterial;
+              });
+            } else if (value == "toon") {
+              newMaterial = new THREE.MeshToonMaterial({
+                color: controller.color,
+              });
+              character_left.traverse((o) => {
+                if (o.isMesh) o.material = newMaterial;
+              });
+            } else if (value == "standard") {
+              newMaterial = new THREE.MeshStandardMaterial({
+                color: controller.color,
+              });
+              character_left.traverse((o) => {
+                if (o.isMesh) o.material = newMaterial;
+              });
+            }
+          });
+        // material for armadillo
+        gui
+          .add(controller, "armadillo_material", [
+            "basic",
+            "toon",
+            "standard",
+            "phong",
+          ])
+          .onChange(function (value) {
+            if (value == "phong") {
+              armadillo.material = new THREE.MeshPhongMaterial({
+                color: controller.color,
+              });
+            } else if (value == "basic") {
+              armadillo.material = new THREE.MeshBasicMaterial({
+                color: controller.color,
+              });
+            } else if (value == "toon") {
+              armadillo.material = new THREE.MeshToonMaterial({
+                color: controller.color,
+              });
+            } else if (value == "standard") {
+              armadillo.material = new THREE.MeshStandardMaterial({
+                color: controller.color,
+              });
+            }
+          });
+
+        var additionalLightFolder = gui.addFolder(
+          "Additional Light (directional)"
+        );
+
+        function add_light() {
+          if (directionalLight2) {
+            return alert("Cannot add more lights");
+          }
+          directionalLight2 = new THREE.DirectionalLight(0xffffff, 5.0);
+          directionalLight2.position.set(10, 100, -200);
+          scene.add(directionalLight2);
+          helper2 = new THREE.DirectionalLightHelper(directionalLight2, 5);
+          scene.add(helper2);
+          // console.log(directionalLight2);
+          color = additionalLightFolder
+            .addColor(controller, "color")
+            .onChange(function (value) {
+              directionalLight2.color.setHex(value);
+            });
+          position1 = additionalLightFolder.add(
+            directionalLight2.position,
+            "x",
+            -200,
+            200
+          );
+          position2 = additionalLightFolder.add(
+            directionalLight2.position,
+            "y",
+            -200,
+            200
+          );
+          position3 = additionalLightFolder.add(
+            directionalLight2.position,
+            "z",
+            -200,
+            200
+          );
+        }
+        gui.add(controller, "add_light");
+
+        additionalLightFolder.open();
+
+        function remove_light() {
+          scene.remove(directionalLight2);
+          scene.remove(helper2);
+          console.log(additionalLightFolder);
+          additionalLightFolder.remove(color);
+          additionalLightFolder.remove(position1);
+          additionalLightFolder.remove(position2);
+          additionalLightFolder.remove(position3);
+        }
+        gui.add(controller, "remove_light");
 
         gui.open();
-
-
-
-
-        controls = new TrackballControls( camera, renderer.domElement );
+        controls = new TrackballControls(camera, renderer.domElement);
 
         animate();
-
       };
 
-
       function animate() {
-
-        requestAnimationFrame( animate );
+        requestAnimationFrame(animate);
 
         controls.update();
 
-        renderer.render( scene, camera );
-        
-
-      };
-
+        renderer.render(scene, camera);
+      }
     </script>
   </head>
   <body>
+    <footer>
+      <a
+        href="https://www.freepik.com/free-photo/modern-futuristic-sci-fi-background_17573601.htm#query=game&position=26&from_view=search&track=sph"
+        >Image by user6702303</a
+      >
+      on Freepik
+      <br />
+      <a
+        href="https://sketchfab.com/3d-models/mmorpg-charakter-bddf6970dbef40f3bba68330dc7d2fd3"
+        >3D Model by haker12215</a
+      >
+    </footer>
   </body>
 </html>
