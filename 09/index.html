@@ -41,7 +41,6 @@
         directionalLight2,
         pointLight1,
         pointLight2,
-        light,
         mesh,
         toonMaterial,
         phongMaterial,
@@ -104,7 +103,7 @@
         scene.add(pointLightHelper1, pointLightHelper2);
 
         // mesh 1
-        var loader = new PLYLoader();
+        let loader = new PLYLoader();
         loader.load("armadillo.ply", function (geometry) {
           geometry.computeVertexNormals();
 
@@ -118,7 +117,7 @@
 
         // TODO Part 1, load another mesh
         // mesh 2
-        var loader2 = new GLTFLoader();
+        let loader2 = new GLTFLoader();
         loader2.load("scene.gltf", function (geometry) {
           character_left = geometry.scene;
           // TODO Part 2, use a different material for this mesh
@@ -132,7 +131,9 @@
           character_left.position.y = -60;
           character_left.position.x = 120;
         });
-        var loader3 = new GLTFLoader();
+
+        // mesh 3
+        let loader3 = new GLTFLoader();
         loader3.load("scene.gltf", function (geometry) {
           character_right = geometry.scene;
           scene.add(character_right);
@@ -151,23 +152,23 @@
           armadillo_material: "toon",
           character_material: "phong",
           // TODO Bonus Part 2
-          add_light: function () {
+          add_light: () => {
             add_light();
           },
-          remove_light: function () {
+          remove_light: () => {
             remove_light();
           },
         };
 
-        var gui = new GUI();
+        let gui = new GUI();
 
-        var ambientFolder = gui.addFolder("Ambient Light");
+        let ambientFolder = gui.addFolder("Ambient Light");
         ambientFolder.addColor(controller, "color").onChange(function (value) {
           ambientLight.color.setHex(value);
         });
         ambientFolder.open();
 
-        var directionalFolder = gui.addFolder("Directional Light");
+        let directionalFolder = gui.addFolder("Directional Light");
         directionalFolder
           .addColor(controller, "color")
           .onChange(function (value) {
@@ -179,7 +180,7 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
-        var pointLightFolder = gui.addFolder("Point Light 1");
+        let pointLightFolder = gui.addFolder("Point Light 1");
         pointLightFolder
           .addColor(controller, "color")
           .onChange(function (value) {
@@ -202,7 +203,7 @@
         pointLightFolder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
-        var materialColorFolder = gui.addFolder("Material Color");
+        let materialColorFolder = gui.addFolder("Material Color");
         materialColorFolder
           .addColor(controller, "color")
           .onChange(function (value) {
@@ -212,7 +213,7 @@
 
         materialColorFolder.open();
 
-        var Material = gui.addFolder("Material");
+        let Material = gui.addFolder("Material");
 
         // material for character
         gui
@@ -253,6 +254,7 @@
               });
             }
           });
+
         // material for armadillo
         gui
           .add(controller, "armadillo_material", [
@@ -281,7 +283,8 @@
             }
           });
 
-        var additionalLightFolder = gui.addFolder(
+        //dynamic light
+        let additionalLightFolder = gui.addFolder(
           "Additional Light (directional)"
         );
 
@@ -319,14 +322,15 @@
             200
           );
         }
-        gui.add(controller, "add_light");
-
         additionalLightFolder.open();
+        gui.add(controller, "add_light");
 
         function remove_light() {
           scene.remove(directionalLight2);
+          directionalLight2 = null;
           scene.remove(helper2);
-          console.log(additionalLightFolder);
+          // console.log(directionalLight2);
+          // console.log(additionalLightFolder);
           additionalLightFolder.remove(color);
           additionalLightFolder.remove(position1);
           additionalLightFolder.remove(position2);
