@@ -1,0 +1,255 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+      html,
+      body {
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+        overflow: hidden !important;
+      }
+    </style>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://threejs.org/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type='module'>
+
+      import * as THREE from 'three';
+      import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
+      import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
+      import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
+
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+
+      window.onload = function() {
+    <script type="module">
+      import * as THREE from "three";
+      import { GUI } from "https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js";
+      import { TrackballControls } from "https://threejs.org/examples/jsm/controls/TrackballControls.js";
+      import { PLYLoader } from "https://threejs.org/examples/jsm/loaders/PLYLoader.js";
+
+      let scene,
+        camera,
+        renderer,
+        effect,
+        ambientLight,
+        directionalLight,
+        light,
+        mesh,
+        toonMaterial,
+        standardMaterial,
+        controls,
+        controller;
+
+      window.onload = function () {
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(
+          60,
+          window.innerWidth / window.innerHeight,
+          1,
+          10000
+        );
+        camera.position.set(0, 0, -500);
+
+        scene = new THREE.Scene();
+        renderer = new THREE.WebGLRenderer({});
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set( 0, 0, -500);
+        var color = 0xffffff;
+        var intensity = 2.0;
+
+        renderer = new THREE.WebGLRenderer({ });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+
+        ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        directionalLight = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        directionalLight.position.set( 10, 100, -100 );
+        scene.add( directionalLight );
+        scene.add(ambientLight);
+
+        directionalLight = new THREE.DirectionalLight(color, intensity);
+        directionalLight.position.set(10, 100, -100);
+        scene.add(directionalLight);
+
+        // TODO Part 3 (add 2 pointlights)
+        var pointLight1 = new THREE.PointLight(color, intensity);
+        var pointLight2 = new THREE.PointLight(color, intensity);
+
+        pointLight1.position.set(200, 200, 0);
+        pointLight2.position.set(-200, 200, 0);
+
+        scene.add(pointLight1);
+        scene.add(pointLight2);
+
+        var loader = new PLYLoader();
+        loader.load('armadillo.ply', function (geometry) {
+
+        loader.load("armadillo.ply", function (geometry) {
+          geometry.computeVertexNormals();
+
+          toonMaterial = new THREE.MeshToonMaterial( {
+             color: 0x21ce70
+          } );
+          toonMaterial = new THREE.MeshToonMaterial({
+            color: "green",
+          });
+
+          mesh = new THREE.Mesh( geometry, toonMaterial );
+
+          scene.add( mesh );
+          mesh = new THREE.Mesh(geometry, toonMaterial);
+          mesh.position.x = -100;
+
+        } );
+          scene.add(mesh);
+        });
+
+        // TODO Part 1, load another mesh
+        loader.load("armadillo.ply", function (geometry) {
+          geometry.computeVertexNormals();
+
+        // TODO Part 2, use a different material for this mesh
+          standardMaterial = new THREE.MeshStandardMaterial({
+            color: "gray",
+          });
+
+          mesh = new THREE.Mesh(geometry, standardMaterial);
+          mesh.position.x = 100;
+
+          scene.add(mesh);
+        });
+
+        // TODO Part 2, use a different material for this mesh
+
+        controller = {
+          'color': 0xffffff // we can use this single color
+                            // container for all colors in the scene 
+                            // if we modify the onChange callback (see below)
+          color: 0xffffff, // we can use this single color
+          // container for all colors in the scene
+          // if we modify the onChange callback (see below)
+
+          // TODO Bonus Part 1
+          // TODO Bonus Part 2
+        }
+
+        };
+
+        var gui = new GUI();
+        var ambientFolder = gui.addFolder('Ambient Light');
+        ambientFolder.addColor(controller, 'color').onChange( function(value) { ambientLight.color.setHex(value); });
+        var ambientFolder = gui.addFolder("Ambient Light");
+        ambientFolder.addColor(controller, "color").onChange(function (value) {
+          ambientLight.color.setHex(value);
+        });
+        ambientFolder.open();
+
+        var directionalFolder = gui.addFolder('Directional Light');
+        directionalFolder.addColor(controller, 'color').onChange( function(value) { directionalLight.color.setHex(value); });
+        directionalFolder.add(directionalLight.position, 'x', -100, 100);
+        directionalFolder.add(directionalLight.position, 'y', -100, 100);
+        directionalFolder.add(directionalLight.position, 'z', -100, 100);
+        var directionalFolder = gui.addFolder("Directional Light");
+        directionalFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            directionalLight.color.setHex(value);
+          });
+        directionalFolder.add(directionalLight.position, "x", -100, 100);
+        directionalFolder.add(directionalLight.position, "y", -100, 100);
+        directionalFolder.add(directionalLight.position, "z", -100, 100);
+        directionalFolder.open();
+
+        // TODO Part 4 (control the color and position of point lights)
+        // gui.addColor(new ColorGUIHelper(light, "color"), "value").name("color");
+        var pointLightFolder1 = gui.addFolder("Point Light 1");
+        pointLightFolder1
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            pointLight1.color.setHex(value);
+          });
+        pointLightFolder1.add(pointLight1, "intensity", 0, 2, 0.01);
+        pointLightFolder1.open();
+
+        var pointLightFolder2 = gui.addFolder("Point Light 2");
+        pointLightFolder2
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            pointLight2.color.setHex(value);
+          });
+        pointLightFolder2.add(pointLight2, "intensity", 0, 2, 0.01);
+        pointLightFolder2.open();
+
+        // TODO Part 5 (control the color of both materials in the scene)
+        var toonMaterialFolder = gui.addFolder("Toon Material");
+        toonMaterialFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            if (typeof value === "string") {
+              value = value.replace("#", "0x");
+            }
+
+            toonMaterial.color.setHex(value);
+            // if (converSRGBToLinear === true) color.convertSRGBToLinear();
+          });
+        toonMaterialFolder.open();
+
+        var standardMaterialFolder = gui.addFolder("Standard Material");
+        standardMaterialFolder
+          .addColor(controller, "color")
+          .onChange(function (value) {
+            standardMaterial.color(value);
+          });
+        standardMaterialFolder.open();
+
+        gui.open();
+
+
+
+
+        controls = new TrackballControls( camera, renderer.domElement );
+        controls = new TrackballControls(camera, renderer.domElement);
+
+        animate();
+
+      };
+
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+        requestAnimationFrame(animate);
+
+        controls.update();
+
+        renderer.render( scene, camera );
+
+
+      };
+
+        renderer.render(scene, camera);
+      }
+    </script>
+  </head>
+  <body>
+  </body>
+  <body></body>
+</html>
