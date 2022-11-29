@@ -109,19 +109,19 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
-          var pointlight1Folder = gui.addFolder('Point Light 1');
-          pointlight1Folder.addColor(controller, 'color').onChange(function (value) { light1.color.setHex(value); });
-          pointlight1Folder.add(light1.position, 'x', -100, 100);
-          pointlight1Folder.add(light1.position, 'y', -100, 100);
-          pointlight1Folder.add(light1.position, 'z', -100, 100);
-          pointlight1Folder.open();
+          var pointlight0Folder = gui.addFolder('Point Light 1');
+          pointlight0Folder.addColor(controller, 'color').onChange(function (value) { light1.color.setHex(value); });
+          pointlight0Folder.add(light0.position, 'x', -100, 100);
+          pointlight0Folder.add(light0.position, 'y', -100, 100);
+          pointlight0Folder.add(light0.position, 'z', -100, 100);
+          pointlightFolder.open();
 
-          var pointLightFolder2 = gui.addFolder('Point Light 2');
-          pointLightFolder2.addColor(controller, 'color').onChange(function (value) { light2.color.setHex(value); });
-          pointLightFolder2.add(light2.position, 'x', -100, 100);
-          pointLightFolder2.add(light2.position, 'y', -100, 100);
-          pointLightFolder2.add(light2.position, 'z', -100, 100);
-          pointLightFolder2.open();
+          var pointLightFolder = gui.addFolder('Point Light 2');
+          pointLight1Folder.addColor(controller, 'color').onChange(function (value) { light2.color.setHex(value); });
+          pointLight1Folder.add(light1.position, 'x', -100, 100);
+          pointLight1Folder.add(light1.position, 'y', -100, 100);
+          pointLight1Folder.add(light1.position, 'z', -100, 100);
+          pointLight1Folder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
           var armadilloColorFolder = gui.addFolder('Armadillo');
