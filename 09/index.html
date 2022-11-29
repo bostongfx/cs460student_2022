@@ -47,8 +47,8 @@
         directionalLight.position.set( 10, 100, -100 );
         scene.add( directionalLight );
 
-        // The idea for adding this DirectionalLightHelper comes from looking at the .html file for this link
-        // through the developer tools:
+        // The idea and code for adding this DirectionalLightHelper comes from 
+        // looking at the .html file for this link through the developer tools:
         // https://threejsfundamentals.org/threejs/threejs-lights-directional-w-helper.html
 
         // dlHelper adds an element to the scene that indicates where the directional light
@@ -71,8 +71,8 @@
         pointLight2.position.set( 100, -50, 50 );
         scene.add( pointLight2 );
 
-        // The idea for adding these PointLightHelpers comes from looking at the .html file for this link
-        // through the developer tools:
+        // The idea and code for adding these PointLightHelpers comes from 
+        // looking at the .html file for this link through the developer tools:
         // https://threejsfundamentals.org/threejs/threejs-lights-point.html
 
         // pl1Helper and pl2Helper add elements to the scene that indicate where the point lights
@@ -162,6 +162,7 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
+
         var pl1Folder = gui.addFolder('Point Light 1');
         pl1Folder.addColor(controller, 'color').onChange( function(value) { pointLight1.color.setHex(value); });
         pl1Folder.add(pointLight1.position, 'x', -300, 300).onChange(updatePL1helper);
@@ -183,7 +184,6 @@
 
         var lamMatFolder = gui.addFolder('Lambert Material');
         lamMatFolder.addColor(controller, 'color').onChange( function(value) { lambertMaterial.color.setHex(value); });
-
 
 
         gui.open();
