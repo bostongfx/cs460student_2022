@@ -49,27 +49,13 @@
 
 
         // TODO Part 3 (add 2 pointlights)
+        var pointLight1 = new THREE.PointLight( 0xff0000, 200, 0 );
+        pointLight1.position.set( 0, 0, -100 );
+        scene.add( pointLight1 );
 
-
-
-        var loader = new PLYLoader();
-        loader.load('armadillo.ply', function (geometry) {
-
-          geometry.computeVertexNormals();
-
-          toonMaterial = new THREE.MeshToonMaterial( {
-             color: 0x21ce70
-          } );
-
-          mesh = new THREE.Mesh( geometry, toonMaterial );
-          
-          scene.add( mesh );
-
-        } );
-
-        // TODO Part 1, load another mesh
-
-        // TODO Part 2, use a different material for this mesh
+        var pointLight2 = new THREE.PointLight( 0x4a00ff, 200, 0 );
+        pointLight2.position.set( 0, 100, -100 );
+        scene.add( pointLight2 );
 
 
 
@@ -95,6 +81,27 @@
         directionalFolder.add(directionalLight.position, 'z', -100, 100);
         directionalFolder.open();
 
+        var pointFolder1 = gui.addFolder( 'Point Light 1' );
+        pointFolder1.addColor( controller, 'color' ).onChange( function(value) { pointLight1.color.setHex( value ); } );
+        pointFolder1.add( pointLight1.position, 'x', -100, 100 );
+        pointFolder1.add( pointLight1.position, 'y', -100, 100 );
+        pointFolder1.add( pointLight1.position, 'z', -100, 100 );
+        pointFolder1.open();
+
+        var pointFolder2 = gui.addFolder( 'Point Light 2' );
+        pointFolder2.addColor( controller, 'color' ).onChange( function(value) { pointLight2.color.setHex( value ); } );
+        pointFolder2.add( pointLight2.position, 'x', -100, 100 );
+        pointFolder2.add( pointLight2.position, 'y', -100, 100 );
+        pointFolder2.add( pointLight2.position, 'z', -100, 100) ;
+        pointFolder2.open();
+
+        var bothMaterial = gui.addFolder( 'Color All' );
+        bothMaterial.addColor( controller, 'color' ).onChange( function(value) {
+          toonMaterial.color.setHex( value );
+          material.color.setHex( value );
+        } );
+        bothMaterial.open();
+
         // TODO Part 4 (control the color and position of point lights)
 
         // TODO Part 5 (control the color of both materials in the scene)
@@ -106,6 +113,43 @@
 
         controls = new TrackballControls( camera, renderer.domElement );
 
+        var loader = new PLYLoader();
+        loader.load('armadillo.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          toonMaterial = new THREE.MeshToonMaterial( {
+             color: 'gray'
+          } );
+
+          mesh = new THREE.Mesh( geometry, toonMaterial );
+          
+          scene.add( mesh );
+
+        } );
+
+        loader.load('beethoven.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          material = new THREE.MeshStandardMaterial( { color: 'gray', flatShading: true } );
+
+          mesh = new THREE.Mesh( geometry, material );
+          mesh.position.z = -100;
+          mesh.position.y = 40;
+          mesh.scale.multiplyScalar( 0.03 );
+          mesh.rotation.z = Math.PI / 2;
+          mesh.rotation.x = - Math.PI / 2;
+
+          scene.add( mesh );
+
+          } );
+
+        // TODO Part 1, load another mesh
+
+        // TODO Part 2, use a different material for this mesh
+        
+        
         animate();
 
       };
