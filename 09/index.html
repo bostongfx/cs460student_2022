@@ -26,7 +26,7 @@
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, lambertMaterial, controls, controller;
 
       window.onload = function() {
 
@@ -47,8 +47,53 @@
         directionalLight.position.set( 10, 100, -100 );
         scene.add( directionalLight );
 
+        // The idea for adding this DirectionalLightHelper comes from looking at the .html file for this link
+        // through the developer tools:
+        // https://threejsfundamentals.org/threejs/threejs-lights-directional-w-helper.html
+
+        // dlHelper adds an element to the scene that indicates where the directional light
+        // is, and where it's pointing towards
+        const dlHelper = new THREE.DirectionalLightHelper(directionalLight);
+        scene.add(dlHelper);
+
+        // updateDLhelper updates dlHelper whenever the directional light is moved by the user
+        function updateDLhelper() {
+          directionalLight.target.updateMatrixWorld();
+          dlHelper.update();
+        }
 
         // TODO Part 3 (add 2 pointlights)
+        const pointLight1 = new THREE.PointLight( 0xffffff, 1);
+        pointLight1.position.set( -100, 50, -50 );
+        scene.add( pointLight1 );
+
+        const pointLight2 = new THREE.PointLight( 0xff0000, 1);
+        pointLight2.position.set( 100, -50, 50 );
+        scene.add( pointLight2 );
+
+        // The idea for adding these PointLightHelpers comes from looking at the .html file for this link
+        // through the developer tools:
+        // https://threejsfundamentals.org/threejs/threejs-lights-point.html
+
+        // pl1Helper and pl2Helper add elements to the scene that indicate where the point lights
+        // are in the scene
+        
+        const pl1Helper = new THREE.PointLightHelper(pointLight1);
+        scene.add(pl1Helper);
+
+        const pl2Helper = new THREE.PointLightHelper(pointLight2);
+        scene.add(pl2Helper);
+
+        // updatePL1helper and updatePL2helper update pl1Helper and pl2Helper respectively
+        // whenever they get moved by the user
+
+        function updatePL1helper() {
+          pl1Helper.update();
+        }
+
+        function updatePL2helper() {
+          pl2Helper.update();
+        }
 
 
 
@@ -62,6 +107,8 @@
           } );
 
           mesh = new THREE.Mesh( geometry, toonMaterial );
+
+          mesh.position.set(-150, 0, 0);
           
           scene.add( mesh );
 
@@ -69,7 +116,26 @@
 
         // TODO Part 1, load another mesh
 
-        // TODO Part 2, use a different material for this mesh
+        var loader2 = new PLYLoader();
+        loader2.load('armadillo.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          // TODO Part 2, use a different material for this mesh
+          lambertMaterial = new THREE.MeshLambertMaterial( {
+            color: 0x21ce70
+          });
+          lambertMaterial.flatShading = true;
+
+          mesh = new THREE.Mesh( geometry, lambertMaterial );
+
+          mesh.position.set(150, 0, 0);
+          
+          scene.add( mesh );
+
+        } );
+
+        
 
 
 
@@ -90,14 +156,35 @@
 
         var directionalFolder = gui.addFolder('Directional Light');
         directionalFolder.addColor(controller, 'color').onChange( function(value) { directionalLight.color.setHex(value); });
-        directionalFolder.add(directionalLight.position, 'x', -100, 100);
-        directionalFolder.add(directionalLight.position, 'y', -100, 100);
-        directionalFolder.add(directionalLight.position, 'z', -100, 100);
+        directionalFolder.add(directionalLight.position, 'x', -100, 100).onChange(updateDLhelper);
+        directionalFolder.add(directionalLight.position, 'y', -100, 100).onChange(updateDLhelper);
+        directionalFolder.add(directionalLight.position, 'z', -100, 100).onChange(updateDLhelper);
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
+        var pl1Folder = gui.addFolder('Point Light 1');
+        pl1Folder.addColor(controller, 'color').onChange( function(value) { pointLight1.color.setHex(value); });
+        pl1Folder.add(pointLight1.position, 'x', -300, 300).onChange(updatePL1helper);
+        pl1Folder.add(pointLight1.position, 'y', -300, 300).onChange(updatePL1helper);
+        pl1Folder.add(pointLight1.position, 'z', -300, 300).onChange(updatePL1helper);
+        pl1Folder.open();
+
+        var pl2Folder = gui.addFolder('Point Light 2');
+        pl2Folder.addColor(controller, 'color').onChange( function(value) { pointLight2.color.setHex(value); });
+        pl2Folder.add(pointLight2.position, 'x', -300, 300).onChange(updatePL2helper);
+        pl2Folder.add(pointLight2.position, 'y', -300, 300).onChange(updatePL2helper);
+        pl2Folder.add(pointLight2.position, 'z', -300, 300).onChange(updatePL2helper);
+        pl2Folder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
+
+        var toonMatFolder = gui.addFolder('Toon Material');
+        toonMatFolder.addColor(controller, 'color').onChange( function(value) { toonMaterial.color.setHex(value); });
+
+        var lamMatFolder = gui.addFolder('Lambert Material');
+        lamMatFolder.addColor(controller, 'color').onChange( function(value) { lambertMaterial.color.setHex(value); });
+
+
 
         gui.open();
 
