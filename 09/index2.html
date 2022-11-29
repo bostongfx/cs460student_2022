@@ -1,0 +1,245 @@
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <style>
+          html,
+          body {
+            background-color: #000;
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden !important;
+          }
+        </style>
+      
+        <script type="importmap">
+            {
+              "imports": {
+                "three": "https://threejs.org/build/three.module.js"
+              }
+            }
+        </script>
+
+        <script type='module'>
+
+            import * as THREE from 'three';
+            import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
+            import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
+            import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
+        
+            let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, material, controls, controller, x;
+            let directLights = [];
+            window.onload = function () {
+                scene = new THREE.Scene();
+                camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+                camera.position.set(0, 0, -500);
+                renderer = new THREE.WebGLRenderer({});
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                document.body.appendChild(renderer.domElement);
+
+                ambientLight = new THREE.AmbientLight();
+                scene.add(ambientLight);
+
+                directionalLight = new THREE.DirectionalLight(0xffffff, 5.0);
+                directionalLight.position.set(10, 100, -100);
+                scene.add(directionalLight);
+                directLights.push(directionalLight);
+
+                directionalLight = new THREE.DirectionalLight(0x0000ff, 5.0);
+                directionalLight.position.set(-10, -100, 100);
+                scene.add(directionalLight);
+                directLights.push(directionalLight);
+
+                let model = [];
+
+                var loader = new PLYLoader();
+
+                loader.load('armadillo.ply', function (geometry) {
+                    geometry.computeVertexNormals();
+                    material = new THREE.MeshToonMaterial({
+                        color: 'red'
+                    });
+                    mesh = new THREE.Mesh(geometry, material);
+                    model.push(mesh);
+        
+                    scene.add(mesh);
+                });
+                loader.load('armadillo.ply', function (geometry) {
+                    geometry.computeVertexNormals();
+                    material = new THREE.MeshPhongMaterial({
+                        color: 'gray'
+                    });
+                    mesh = new THREE.Mesh(geometry, material);
+                    model.push(mesh);
+                    model[1].position.x = 150;
+                    scene.add(mesh);
+                });
+
+                controller = {
+                    'color': 0xffffff, // we can use this single color
+                    // container for all colors in the scene 
+                    // if we modify the onChange callback (see below)
+                    'modelColor': 'gray'
+        ,
+                    'material': 't',
+                    'New Light': function () {
+                        directionalLight = new THREE.DirectionalLight(0x0000ff, 5.0);
+                        directionalLight.position.set(-10, -100, 100);
+                        scene.add(directionalLight);
+                        directLights.push(directionalLight);
+                        let i = directLights.length-1;
+                        var dynamic = gui.addFolder("dynamic Light");
+                        dynamic.addColor(controller, 'color').onChange(function (value) {
+                        directLights[1].color.setHex(value);
+                        });
+                        dynamic.add(directLights[i].position, 'x', -100, 100);
+                        dynamic.add(directLights[i].position, 'y', -100, 100);
+                        dynamic.add(directLights[i].position, 'z', -100, 100);
+                        dynamic.add( controller, 'remove').onChange(function(){ dynamic.close();})
+                        dynamic.open();
+                    },
+                    'remove': function(){}
+                }
+
+                function random() {
+                    return Math.floor(Math.random() * 3);
+                }
+
+                function ranHex() {
+                    const randomColor = Math.floor(Math.random() * 0xFFFFFF).toString(16);
+                    document.body.style.backgroundColor = "#" + randomColor;
+                    return "0x" + randomColor;
+                }
+
+                var gui = new GUI();
+                var ambientFolder = gui.addFolder('Ambient Light');
+                ambientFolder.addColor(controller, 'color').onChange(function (value) { ambientLight.color.setHex(value); });
+                ambientFolder.open();
+
+                var directionalFolder = gui.addFolder('Directional Light');
+                directionalFolder.addColor(controller, 'color').onChange(function (value) {
+                    directLights[0].color.setHex(value);
+                    directLights[1].color.setHex(value);
+                });
+                directionalFolder.add(directLights[1].position, 'x', -100, 100).onChange(function () { directLights[0].position.x = directLights[1].position.x; });
+                directionalFolder.add(directLights[1].position, 'y', -100, 100).onChange(function () { directLights[0].position.y = directLights[1].position.y; });;
+                directionalFolder.add(directLights[1].position, 'z', -100, 100).onChange(function () { directLights[0].position.z = directLights[1].position.z; });;
+                directionalFolder.open();
+
+                var directionalFolder = gui.addFolder('Point Light1');
+                directionalFolder.addColor(controller, 'color').onChange(function (value) {
+                    directLights[0].color.setHex(value);
+                });
+                directionalFolder.add(directLights[0].position, 'x', -100, 100);
+                directionalFolder.add(directLights[0].position, 'y', -100, 100);
+                directionalFolder.add(directLights[0].position, 'z', -100, 100);
+                directionalFolder.open();
+
+                var directionalFolder = gui.addFolder('Point Light2');
+                directionalFolder.addColor(controller, 'color').onChange(function (value) {
+                    directLights[1].color.setHex(value);
+                });
+                directionalFolder.add(directLights[1].position, 'x', -100, 100);
+                directionalFolder.add(directLights[1].position, 'y', -100, 100);
+                directionalFolder.add(directLights[1].position, 'z', -100, 100);
+                directionalFolder.open();
+
+                var modelgui = gui.addFolder('Model');
+                modelgui.addColor(controller, 'color').onChange(function (value) { model[0].material.color.setHex(value) });
+                modelgui.add(controller, 'material', ['toon', 'standard', 'phong','Normal','Depth']).onChange(function (value) {
+                switch (value[0]) {
+                    case 't':
+                        model[0].material = new THREE.MeshToonMaterial({
+                        color: model[0].material.color
+                    });
+                    model[0].updateMatrix();
+                    break;
+                    case 's':
+                        model[0].material = new THREE.MeshStandardMaterial({
+                        color: model[0].material.color
+                    });
+                    model[0].updateMatrix();
+                    break;
+                    case 'p':
+                        model[0].material = new THREE.MeshPhongMaterial({
+                        color: model[0].material.color
+                    });
+                    model[0].updateMatrix();
+                    break;
+                    case 'n':
+                        model[0].material = new THREE.MeshNormalMaterial({
+                            color: model[0].material.color
+                        })
+                    model[0].updateMatrix();
+                    break;
+                    case 'd':
+                        model[0].material = new THREE.MeshDepthMaterial({
+                            color: model[0].material.color
+                        })
+                    model[0].updateMatrix();
+                    break;
+                }
+            });
+            modelgui.open();
+            var modelgui = gui.addFolder('Model2');
+            modelgui.addColor(controller, 'color').onChange(function (value) { model[1].material.color.setHex(value) });
+            modelgui.add(controller, 'material', ['toon', 'standard', 'phong','Normal','Depth']).onChange(function (value) {
+            switch (value[1]) {
+                case 't':
+                    model[1].material = new THREE.MeshToonMaterial({
+                    color: model[1].material.color
+                    });
+            //model[0].updateMatrix();
+                break;
+                case 's':
+                    model[1].material = new THREE.MeshStandardMaterial({
+                    color: model[1].material.color
+                    });
+            //model[0].updateMatrix();
+                break;
+                case 'p':
+                    model[1].material = new THREE.MeshPhongMaterial({
+                    color: model[1].material.color
+                    });
+            //model[0].updateMatrix();
+                break;
+                case 'n':
+                    model[1].material = new THREE.MeshNormalMaterial({
+                        color: model[1].material.color
+                    })
+                model[0].updateMatrix();
+                break;
+                case 'd':
+                    model[1].material = new THREE.MeshDepthMaterial({
+                        color: model[1].material.color
+                    })
+                model[0].updateMatrix();
+                break;
+                }
+            });
+
+            modelgui.open();
+            var newLight = gui.addFolder('New Light');
+            newLight.add(controller, 'New Light');
+            newLight.open();
+
+            gui.open();
+
+            controls = new TrackballControls(camera, renderer.domElement);
+
+            animate();
+        };
+
+        function animate() {
+            requestAnimationFrame(animate);
+            controls.update();
+            renderer.render(scene, camera);
+        };
+
+</script>
+</head>
+
+<body>
+</body>
+
+</html>
