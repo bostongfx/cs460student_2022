@@ -71,7 +71,7 @@
 
         //geometry.position.x = 5;
         material = new THREE.MeshToonMaterial({
-          color: 0xff0000
+          color: ranHex()
         });
         mesh = new THREE.Mesh(geometry, material);
         model.push(mesh);
@@ -79,7 +79,7 @@
         scene.add(mesh);
 
         material = new THREE.MeshPhongMaterial({
-          color: 0x00ff00
+          color: ranHex()
         });
         mesh = new THREE.Mesh(geometry, material);
         model.push(mesh);
@@ -128,7 +128,7 @@
       function ranHex() {
         const randomColor = Math.floor(Math.random() * 16777215).toString(16);
         document.body.style.backgroundColor = "#" + randomColor;
-        return "#" + randomColor;
+        return "0x" + randomColor;
       }
 
 
