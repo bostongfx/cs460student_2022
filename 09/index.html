@@ -26,7 +26,18 @@
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let scene, 
+          camera, 
+          renderer, 
+          effect, 
+          ambientLight, 
+          directionalLight, 
+          pointLight,
+          pointLight2,
+          light, 
+          mesh, 
+          toonMaterial, 
+          controls, controller;
 
       window.onload = function() {
 
@@ -49,14 +60,18 @@
 
 
         // TODO Part 3 (add 2 pointlights)
+         pointLight = new THREE.PointLight(0xff0000, .5);   
+         pointLight2 = new THREE.PointLight(0xff0000, .5);
+         pointLight.position.set(-500, 100, -100);
+         pointLight2.position.set(-10, 100, -100);
 
+        scene.add(pointLight);
+        scene.add(pointLight2);
 
 
         var loader = new PLYLoader();
         loader.load('armadillo.ply', function (geometry) {
-
           geometry.computeVertexNormals();
-
           toonMaterial = new THREE.MeshToonMaterial( {
              color: 0x21ce70
           } );
@@ -66,11 +81,33 @@
           scene.add( mesh );
 
         } );
+        
+        loader.load('armadillo.ply', function(geometry){
+          geometry.computeVertexNormals();
+          toonMaterial = new THREE.MeshPhongMaterial({color: 0x100dd1});
+          mesh = new THREE.Mesh(geometry, toonMaterial);
+          mesh.position.y = -100;
+          mesh.position.x = 100;
+          scene.add(mesh);
+        });
+
+
+        //var loader3 = new PLYLoader();
+        
 
         // TODO Part 1, load another mesh
 
         // TODO Part 2, use a different material for this mesh
 
+
+        loader.load('armadillo.ply', function(geometry){
+          geometry.computeVertexNormals();
+          toonMaterial = new THREE.MeshLambertMaterial({color: 0x111111});
+          mesh = new THREE.Mesh(geometry, toonMaterial);
+          mesh.position.y = 100;
+          mesh.position.x = 100;
+          scene.add(mesh);
+        });
 
 
         controller = {
@@ -97,13 +134,46 @@
 
         // TODO Part 4 (control the color and position of point lights)
 
+        var PointLightFolder1 = gui.addFolder('Point Light 1');
+        PointLightFolder1.addColor(controller, 'color').onChange( function(value) 
+        { pointLight1.color.setHex(value); });
+
+        PointLightFolder1.add(pointLight.position, 'x', -100, 100);
+        PointLightFolder1.add(pointLight.position, 'y', -100, 100);
+        PointLightFolder1.add(pointLight.position, 'z', -100, 100);
+        PointLightFolder1.open();
+
+
+
+        var PointLightFolder2 = gui.addFolder('Point Light 2');
+        PointLightFolder2.addColor(controller, 'color').onChange( function(value) {
+           pointLight2.color.setHex(value); 
+          });
+
+          PointLightFolder2.add(pointLight2.position, 'x', -100, 100);
+          PointLightFolder2.add(pointLight2.position, 'y', -100, 100);
+          PointLightFolder2.add(pointLight2.position, 'z', -100, 100);
+
+          PointLightFolder2.open();
+
+
         // TODO Part 5 (control the color of both materials in the scene)
 
         gui.open();
 
 
 
+        var MaterialFolder1 = gui.addFolder('Material 1 Toon');
+        MaterialFolder1.addColor(controller, 'color').onChange( function(value) {
+          ToonMaterial.color.setHex(value); 
+        });
 
+          var MaterialFolder2 = gui.addFolder('Material 2 Phong');
+          MaterialFolder2.addColor(controller, 'color').onChange( function(value) {
+            PhongMaterial.color.setHex(value); 
+          });
+
+            gui.open();
         controls = new TrackballControls( camera, renderer.domElement );
 
         animate();
