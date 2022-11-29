@@ -25,6 +25,7 @@
       import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
+      //import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
 
       let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
 
@@ -34,7 +35,7 @@
         scene = new THREE.Scene();
 
         camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
-        camera.position.set( 0, 0, -500);
+        camera.position.set( 300, 0, -600);
 
         renderer = new THREE.WebGLRenderer({ });
         renderer.setSize( window.innerWidth, window.innerHeight );
@@ -49,6 +50,28 @@
 
 
         // TODO Part 3 (add 2 pointlights)
+        // https://threejs.org/docs/#api/en/lights/PointLight
+        /*
+        var color = 0xFFFFFF;
+      var intensity = 1;
+      var light = new THREE.PointLight(color, intensity);
+      light.position.set(0, 10, 0);
+      scene.add(light);
+        */
+       // Remeber that the pointlight is like a lightbulb
+        //var color = 0xFFFFFF;
+        //var color = 0xFF5733;
+        var color = 0x97078b;
+        var intensity = -3;
+        var light = new THREE.PointLight('green', intensity);
+        light.position.set(-550, 600, 250);
+        scene.add(light);
+      
+        var light2 = new THREE.PointLight('green', intensity);
+        light2.position.set(250, 800, 150);
+        scene.add(light2);
+        
+
 
 
 
@@ -58,7 +81,10 @@
           geometry.computeVertexNormals();
 
           toonMaterial = new THREE.MeshToonMaterial( {
-             color: 0x21ce70
+             //color: 0x21ce70
+             color: 0x48200e
+             //924626
+             //color: 'red'
           } );
 
           mesh = new THREE.Mesh( geometry, toonMaterial );
@@ -67,9 +93,76 @@
 
         } );
 
-        // TODO Part 1, load another mesh
-
+        // TODO Part 1, load another mesh using a THREEjs loader, and modify
+        // the positions, so that the meshes do not overlap. THREEjs loaders
+        // include ply or gtfl.
         // TODO Part 2, use a different material for this mesh
+        // https://threejs.org/docs/#manual/en/introduction/Loading-3D-models
+        // https://sbcode.net/threejs/loaders-ply/
+        // https://r105.threejsfundamentals.org/threejs/lessons/threejs-materials.html
+
+        loader.load('dolphins.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          toonMaterial = new THREE.MeshStandardMaterial( {
+             //color: 0x21ce70
+             //color: 'blue'
+             color: 0x47aceb
+          } );
+
+          mesh = new THREE.Mesh( geometry, toonMaterial );
+
+          mesh.position.y = -200;
+          mesh.position.z = 350;
+          mesh.position.x = -5
+          mesh.rotation.z = - Math.PI / 2;
+          mesh.rotation.x = - Math.PI / 2;
+          
+          scene.add( mesh );
+
+          // mesh.position.z = -50
+          // mesh.position.y = 50
+
+        } );
+        loader.load('dolphins2.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          toonMaterial = new THREE.MeshStandardMaterial( {
+             color: 0x47aceb
+          } );
+
+          mesh = new THREE.Mesh( geometry, toonMaterial );
+
+          mesh.position.y = -450;
+          mesh.position.z = 500;
+          mesh.position.x = -600
+          mesh.rotation.z = - Math.PI / 2;
+          mesh.rotation.x = - Math.PI / 2;
+          
+          scene.add( mesh );
+        } );
+
+        loader.load('dolphins3.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          toonMaterial = new THREE.MeshStandardMaterial( {
+            color: 0x47aceb
+          } );
+
+          mesh = new THREE.Mesh( geometry, toonMaterial );
+
+          mesh.position.y = -100;
+          mesh.position.z = 300;
+          mesh.position.x = 300
+          mesh.rotation.z = - Math.PI / 2;
+          mesh.rotation.x = - Math.PI / 2;
+
+          scene.add( mesh );
+        } );
+
 
 
 
@@ -88,6 +181,7 @@
         ambientFolder.addColor(controller, 'color').onChange( function(value) { ambientLight.color.setHex(value); });
         ambientFolder.open();
 
+        //directionalLight.position.set( 10, 100, -100 );
         var directionalFolder = gui.addFolder('Directional Light');
         directionalFolder.addColor(controller, 'color').onChange( function(value) { directionalLight.color.setHex(value); });
         directionalFolder.add(directionalLight.position, 'x', -100, 100);
@@ -96,8 +190,24 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
-
         // TODO Part 5 (control the color of both materials in the scene)
+
+        // light.position.set(-550, 600, 250);
+        var directionalFolder = gui.addFolder('Point Light 1');
+        directionalFolder.addColor(controller, 'color').onChange( function(value) { light.color.setHex(value); });
+        directionalFolder.add(light.position, 'x', -600, 600); // The range to move the light in accordance to the coordinate
+        directionalFolder.add(light.position, 'y', -500, 800);
+        directionalFolder.add(light.position, 'z', -500, 500);
+        directionalFolder.open();
+
+        // light2.position.set(250, 800, 150);
+        var directionalFolder = gui.addFolder('Point Light 2');
+        directionalFolder.addColor(controller, 'color').onChange( function(value) { light2.color.setHex(value); });
+        directionalFolder.add(light2.position, 'x', -400, 400); // The range to move the light in accordance to the coordinate
+        directionalFolder.add(light2.position, 'y', -800, 800);
+        directionalFolder.add(light2.position, 'z', -300, 300);
+        directionalFolder.open();
+
 
         gui.open();
 
