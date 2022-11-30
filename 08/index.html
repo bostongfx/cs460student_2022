@@ -139,7 +139,7 @@
         scene.add(model)
 
         mixer = new THREE.AnimationMixer(model);
-        let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'swingdance');
+        let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
         idle = mixer.clipAction(idleAnim);
         idle.play();
         mixers.push(mixer)
