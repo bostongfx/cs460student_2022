@@ -1,0 +1,73 @@
+.container {
+    width: 80%;
+    margin: 0 auto;
+  
+  }
+.desc {
+    margin-top: 300px;
+  }
+  
+  .desc-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    align-items: center;
+    margin: 40px 0px 180px 0px;
+    position: relative;
+  }
+  
+  
+  .desc-card {
+    width: 20%;
+    height: 400px;
+    background: #222;
+    display: inline-block;
+    border-radius: 10px;
+    -webkit-box-shadow: 0px 0px 52px -19px rgba(0, 0, 0, 0.75);
+    -moz-box-shadow: 0px 0px 52px -19px rgba(0, 0, 0, 0.75);
+    box-shadow: 0px 0px 52px -19px rgba(0, 0, 0, 0.75);
+  }
+  
+  .desc-description {
+    width: 40%;
+  
+  }
+  
+  .desc-one {
+    background: url("/src/assets/unknown.png")center no-repeat;
+    background-size: contain;
+  
+  
+  
+  }
+  
+  .desc-two {
+    background: url("/src/assets/unknown.png")center no-repeat;
+    background-size: contain;
+    margin: auto;
+  }
+  
+  .desc-three {
+    background: url("/src/assets/unknown.png")center no-repeat;
+    background-size: contain;
+    margin: contain;
+  
+  }
+  
+  .desc-fourth {
+    background: url("/src/assets/unknown.png")center no-repeat;
+    background-size: contain;
+    margin: auto;
+  }
+  
+  .sigma-container {
+    margin-top: 45px;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  .vertical-separator {
+    background-color: #CCC;
+    width: 2px;
+    height: 15px
+  }
