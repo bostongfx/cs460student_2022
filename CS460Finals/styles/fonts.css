@@ -18,3 +18,27 @@
   font-family: 'oswald_medium';
   src: url(fonts/oswald_medium.ttf);
   }     
+
+  .glow { /* Text glow ------------------------------------- */
+    font-size: 30px;
+    text-align: center;
+    font-family: cursive;
+    color: #000;
+    animation: glow 1s ease-in-out infinite alternate;
+  }
+  .glow2 {
+    font-size: 30px;
+    text-align: center;
+    
+    color: #fff;
+    animation: glow 1s ease-in-out infinite alternate;
+  }
+  @-webkit-keyframes glow {
+    from {
+      text-shadow: 0 0 5px #000, 0 0 10px #fff, 0 0 10px #d1deea, 0 0 30px #d1deea, 0 0 40px #d1deea, 0 0 40px #d1deea, 0 0 50px #d1deea;
+    }
+    to {
+      text-shadow: 0 0 20px #fff, 0 0 30px #70dceb, 0 0 40px #70dceb, 0 0 50px #70dceb, 0 0 60px #70dceb, 0 0 70px #70dceb, 0 0 80px #BB761B;
+    }
+  }
+  

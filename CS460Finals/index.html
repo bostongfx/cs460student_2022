@@ -63,6 +63,85 @@
     </div>
 
     <br>
+    <!-- Banner/Logo Area-->
+    <!-- WebGL Script-->
+
+    <center style='display:inline-block;margin-top:50px'>
+      <div style='width:950px'>
+        <iframe src="webgl/intro/" width="900" height="300" frameborder="0" webkitallowfullscreen mozallowfullscreen
+          allowfullscreen></iframe>
+      </div>
+    </center>
+    <script type='text/javascript'>
+      window.onload = function() {
+
+        // create a new test_renderer
+        r = new X.renderer3D();
+        r.init();
+        
+        // create a new X.object
+        obj = new X.object();
+        
+        // add the points, normals and colors
+        //
+        // this means 648000 / 3 == 216000 vertices
+        // on my work machine I could set 24000000 / 3 == 8 mio vertices
+        obj.points = new X.triplets(648000);
+        obj.normals = new X.triplets(648000);
+        obj.colors = new X.triplets(648000);
+        
+        // and set the type to POINTS
+        obj.type = 'POINTS';
+        
+        // create the points, normals and colors
+        for ( var x = 0; x < 60; x++) {
+          for ( var y = 0; y < 60; y++) {
+            for ( var z = 0; z < 60; z++) {
+              
+              obj.points.add(x, y, z);
+              obj.normals.add(1, 1, 1);
+              obj.colors.add(x/60, y/60, z/60);
+              
+            }
+          }
+        }
+        
+        // add the object
+        r.add(obj);
+        
+        // setup the camera
+        r.camera.position = [500, 500, 500];
+        
+        // .. and render it
+        r.render();
+        
+      };
+
+
+      window.onclick = function() {
+        //document.getElementById('caption').style.display = 'none';
+
+       // var zoomer = setInterval(function() {
+//
+       //   // we can stop once we are far away enough
+       //   if (r.camera.view[14] > 1000) {
+       //     clearInterval(zoomer); 
+       //     console.log('zooming done'); 
+       //     return;
+       //   }
+//
+       //   // zoom in
+       //   r.camera.zoomIn();
+//
+       // }, 10);
+      };
+
+    </script>
+
+
+    <!-- end of Banner/Logo Area-->
+
+
     <div id="info" class="square">
       <center>
         <!---- Picture head ----->
