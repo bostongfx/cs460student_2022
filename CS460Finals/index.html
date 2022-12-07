@@ -10,6 +10,8 @@
   <link rel="stylesheet" type="text/css" href="styles/fonts.css" />
   <link rel="stylesheet" type="text/css" href="styles/main.css" />
 
+
+
   <!-- new code -->
   <!-- Nav Script -->
   <script>
@@ -41,7 +43,7 @@
   </script>
   <!--Slideshow Script-->
   <!---- picture Script ---->
-  
+
 
   <script src="https://kit.fontawesome.com/yourcode.js" crossorigin="anonymous"></script>
 
@@ -58,71 +60,21 @@
       <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
       <a href="/"><img src='gfx/home.png' style='width:20px;'> Home</a>
       <a href="discord/index.html"><img src='gfx/discordblue.png' style='width:20px;'> Discord</a>
+      <a href="lectures.html"><img src='gfx/lectures.png' style='width:20px;'> Lectures</a>
       <a href="syllabus.pdf"><img src='gfx/syllabus.png' style='width:20px;'> Syllabus</a>
-      <a href="#"><img src='gfx/info.png' style='width:20px;'> Info</a>
+      <a href="contact.html"><img src='gfx/info.png' style='width:20px;'> Info</a>
     </div>
 
     <br>
     <!-- Banner/Logo Area-->
     <!-- WebGL Script-->
     <div style="margin: auto;  width: 700px;height: auto;">
-    <center style='display:inline-block;'>
-        <iframe src="webgl/intro/" width="900" height="300" frameborder="0" webkitallowfullscreen mozallowfullscreen
-          allowfullscreen></iframe>
-      
-    </center>
-  </div>
-    <script type='text/javascript'>
-      window.onload = function() {
+      <center style='display:inline-block;'>
+        <iframe src="webgl/intro/intro.html" width="700" height="300" frameborder="0" webkitallowfullscreen
+          mozallowfullscreen allowfullscreen></iframe>
 
-        // create a new test_renderer
-        r = new X.renderer3D();
-        r.init();
-        
-        // create a new X.object
-        obj = new X.object();
-        
-        // add the points, normals and colors
-        //
-        // this means 648000 / 3 == 216000 vertices
-        // on my work machine I could set 24000000 / 3 == 8 mio vertices
-        obj.points = new X.triplets(648000);
-        obj.normals = new X.triplets(648000);
-        obj.colors = new X.triplets(648000);
-        
-        // and set the type to POINTS
-        obj.type = 'POINTS';
-        
-        // create the points, normals and colors
-        for ( var x = 0; x < 60; x++) {
-          for ( var y = 0; y < 60; y++) {
-            for ( var z = 0; z < 60; z++) {
-              
-              obj.points.add(x, y, z);
-              obj.normals.add(1, 1, 1);
-              obj.colors.add(x/60, y/60, z/60);
-              
-            }
-          }
-        }
-        
-        // add the object
-        r.add(obj);
-        
-        // setup the camera
-        r.camera.position = [500, 500, 500];
-        
-        // .. and render it
-        r.render();
-        
-      };
-
-
-      //window.onclick = function() {
-      //};
-
-    </script>
-
+      </center>
+    </div>
 
     <!-- end of Banner/Logo Area-->
 
@@ -222,7 +174,7 @@
         <a href="#lectures">* Lecture Videos and Slides *</a>
         <br><br>
 
-        <span style='font-size:32px' class = "glow2">Syllabus <a href="syllabus.pdf" target="_blank">HERE</a> !</span><br>
+        <span style='font-size:32px' class="glow2">Syllabus <a href="syllabus.pdf" target="_blank">HERE</a> !</span><br>
         <a href="syllabus.pdf" target="_blank">
           <img src='gfx/thumb.png' class='bookthumb'>
         </a>
@@ -264,44 +216,43 @@
       </center>
 
       <br><br>
-
+      <div style='width:950px'></div>
       <center style='width:100%;display:inline-block;margin-top:50px'>
-        <div style='width:950px'>
-          <span id='examplelabel'>WebGL Example using <a href="http://goXTK.com" target="_blank">XTK</a>!</span><br>
-          <iframe src="webgl/umb/" width="940" height="600" frameborder="0" webkitallowfullscreen mozallowfullscreen
-            allowfullscreen></iframe>
-        </div>
+        <span id='examplelabel'>WebGL Example using <a href="http://goXTK.com" target="_blank">XTK</a>!</span><br>
+        <iframe src="webgl/umb/" width="680" height="600" frameborder="2" webkitallowfullscreen mozallowfullscreen
+          allowfullscreen></iframe>
+
       </center>
-
-      <br><br>
-
-      <center style='width:100%;display:inline-block;'>
-        <span style='font-size:32px'><a name='lectures'></a>Lecture Videos and Slides</span><br><br>
-        <center>
-
-          COMING SOON
-
-        </center>
-        <br><br><br>
-
     </div>
-    <footer>
-      <div style="display:inline-block;margin-top:0px;">
-        <div style="float:left;"><a href="https://www.umb.edu" class="invisiblelink" target=_blank"><img
-              src="/gfx/umb_gray.png" width="50" style="float:left" title="CS.UMB.EDU"></a>
-          <div class="institution_bottom white"><a href="https://www.umb.edu" class="invisiblelink"
-              target=_blank">UNIVERSITY OF MASSACHUSETTS BOSTON<br>Department of Computer Science<br>College of Science
-              and Mathematics</a></div>
-          <div style="float:left;padding-left:30px"><a href="https://bostongfx.com" target="_blank"
-              class='invisiblelink'><img src="/gfx/bostongfx.png" width="100" title="bostonGFX.com"><span
-                class="small white" style="display:block;margin-top:-6px">Graphics For Everybody</span></a></div>
-          <br>
-          <a href="https://ILOVEYOU.boston" target="_blank"><img src="/gfx/ILYboston.png" width="120"
-              title="ILOVEYOU.boston" style="padding-top:35px"></a>
-          <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank"
-            style="position:absolute;right:10px;bottom:4px;"><img src="/gfx/cc.png"></a>
-        </div>
-    </footer>
+    <br><br>
+
+    <center style='width:100%;display:inline-block;'>
+      <span style='font-size:32px'><a name='lectures'></a>Lecture Videos and Slides</span><br><br>
+      <center>
+
+        COMING SOON
+
+      </center>
+      <br><br><br>
+
+  </div>
+  <footer>
+    <div style="display:inline-block;margin-top:0px;">
+      <div style="float:left;"><a href="https://www.umb.edu" class="invisiblelink" target=_blank"><img
+            src="/gfx/umb_gray.png" width="50" style="float:left" title="CS.UMB.EDU"></a>
+        <div class="institution_bottom white"><a href="https://www.umb.edu" class="invisiblelink"
+            target=_blank">UNIVERSITY OF MASSACHUSETTS BOSTON<br>Department of Computer Science<br>College of Science
+            and Mathematics</a></div>
+        <div style="float:left;padding-left:30px"><a href="https://bostongfx.com" target="_blank"
+            class='invisiblelink'><img src="/gfx/bostongfx.png" width="100" title="bostonGFX.com"><span
+              class="small white" style="display:block;margin-top:-6px">Graphics For Everybody</span></a></div>
+        <br>
+        <a href="https://ILOVEYOU.boston" target="_blank"><img src="/gfx/ILYboston.png" width="120"
+            title="ILOVEYOU.boston" style="padding-top:35px"></a>
+        <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank"
+          style="position:absolute;right:10px;bottom:4px;"><img src="/gfx/cc.png"></a>
+      </div>
+  </footer>
 
 </body>
 

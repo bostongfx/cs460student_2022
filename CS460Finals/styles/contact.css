@@ -4,7 +4,7 @@
   
   }
 .desc {
-    margin-top: 300px;
+    margin-top: 100px;
   }
   
   .desc-container {
@@ -12,14 +12,14 @@
     flex-wrap: wrap;
     justify-content: space-around;
     align-items: center;
-    margin: 40px 0px 180px 0px;
+    margin: 60px 0px 100px 0px;
     position: relative;
   }
   
   
   .desc-card {
-    width: 20%;
-    height: 400px;
+    width: 50%;
+    height: 300px;
     background: #222;
     display: inline-block;
     border-radius: 10px;
@@ -29,12 +29,13 @@
   }
   
   .desc-description {
-    width: 40%;
+    width: 50%;
+    padding: 10px;
   
   }
   
   .desc-one {
-    background: url("/src/assets/unknown.png")center no-repeat;
+    background: url("/gfx/haehn.jpg")center no-repeat;
     background-size: contain;
   
   
@@ -42,13 +43,13 @@
   }
   
   .desc-two {
-    background: url("/src/assets/unknown.png")center no-repeat;
+    background: url("/gfx/unknown.png")center no-repeat;
     background-size: contain;
     margin: auto;
   }
   
   .desc-three {
-    background: url("/src/assets/unknown.png")center no-repeat;
+    background: url("/gfx/unknown.png")center no-repeat;
     background-size: contain;
     margin: contain;
   
