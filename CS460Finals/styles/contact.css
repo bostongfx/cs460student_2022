@@ -35,7 +35,7 @@
   }
   
   .desc-one {
-    background: url("/gfx/haehn.jpg")center no-repeat;
+    background: url("../gfx/haehn.jpg")center no-repeat;
     background-size: contain;
   
   
@@ -43,24 +43,19 @@
   }
   
   .desc-two {
-    background: url("/gfx/unknown.png")center no-repeat;
+    background: url("../gfx/unknown.png")center no-repeat;
     background-size: contain;
     margin: auto;
   }
   
   .desc-three {
-    background: url("/gfx/unknown.png")center no-repeat;
+    background: url("../gfx/unknown.png")center no-repeat;
     background-size: contain;
     margin: contain;
   
   }
   
-  .desc-fourth {
-    background: url("/src/assets/unknown.png")center no-repeat;
-    background-size: contain;
-    margin: auto;
-  }
-  
+
   .sigma-container {
     margin-top: 45px;
     height: 100vh;

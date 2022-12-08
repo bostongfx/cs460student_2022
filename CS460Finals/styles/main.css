@@ -331,7 +331,7 @@ span.rtext {
 }
 
 .icon {
-  background: url('favicon.png');
+  background: url('./gfx/cube.png');
   height: 20px;
   width: 20px;
   display: block;
