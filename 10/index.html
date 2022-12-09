@@ -1,0 +1,275 @@
+<html>
+	<head>
+	<script src='base64.js' type='text/javascript'></script>
+  <script>
+
+    window.onload = async function() {
+
+      VERTICES = new Float32Array([0.,0.,0., 0.,1.,0., 1.,0.,0.])
+      INDICES = new Uint16Array([0,1,2])
+
+      HOWMANY = 3
+      MAX_X = 1. 
+      MAX_Y = 1.
+      MAX_Z = 0.
+      MIN_X = 0.
+      MIN_Y =  0.
+      MIN_Z = 0.
+      MAX = 2
+      MIN = 0
+
+      HOWMANYBYTES_V = 9*4
+      HOWMANYBYTES_I = 3*2
+
+      verts = []
+      indices = []
+      /* hacky but will do for now! */
+      x = []
+      y = []
+      z = []
+      await fetch("suzzane.obj").then((res)=>res.text()).then((data)=>
+      {
+        /* split to lines */
+        var lines = data.split(/\r?\n/)
+        
+        for(i in lines)
+        {
+            /* split to sections */
+            var section = lines[i].split(' ')
+            if(section[0] == 'v')
+            {
+                /* vertices */
+                for(j = 0; j < 3; j++){
+                    if(j == 0)
+                    {
+                        x.push(section[1 + j])
+                    }
+
+                    if(j == 1)
+                    {
+                        y.push(section[1 + j])
+                    }
+
+                    if(j == 2)
+                    {
+                        z.push(section[1 + j])
+                    }
+
+                    verts.push(section[1 + j])
+                }
+            }
+
+            if(section[0] == 'f')
+            {
+                /*
+                 indices (more like faces?)
+                 assumes they are triangulated i.e. only 3 vertices a line
+                 ensure blender has this option checked when exporting obj
+                */
+
+                var face = lines[i].split(' ')
+                for(j = 1; j < 4; j++)
+                {
+                    var face_indices = face[j].split('/')
+                    /*
+                     we only need the vertices (😅) which is the first element
+                     just offset the indices by one since
+                     obj indices start at 1 and not 0
+                    */
+                    indices.push(face_indices[0] - 1)
+                }
+            }
+        }
+        
+        VERTICES = new Float32Array(verts)
+        INDICES = new Uint16Array(indices)
+
+        /* VERTICES.byteLength also ok */
+        HOWMANYBYTES_V = VERTICES.length * 4 /* 4 bytes since 32bits = 4 bytes */
+        HOWMANYBYTES_I = INDICES.length * 2 /* 2 bytes since 16bits = 2 bytes */
+        HOWMANY = INDICES.length
+        HOWMANY_VERTICES = VERTICES.length / 3 /* is vec3 so will grab 3 scalars */ 
+
+        /* reduce for max */
+        MAX_X = Math.max(...x)
+        MAX_Y = Math.max(...y)
+        MAX_Z = Math.max(...z)
+        MIN_X = Math.min(...x)
+        MIN_Y =  Math.min(...y)
+        MIN_Z = Math.min(...z)
+        MAX = Math.max(...indices)
+        MIN = Math.min(...indices)
+      })
+
+      BASE64_Vertices = base64.b64encode(VERTICES);
+      BASE64_Indices = base64.b64encode(INDICES);
+
+
+      gltf = {
+
+        "asset": {
+      	    "version": "2.0",
+            "generator": "CS460 Magic Fingers"
+    	},
+
+        "accessors": [
+        
+              {
+        
+                  "bufferView": 0,
+        
+                  "byteOffset": 0,
+        
+                  "componentType": 5126,
+        
+                  "count": HOWMANY_VERTICES,
+        
+                  "type": "VEC3",
+        
+                  "max": [MAX_X, MAX_Y, MAX_Z],
+        
+                  "min": [MIN_X, MIN_Y, MIN_Z]
+        
+              },
+        
+              {
+        
+                  "bufferView": 1,
+        
+                  "byteOffset": 0,
+        
+                  "componentType": 5123,
+        
+                  "count": HOWMANY,
+        
+                  "type": "SCALAR",
+        
+                  "max": [MAX],
+        
+                  "min": [MIN]
+        
+              }
+        
+          ], 
+        
+       
+        
+          "bufferViews": [
+        
+              {
+        
+                  "buffer": 0,
+        
+                  "byteOffset": 0,
+        
+                  "byteLength": HOWMANYBYTES_V,
+        
+                  "target": 34962
+        
+              },
+        
+              {
+        
+                  "buffer": 1,
+        
+                  "byteOffset": 0,
+        
+                  "byteLength": HOWMANYBYTES_I,
+        
+                  "target": 34963
+        
+              }
+        
+          ],
+        
+          
+        
+          "buffers": [
+        
+              {
+        
+                  "uri": "data:application/octet-stream;base64," + BASE64_Vertices,
+        
+                  "byteLength": HOWMANYBYTES_V
+        
+              },
+        
+              {
+        
+                  "uri": "data:application/octet-stream;base64," + BASE64_Indices,
+        
+                  "byteLength": HOWMANYBYTES_I
+        
+              }
+        
+          ],
+        
+        
+        
+          "meshes": [
+        
+              { 
+        
+                  "primitives": [{
+        
+                       "mode": 4,
+        
+                       "attributes": {
+        
+                           "POSITION": 0
+        
+                       },
+        
+                       "indices": 1
+        
+                  }]
+                
+              }
+        
+          ],
+        
+       
+        
+          "nodes": [
+        
+              {
+        
+                  "mesh": 0
+        
+              }
+        
+          ],
+        
+       
+        
+          "scenes": [
+        
+              {
+        
+                  "nodes": [
+        
+                      0
+        
+                  ]
+        
+              }
+        
+          ],
+        
+       
+        
+          "scene": 0
+        
+      }
+    document.getElementById("gltf").innerHTML = JSON.stringify(gltf)
+
+    };
+
+
+  </script>
+	</head>
+	<body>
+        <p id="gltf"></p>
+        <a href="gltf.html">Open suzzane.gltf</a>
+	</body>
+</html>

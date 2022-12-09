@@ -1,0 +1,226 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://threejs.org/build/three.module.js"
+        }
+      }
+    </script>
+
+    <script type='module'>
+
+      import * as THREE from 'three';
+      import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
+      import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
+      import { GLTFLoader } from 'https://threejs.org/examples/jsm/loaders/GLTFLoader.js';
+
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let pointlightID, helper
+      window.onload = function() {
+
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 10000);
+        camera.position.set( 0, 0, -500);
+
+        renderer = new THREE.WebGLRenderer({ });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add( ambientLight );
+
+        directionalLight = new THREE.DirectionalLight( 0xffffff, 1.0 );
+        helper = new THREE.DirectionalLightHelper(directionalLight, 5)
+        directionalLight.position.set( 10, 100, -100 );
+        scene.add( directionalLight );
+        scene.add(helper);
+
+        var pointlights = []
+        light = new THREE.PointLight(0xff00bf, 2.0);
+        helper = new THREE.PointLightHelper(light, 10)
+        light.position.set(0, 100, 0)
+        scene.add(light)
+        /* for debugging */
+        scene.add(helper)
+        pointlights.push(helper)
+
+        light = new THREE.PointLight(0x22ff00, 2.0);
+        helper = new THREE.PointLightHelper(light, 10)
+        light.position.set(-100, 100, 0)
+        scene.add(light)
+        /* for debugging */
+        scene.add(helper)
+        pointlights.push(helper)
+
+        var meshes = []
+
+        var loader = new GLTFLoader();
+        loader.load('suzzane.gltf', function (geometry) {
+
+          toonMaterial = new THREE.MeshStandardMaterial( {
+             color: 0x21ce70
+          } );
+
+          geometry.scene.children[0].geometry.computeVertexNormals();
+
+          mesh = new THREE.Mesh( geometry.scene.children[0].geometry, toonMaterial );
+          mesh.position.set(0, 0, 0)
+          mesh.scale.set(100, 100, 100)
+          mesh.rotation.set(0, 90, 0)
+          meshes.push(mesh);
+          scene.add( mesh );
+
+        } );
+
+        var all_ddl = []
+        controller = {
+          'color': 0xffffff, // we can use this single color
+                            // container for all colors in the scene 
+                            // if we modify the onChange callback (see below)
+          'pointlightID': 0,
+          'materialID': 0,
+          'material': 0,
+          'x': 0,
+          'y': 0,
+          'z': 0,
+          'ddl_id': 0,
+          'ddl_add': function()
+          {
+            directionalLight = new THREE.DirectionalLight( 0xffffff, 1.0 );
+            helper = new THREE.DirectionalLightHelper(directionalLight, 5)
+            all_ddl.push(helper)
+            scene.add(directionalLight)
+            scene.add(helper)
+          },
+          'ddl_remove': function()
+          {
+            scene.remove(all_ddl[controller.ddl_id])
+            scene.remove(all_ddl[controller.ddl_id].light)
+          }
+        }
+
+
+        var gui = new GUI();
+        var ambientFolder = gui.addFolder('Ambient Light');
+        ambientFolder.addColor(controller, 'color').onChange( function(value) { ambientLight.color.setHex(value); });
+        ambientFolder.open();
+
+        var directionalFolder = gui.addFolder('Directional Light');
+        directionalFolder.addColor(controller, 'color').onChange( function(value) { directionalLight.color.setHex(value); });
+        directionalFolder.add(directionalLight.position, 'x', -100, 100);
+        directionalFolder.add(directionalLight.position, 'y', -100, 100);
+        directionalFolder.add(directionalLight.position, 'z', -100, 100);
+        directionalFolder.open();
+
+        // TODO Part 4 (control the color and position of point lights)
+        var pointFolder = gui.addFolder('Point Lights');
+        pointFolder.add(controller, 'pointlightID', [0, 1]).onChange(
+          function (value){
+            controller.pointlightID = value
+          }
+          );
+        pointFolder.addColor(controller, 'color').onChange( function(value) {
+          pointlights[controller.pointlightID].light.color.setHex(value); 
+          pointlights[controller.pointlightID].update()
+        }
+        );
+        
+        pointFolder.add(controller, 'x', -100, 100).onChange(function (value){
+          pointlights[controller.pointlightID].light.position.setX(value)
+        });
+        pointFolder.add(controller, 'y', -100, 100).onChange(function (value){
+          pointlights[controller.pointlightID].light.position.setY(value)
+        });
+        pointFolder.add(controller, 'z', -100, 100).onChange(function (value){
+          pointlights[controller.pointlightID].light.position.setZ(value)
+        });
+        pointFolder.open()
+
+        var materialsFolder = gui.addFolder('Materials');
+        materialsFolder.add(controller, 'materialID', [0]).onChange(
+          function (value){
+            controller.materialID = value
+          }
+        );
+        materialsFolder.add(controller, 'material', ['toon', 'standard', 'phong']).onChange(
+          function (value){
+            var col = meshes[controller.materialID].material.color;
+            if(value == 'toon')
+            {
+              meshes[controller.materialID].material = new THREE.MeshToonMaterial();
+            }
+            if(value == 'standard')
+            {
+              meshes[controller.materialID].material = new THREE.MeshStandardMaterial();
+            }
+            if(value == 'phong')
+            {
+              meshes[controller.materialID].material = new THREE.MeshPhongMaterial();
+            }
+            meshes[controller.materialID].material.color = col
+          }
+        );
+        materialsFolder.addColor(controller, 'color').onChange( function(value) { meshes[controller.materialID].material.color.setHex(value); });
+        materialsFolder.open()
+
+        var ddl = gui.addFolder('Dynamic Directional Lights')
+        ddl.add(controller, 'ddl_id',0, 100)
+        ddl.add(controller, 'ddl_add')
+        ddl.add(controller, 'ddl_remove')
+        ddl.addColor(controller, 'color').onChange( function(value) {
+          all_ddl[controller.ddl_id].light.color.setHex(value)
+          all_ddl[controller.ddl_id].update()
+        }
+        );
+        
+        ddl.add(controller, 'x', -100, 100).onChange(function (value){
+          all_ddl[controller.ddl_id].light.position.setX(value)
+        });
+        ddl.add(controller, 'y', -100, 100).onChange(function (value){
+          all_ddl[controller.ddl_id].light.position.setY(value)
+        });
+        ddl.add(controller, 'z', -100, 100).onChange(function (value){
+          all_ddl[controller.ddl_id].light.position.setZ(value)
+        });
+        
+        ddl.open();
+
+        gui.open();
+
+        controls = new TrackballControls( camera, renderer.domElement );
+
+        animate();
+
+      };
+
+
+      function animate() {
+
+        requestAnimationFrame( animate );
+
+        controls.update();
+
+        renderer.render( scene, camera );
+        
+
+      };
+
+    </script>
+  </head>
+  <body>
+  </body>
+</html>
