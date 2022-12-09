@@ -1,0 +1,12 @@
+ply
+format binary_big_endian 1.0
+comment author: Paraform
+obj_info 3D colored patch boundaries 
+element vertex 172974
+property float x
+property float y
+property float z
+element face 345944
+property uchar intensity
+property list uchar int vertex_indices
+end_header
