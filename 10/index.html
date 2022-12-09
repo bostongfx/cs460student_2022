@@ -18,8 +18,15 @@
 			// load the armadillo, based on Assignment 09
 			var loader = new PLYLoader();
 			loader.load('armadillo.ply', function (geometry) {
-
 				geometry.computeVertexNormals();
+			} );
+			// END loading armadillo.ply
+
+			// Export to gltf
+			const exporter = new THREE.GLTFExporter();
+			exporter.parse(mesh, (content) => {
+
+			});
 
 				//VERTICES = new Float32Array([0.,0.,0., 0.,1.,0., 1.,0.,0.])
 				//INDICES = new Uint16Array([0,1,2])
@@ -46,8 +53,6 @@
 				MIN = 0
 
 				window.document.body.innerHTML = JSON.stringify(createGLTF());
-			} );
-			// END loading armadillo.ply
 
     };
 
