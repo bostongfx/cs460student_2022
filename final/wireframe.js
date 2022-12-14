@@ -55,7 +55,6 @@ const wireframe = {
 
 		}`,
 		setupAttributes: ( THREE, geometry ) => {
-			console.log("setting up attributes");
 
 			const vectors = [
 				new THREE.Vector3( 1, 0, 0 ),
