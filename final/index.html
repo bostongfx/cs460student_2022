@@ -18,10 +18,12 @@
       import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
 			import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
+			import { wireframe } from './wireframe.js';
 
-			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, knot, effect;
+			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, knot, effect, vShader, fShader, shaderMaterial, controller, viewPoint;
 
 			window.onload = function() {
+
 			scene = new THREE.Scene();
 
 			var fov = 60;
@@ -32,7 +34,7 @@
 			camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
 			camera.position.set(0,0,50);
 
-			renderer = new THREE.WebGLRenderer({alpha:true});
+			renderer = new THREE.WebGLRenderer({alpha:true, antialias: true});
 			renderer.setSize(window.innerWidth, window.innerHeight);
 			document.body.appendChild(renderer.domElement);
 
@@ -49,7 +51,13 @@
 			scene.add(pointLight);
 
 			// GUI CONTROLS
+			controller = {
+				line: {
+					width: 1.5,
+				}
+			}
 			var gui = new GUI();
+			gui.add(controller.line, 'width', 0, 6);
 
 			// OUTLINE EFFECT
 			effect = new OutlineEffect( renderer, {
@@ -69,41 +77,55 @@
 			floor.rotateX(-30);
 			scene.add(floor);
 
-			var sunGeom = new THREE.SphereGeometry(1200);
-			var sunMat = new THREE.MeshStandardMaterial({
-				color: 'orange',
-			});
-			var sun = new THREE.Mesh(sunGeom, sunMat);
-			sun.position.z = -5000;
-			sun.position.y = -1200;
-			scene.add(sun);
+			var sunGeom = new THREE.SphereGeometry(10, 10, 10);
+			var sun = retroRender(sunGeom, controller.line.width);
+			sun.position.z = -50;
+			sun.position.y = -12;
 
-			var c = new THREE.TorusKnotGeometry( 10, 3, 100, 16 );
-			var cMat = new THREE.MeshToonMaterial({
-				color: 'rgb(50, 0, 125)',
-			});
-			knot = new THREE.Mesh(c, cMat);
-			scene.add(knot);
+			var torus = new THREE.TorusKnotGeometry(10, 3, 40, 10);
+			knot = retroRender(torus, controller.line.width);
 
 			controls = new TrackballControls( camera, renderer.domElement );
 
 			animate();
-			}
-			function animate() {
-			knot.rotation.x += Math.PI/360;
-			knot.rotation.y += Math.PI/360;
-			knot.rotation.z += Math.PI/360;
+		}
+
+		function retroRender(geometry, lineWidth) {
+			// SHADER
+			wireframe.setupAttributes(THREE, geometry);
+
+			shaderMaterial = new THREE.ShaderMaterial({
+				vertexShader: wireframe.VertexShader,
+				fragmentShader: wireframe.FragmentShader,
+				uniforms: {
+						'thickness': {value: lineWidth},
+						'glow': {value: [0.9, 0.0, 0.9]},
+						'inner': {value: [1.0, 1.0, 1.0]},
+				},
+				alphaToCoverage: true,
+				side: THREE.DoubleSide,
+			});
+			shaderMaterial.extensions.derivatives = true;
+			var solid = new THREE.Mesh(geometry, shaderMaterial);
+			console.log(solid);
+			scene.add(solid);
+			return solid;
+		}
+
+		function animate() {
+			knot.rotateX(Math.PI/360);
+			knot.rotateY(Math.PI/360);
+			knot.rotateZ(Math.PI/360);
 
 			requestAnimationFrame( animate );
 
 			controls.update();
 
 			// and here...
-			effect.render(scene, camera);
-			}
+			//effect.render(scene, camera);
+			renderer.render(scene, camera);
+		}
 		</script>
 	</head>
-	<body style="background-color: black; margin: 0; padding:0">
-
-	</body>
+	<body style="background-color: black; margin: 0; padding:0"></body>
 </html>
