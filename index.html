@@ -18,14 +18,15 @@
 			import * as THREE from 'three';
       import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
-			import { OutlineEffect } from 'three/addons/effects/OutlineEffect.js';
+      import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
 			import { wireframe } from './final/wireframe.js';
 			import text from './final/presentation_text.js';
 
-			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, effect, vShader, fShader, controller, viewPoint, objects;
+			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, effect, vShader, fShader, controller, objects, palm, object;
 			var slide = 0;
 
 			window.onload = function() {
+				/*
 				updateText();
 				document.body.addEventListener('keydown', (e) => {
 					if (e.keyCode === 39) {
@@ -38,6 +39,7 @@
 						updateText();
 					}
 				});
+				*/
 
 				objects = [];
 
@@ -49,7 +51,7 @@
 			var zFar = 10000;
 
 			camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-			camera.position.set(0,0,100);
+			camera.position.set(0,0,50);
 
 			renderer = new THREE.WebGLRenderer({alpha:true, antialias: true});
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -74,17 +76,39 @@
 				}
 			}
 
-			var floorGeometry = new THREE.PlaneGeometry(1000,1000);
-			var floorMaterial = new THREE.MeshBasicMaterial({
-				map: null,
-				side: THREE.DoubleSide,
-				color: 'rgb(50,0,125)'
-			});
-			floor = new THREE.Mesh(floorGeometry, floorMaterial);
-			floor.position.y = -100;
-			floor.rotateX(-30);
-			scene.add(floor);
-
+			// PALM TREE
+			const loader = new OBJLoader();
+			loader.load(
+				'final/palm_tree.obj',
+				function(obj) {
+					var object = obj.children[0].geometry;
+					var result = retroRender(object, 1);
+					result.position.y = 1;
+					result.rotateY(90);
+				},
+				function (xhr) {
+					console.log((xhr.loaded/xhr.total * 100) + '% loaded');
+				},
+				function (err) {
+					console.log("An error occurred when loading an OBJ file:", err);
+				}
+			);
+			loader.load(
+				'final/synth_ground.obj',
+				function(obj) {
+					var object = obj.children[0].geometry;
+					var result = retroRender(object, 1);
+					result.scale.x = 10;
+					result.scale.z = 10;
+				},
+				function (xhr) {
+					console.log((xhr.loaded/xhr.total * 100) + '% loaded');
+				},
+				function (err) {
+					console.log("An error occurred when loading an OBJ file:", err);
+				}
+			);
+/*
 			var boxGeom = new THREE.BoxGeometry(15, 15, 15);
 			var box = retroRender(boxGeom, controller.line.width);
 			box.position.y = 30;
@@ -93,14 +117,6 @@
 			var torus = new THREE.TorusKnotGeometry(10, 3, 40, 10);
 			var knot = retroRender(torus, controller.line.width);
 			objects.push(knot);
-			var knot2 = retroRender(torus, controller.line.width);
-			knot2.position.x = -35;
-			knot2.position.y = 30;
-			objects.push(knot2);
-			var knot3 = retroRender(torus, controller.line.width);
-			knot3.position.x = 35;
-			knot3.position.y = 30;
-			objects.push(knot3);
 
 			var octaGeom = new THREE.OctahedronGeometry(10);
 			var octa = retroRender(octaGeom, controller.line.width);
@@ -112,6 +128,7 @@
 			sphere.position.z = -5;
 			sphere.position.x = -35;
 			objects.push(sphere);
+			*/
 
 			controls = new TrackballControls( camera, renderer.domElement );
 
@@ -177,7 +194,7 @@
 		<header class="textbox">
 			<h1>1980s Retro Futurism</h1>
 		</header>
-		<main class="textbox">
+		<main class="textbox" style="display: none;">
 			<article id="content-goes-here"></article>
 		</main>
 		<footer class="textbox">
