@@ -1,0 +1,1040 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+
+        background-image: url(background.jpeg);
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+      }
+    </style>
+    <audio id= "audio1" controls="controls" onloadeddata="setHalfVolume()">
+    <source src="Dragonball.mp3"  type="audio/mp3">
+</audio>
+
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/effects/AnaglyphEffect.js" type="text/javascript"></script>
+    <!-- <script src='https://cdn.jsdelivr.net/gh/mrdoob/Three.js@r92/examples/js/loaders/GLTFLoader.js'></script> -->
+    <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js" type="text/javascript"></script>
+    <div class="loading" id="js-loader"><div class="loader"></div></div>
+    <script src="https://cdn.jsdelivr.net/npm/dat.gui@0.7.9/build/dat.gui.min.js" type="text/javascript"></script>
+
+    <script src="robot.js" type="text/javascript"></script>
+
+    <script src="helper.js" type="text/javascript"></script>
+
+    <script src="explosion.js" type="text/javascript"></script>
+
+    <script>
+      var currentlyAnimating, idle, bombAnim, defeatAnim, idle2, bombAnim2, defeatAnim2;
+
+      /**
+        * Analyzes and returns a JExpression.
+        *
+        * @param from, takes an animation
+        * @param fspeed, animation speed
+        * @param to, takes an animation
+        * @param tspeed, animation speed
+        * @return nothing.
+        */
+      function playModifierAnimation(from, fSpeed, to, tSpeed) {
+        to.setLoop(THREE.LoopOnce);
+        to.reset();
+        to.play();
+        from.crossFadeTo(to, fSpeed, true);
+        setTimeout(function () {
+          from.enabled = true;
+          to.crossFadeTo(from, tSpeed, true);
+          currentlyAnimating = false;
+        }, to._clip.duration * 1000 - (tSpeed + fSpeed) * 1000);
+      }
+
+      /**
+        * Used for initializing volume.
+        *
+        * @return nothing.
+        */
+      function setHalfVolume() {
+        var myAudio = document.getElementById("audio1");  
+        myAudio.volume = 0.3; //Changed this to 0.3 volume since the function is called Set Half Volume ;)
+      }
+      let clock = new THREE.Clock();  // timer used for updating goku model animation
+      let clock2 = new THREE.Clock(); // timer used for updating trunk model animation
+      var mixer, model, mixer2, model2;
+      var scene, camera, renderer, effect, ambientLight, light, controls;
+      var floor;
+      var parts = [];
+      var mainTime = 0;
+      var mainTimeTotalCount = 0;
+      var r1_flying = false;
+      var r1_flyingdown = false;
+      var main_animation = false;
+      var cast_wave_preAnimation = false;
+      var wave_time = 0;
+
+      window.onload = function() {
+        const MODEL_PATH = 'goku3.glb';
+        const MODEL_PATH2 = 'trunk2.glb';
+        //const MODEL_PATH2 = 'trunk_temp2.glb';
+        setHalfVolume();
+        scene = new THREE.Scene();
+
+        var fov = 75;
+        var ratio = window.innerWidth / window.innerHeight;
+        var zNear = 1;
+        var zFar = 5000;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( -100, 0, 1000);
+
+        let goku_txt = new THREE.TextureLoader().load('body.png');
+        goku_txt.flipY = false;
+
+        const goku_mtl = new THREE.MeshPhongMaterial({
+          map: goku_txt,
+          color: 0xffffff,
+          skinning: true });
+
+        let goku_txt2 = new THREE.TextureLoader().load('eyes.png');
+        goku_txt2.flipY = false;
+
+        const goku_mtl2 = new THREE.MeshPhongMaterial({
+          map: goku_txt2,
+          color: 0xffffff,
+          skinning: true });
+
+        let goku_txt3 = new THREE.TextureLoader().load('face.png');
+        goku_txt3.flipY = false;
+
+        const goku_mtl3 = new THREE.MeshPhongMaterial({
+          map: goku_txt3,
+          color: 0xffffff,
+          skinning: true });
+        var loader = new THREE.GLTFLoader();
+
+        loader.load(
+          MODEL_PATH,
+          function(gltf) {
+                    // A lot is going to happen here
+                    model = gltf.scene;
+                    let fileAnimations = gltf.animations;
+                    model.traverse(o => {
+                      if (o.isBone) {
+                        //console.log(o.name);
+                      }
+                        if (o.isMesh) {
+                          // o.castShadow = true;
+                          // o.receiveShadow = true;
+                          //console.log(o.name);
+                          //if (o.name == "Cylinder_1") {
+                          if (o.name == "goku_Cylinder") {
+                            //o.material = goku_mtl3; // Add this line
+                            o.material = goku_mtl
+                          } else if (o.name == "goku_head") {
+                            o.material = goku_mtl3;
+                          }
+                          /*else {
+                            o.material = goku_mtl2
+                          }*/
+                        }
+                      });
+                    // Set the models initial scale
+                    //model.scale.set(20, 20, 9);
+                    model.scale.set(4000, 4000, 4000);
+                    model.position.x = -800;
+                    model.position.y = -200;
+                    
+                    scene.add(model);
+                    //console.log(model);
+
+                    var tempRotateDegRadians = 90*Math.PI/180;
+                    model.rotateY(tempRotateDegRadians);
+                    //console.log(model);
+
+                    //loaderAnim.remove();
+
+                  mixer = new THREE.AnimationMixer(model);
+
+            let clips = fileAnimations.filter(val => val.name !== 'idle');
+            possibleAnims = clips.map(val => {
+              let clip = THREE.AnimationClip.findByName(clips, val.name);
+              //console.log(val.name);
+
+              clip.tracks.splice(3, 3);
+              clip.tracks.splice(9, 3);
+
+              clip = mixer.clipAction(clip);
+              return clip;
+            });
+            //console.log(possibleAnims);
+
+
+            let idleAnim = THREE.AnimationClip.findByName(fileAnimations, 'idle');
+
+            idleAnim.tracks.splice(3, 3);
+            idleAnim.tracks.splice(9, 3);
+
+            idle = mixer.clipAction(idleAnim);
+            idle.play();
+
+            let bombAn = THREE.AnimationClip.findByName(fileAnimations, 'shootbeam');
+
+            bombAn.tracks.splice(3, 3);
+            bombAn.tracks.splice(9, 3);
+
+            bombAnim = mixer.clipAction(bombAn);
+
+            let defeatAn = THREE.AnimationClip.findByName(fileAnimations, 'death01');
+
+            bombAn.tracks.splice(3, 3);
+            bombAn.tracks.splice(9, 3);
+
+            defeatAnim = mixer.clipAction(defeatAn);
+
+          },
+          undefined, // We don't need this function
+          function(error) {
+            console.error(error);
+          }
+        );
+      
+
+        var loader2 = new THREE.GLTFLoader();
+
+        // trunk
+        let trunk_txt = new THREE.TextureLoader().load('clothes_1.png');
+        trunk_txt.flipY = false;
+
+        const trunk_mtl = new THREE.MeshPhongMaterial({
+          map: trunk_txt,
+          color: 0xffffff,
+          skinning: true });
+
+        let trunk_txt2 = new THREE.TextureLoader().load('clothes_2.png');
+        trunk_txt2.flipY = false;
+
+        const trunk_mtl2 = new THREE.MeshPhongMaterial({
+          map: trunk_txt2,
+          color: 0xffffff,
+          skinning: true });
+
+        let trunk_txt3 = new THREE.TextureLoader().load('face2.png');
+        trunk_txt3.flipY = false;
+
+        const trunk_mtl3 = new THREE.MeshPhongMaterial({
+          map: trunk_txt3,
+          color: 0xffffff,
+          skinning: true });
+
+        let trunk_txt4 = new THREE.TextureLoader().load('sword.png');
+        trunk_txt4.flipY = false;
+        const trunk_mtl4 = new THREE.MeshPhongMaterial({
+          map: trunk_txt4,
+          color: 0xffffff,
+          skinning: true });
+        
+        loader2.load(
+          MODEL_PATH2,
+          function(gltf2) {
+                    // A lot is going to happen here
+                    model2 = gltf2.scene;
+                    let fileAnimations2 = gltf2.animations;
+                    var o;
+                    model2.traverse(o => {
+                      if (o.isBone) {
+                        //console.log(o.name);
+                      }
+                        if (o.isMesh) {
+                          // o.castShadow = true;
+                          // o.receiveShadow = true;
+                          //console.log(o.name);
+                          //if (o.name == "Cylinder_1") {
+                          /*if (o.name == "body1") {
+                            //o.material = goku_mtl3; // Add this line
+                            o.material = trunk_mtl
+                          } else if (o.name == "head") {
+                            o.material = trunk_mtl3;
+                          }
+                          else {
+                            o.material = trunk_mtl2
+                          }*/
+                          if (o.name == "body1_1") {
+                            //o.material = goku_mtl3; // Add this line
+                            o.material = trunk_mtl
+                          } else if (o.name == "body2_2") {
+                            o.material = trunk_mtl2;
+                          }
+                          else if (o.name == "sword ") {
+                            o.material = trunk_mtl4;
+                          }
+                          else {
+                            o.material = trunk_mtl3;
+                          }
+                        }
+                      });
+                    // Set the models initial scale
+                    //model.scale.set(20, 20, 9);
+                    model2.scale.set(400, 400, 400);
+                    model2.position.x = 800;
+                    model2.position.y = -200;
+                    
+                    scene.add(model2);
+                    //console.log(model2);
+
+                    var tempRotateDegRadians = 270*Math.PI/180;
+                    model2.rotateY(tempRotateDegRadians);
+                    //console.log(model);
+
+                    //loaderAnim.remove();
+
+                  mixer2 = new THREE.AnimationMixer(model2);
+
+            let clips2 = fileAnimations2.filter(val => val.name !== 'idle');
+            possibleAnims2 = clips2.map(val => {
+              let clip2 = THREE.AnimationClip.findByName(clips2, val.name);
+              //console.log(val.name);
+
+              clip2.tracks.splice(3, 3);
+              clip2.tracks.splice(9, 3);
+
+              clip2 = mixer.clipAction(clip2);
+              return clip2;
+            });
+            //console.log(possibleAnims2);
+
+
+            let idleAnim2 = THREE.AnimationClip.findByName(fileAnimations2, 'idle');
+
+            idleAnim2.tracks.splice(3, 3);
+            idleAnim2.tracks.splice(9, 3);
+
+            idle2 = mixer2.clipAction(idleAnim2);
+            idle2.play();
+
+            let bombAn2 = THREE.AnimationClip.findByName(fileAnimations2, 'yuanqidan');
+
+            bombAn2.tracks.splice(3, 3);
+            bombAn2.tracks.splice(9, 3);
+
+            bombAnim2 = mixer2.clipAction(bombAn2);
+
+          },
+          undefined, // We don't need this function
+          function(error) {
+            console.error(error);
+          }
+        );
+        
+        renderer = new THREE.WebGLRenderer({ alpha: true });
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        effect = new THREE.AnaglyphEffect( renderer );
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+        ambientLight = new THREE.AmbientLight();
+        scene.add( ambientLight );
+
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+
+        // var floorTexture = new THREE.TextureLoader().load( 'background.jpeg' );
+        // var floorGeometry = new THREE.PlaneBufferGeometry( 1000, 1000 );
+        // var floorMaterial = new THREE.MeshBasicMaterial( {
+        //   map: floorTexture,
+        //   side: THREE.DoubleSide
+        // } );
+        // floor = new THREE.Mesh( floorGeometry, floorMaterial );
+        // floor.position.y = -100;
+        // floor.rotateX(Math.PI/2);
+        // scene.add( floor );
+
+        all_robots = [];
+        skillObjects = [];
+
+        r = new Robot(0, -43, 0);
+        r.show(scene);
+
+        all_robots.push(r);
+
+        //left side
+        r0 = new Robot(-800, -131, 0);
+        var tempRotateDegRadians = 90*Math.PI/180;
+        r0.root.rotateY(tempRotateDegRadians);
+        r0.facing_angle = tempRotateDegRadians * (180/Math.PI);
+        //r0.show(scene);
+        all_robots.push(r0);
+
+        //right side
+        r1 = new Robot(800, -131, 0);
+        var tempRotateDegRadians = 270*Math.PI/180;
+        r1.root.rotateY(tempRotateDegRadians);
+        r1.facing_angle = tempRotateDegRadians * (180/Math.PI);
+        //r1.show(scene);
+        all_robots.push(r1);
+
+
+        controller = {
+          anaglyph: false,
+          dance: function() {
+
+            // start the music
+            /*var music = document.getElementById('music');
+            music.autoplay = true;
+            music.load();
+            
+            var video = document.getElementById('video');
+            var texture = new THREE.VideoTexture( video );
+            floor.material.map = texture;
+            video.play();*/
+
+            for (var r in all_robots) {
+              r = all_robots[r];
+              r.dance();
+            }
+          },
+          AllspiritBomb: function() {
+            for (var r in all_robots) {
+              r = all_robots[r];
+              r.hands_up();
+            }
+          },
+          AllshootBeam: function() {
+            for (var r in all_robots) {
+              r = all_robots[r];
+              r.shoot_beam();
+            }
+          },
+          AllshootWave: function() {
+            for (var r in all_robots) {
+              r = all_robots[r];
+              r.shoot_wave();
+            }
+          },
+          walk: function() {
+
+            for (var r in all_robots) {
+              r = all_robots[r];
+              r.walk();
+            }
+          },
+          StartAnimation: function() {
+            main_animation = true;
+          },
+          Reset: function() {
+            mixer.timeScale = 1;
+            main_animation = false;
+            r1_flying = false;
+            r1_flyingdown = false; 
+            mainTime = 0;
+            mainTimeTotalCount = -1;
+            main_animation = false;
+
+            //all_robots = [];
+            skillObjects = [];
+
+            r = new Robot(0, -43, 0);
+            r.show(scene);
+
+            all_robots.push(r);
+
+            //left side
+            r0 = new Robot(-800, -131, 0);
+            var tempRotateDegRadians = 90*Math.PI/180;
+            r0.root.rotateY(tempRotateDegRadians);
+            r0.facing_angle = tempRotateDegRadians * (180/Math.PI);
+            //r0.show(scene);
+            all_robots.push(r0);
+
+            r1.root.position.y = -131;
+            model2.position.y = -200;
+          }
+        }
+
+
+        var gui = new dat.GUI();
+        var rendering = gui.addFolder( "Rendering" );
+        rendering.add( controller, 'anaglyph' );
+        rendering.open();
+        var moving = gui.addFolder( "Movement" );
+        moving.add( r.root.position, "x", -1000, 1000 ).listen();
+        moving.add( r.root.position, "y", -1000, 1000 ).listen();
+        moving.add( r.root.position, "z", -1000, 1000 ).listen();
+        moving.add( r, "raise_left_arm" );
+        moving.add( r, "lower_left_arm" );
+        moving.add( r, "hands_up" );
+        moving.add( r, "shoot_beam" );
+        moving.add( r, "shoot_wave" );
+        moving.add( r, "kick" );
+        //moving.add( r, "walk" );
+        //moving.add( r, "walk2" );
+        moving.add( controller, "dance" );
+        moving.add( controller, "walk" );
+        moving.add( controller, "AllspiritBomb" );
+        moving.add( controller, "AllshootBeam" );
+        moving.add( controller, "AllshootWave" );
+        //moving.open();
+
+        var action = gui.addFolder( "Main" );
+        action.add( controller, "StartAnimation" );
+        action.add( controller, "Reset" );
+        action.open();
+
+
+
+        controls = new THREE.TrackballControls( camera, renderer.domElement );
+
+        //assistance
+        hasBall = false;
+        hasBeam = false;
+
+        animate();
+
+
+      };
+
+      window.onclick = function(e) {
+          if (!e.shiftKey) {
+
+            e.preventDefault();
+            return false;
+          }
+
+          //var explode = new Explosion(e.clientX, e.clientY);
+          //parts.push(explode);
+
+          pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+
+          vp_coords = new THREE.Vector2( ( pixel_coords.x / window.innerWidth ) * 2 - 1,
+                                        -( pixel_coords.y / window.innerHeight ) * 2 + 1);
+
+          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          intersects = raycaster.intersectObject(floor);
+
+          if (intersects.length > 0) {
+
+              // r.root.position.set(intersects[0].point.x, 
+              //                     intersects[0].point.y + 70,
+              //                     intersects[0].point.z)
+
+              r = new Robot(intersects[0].point.x, 
+                                  intersects[0].point.y + 70,
+                                  intersects[0].point.z);
+              r.show(scene);
+              //r.root.rotateY(Math.PI);
+              //TODO
+              var tempRotateDegRadians = randomVal(0.0, Math.PI*2);
+              //var tempRotateDegRadians = Math.PI/2+Math.PI;
+              //var tempRotateDegRadians = 270*Math.PI/180;
+              r.root.rotateY(tempRotateDegRadians);
+              r.facing_angle = tempRotateDegRadians * (180/Math.PI);
+              //console.log(tempRotateDegRadians * (180/Math.PI));
+
+              all_robots.push(r);
+
+          }
+
+      };
+
+      /**
+        * Generate a random number between min and max.
+        *
+        * @param min, takes a digital value.
+        * @param max, takes a digital value.
+        * @return a random number.
+        */
+      function randomVal(min, max) {
+        if(min > max) {
+          throw new Error('Minimum value should be smaller than maximum value.');
+        }
+        var range = max - min;
+        return min + range * Math.random();
+      };
+
+      /**
+        * Remove item from an array.
+        *
+        * @param arr, takes an array.
+        * @param value, takes the object name which will be used to remove from the array.
+        * @return an array.
+        */
+      function removeItemFromArray(arr, value) {
+        var index = arr.indexOf(value);
+        if (index > -1) {
+          arr.splice(index, 1);
+        }
+        return arr;
+      };
+
+      /**
+        * Used to check collision between the beam and the robot in a line.
+        *
+        * @param robot, takes a robot.
+        * @return nothing.
+        */
+      function check_beingHit_byBeam(robot) {
+        for (var temp_i = 0; temp_i < all_robots.length; temp_i++) {
+          if (robot != all_robots[temp_i]) {
+            var tempR = all_robots[temp_i];
+            //console.log(robot.root.position.x - tempR.root.position.x);
+            var tempR2 = robot.cloneRobot();
+
+            for (var temp_j = 0; temp_j < 40; temp_j++) {
+              if (Math.abs(tempR2.root.position.x - tempR.root.position.x) <= 400 &&
+                  Math.abs(tempR2.root.position.y - tempR.root.position.y) <= 400 &&
+                  Math.abs(tempR2.root.position.z - tempR.root.position.z) <= 400) {
+                    // console.log("returns x: " +Math.abs(tempR2.root.position.x - tempR.root.position.x)+
+                    //             ",returns y: " +Math.abs(tempR2.root.position.y - tempR.root.position.y)+
+                    //             ",returns z: " +Math.abs(tempR2.root.position.z - tempR.root.position.z));
+                  
+                  
+                  //
+                  removeItemFromArray(all_robots, tempR);
+                  var explode = new Explosion(tempR.root.position.x, tempR.root.position.y, tempR.root.position.z);
+                  parts.push(explode);
+                  tempR.removeFromShow(scene);
+                  return true;
+              }
+              tempR2.root.translateZ(15);
+            }
+          }
+        }
+        return false;
+      };
+
+      /* Used for robots to shoot beam in a line.
+       *
+       * @param robot, takes a robot.
+       * @return nothing.
+       */
+      function cast_beam(robot) {
+        var movement1 = (robot.movement == 'shoot beam raise right hand over beam ready')
+        var movement2 = ((robot.movement == 'shoot beam raise right hand over beam done'))
+        //if (robot.check_hands_up_then_cast_ball && !hasBall) {
+        if (movement1 && !robot.hasBeam) {
+          //console.log("B");
+          //console.log(hasBall);
+          robot.hasBeam = true;
+          var radius = 15;
+          var cylinderGeometry = new THREE.CylinderBufferGeometry(
+            2, // radiusTop
+            2, // radiusBottom
+            40, // height
+            8, // radiusSegments
+            5 * 3, // heightSegments
+            false // openEnded
+          );
+          var cylinderMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+          var cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
+          robot.setCylinderMesh(cylinder);
+          skillObjects.push(robot.sphereMesh);
+          cylinder.rotateX(90*(Math.PI/180.0));
+          //cylinder.rotateZ(robot.facingOfRobot()*(Math.PI/180.0));
+          cylinder.rotateZ(-robot.facingOfRobot()*(Math.PI/180.0));
+
+          cylinder.position.x = robot.root.position.x*1 + robot.neck.position.x + robot.right_upperarm.position.x + robot.right_lowerarm.position.x + robot.right_hand.position.x;
+          cylinder.position.y = robot.root.position.y*1 + robot.neck.position.y + robot.right_upperarm.position.y + robot.right_lowerarm.position.y + robot.right_hand.position.y;
+          cylinder.position.z = robot.root.position.z*1 + robot.neck.position.z + 0;
+
+          //cylinder.position.x = robot.root.position.x*1;
+          //cylinder.position.y = robot.root.position.y*1;
+          //cylinder.position.z = robot.root.position.z*1;
+          if (robot.facingOfRobot() > 179) {
+            cylinder.position.x = -cylinder.position.x-25;//+25
+          //cylinder.position.y = -cylinder.position.y;
+          //cylinder.position.z = -cylinder.position.z;
+          }
+          cylinder.rotateY(robot.facingOfRobot()*(Math.PI/180));
+          
+          //TODO rotate, need better one
+          if (robot.facingOfRobot() > 179) {
+            cylinder.position.x = cylinder.position.x * -1;
+          }
+          scene.add( cylinder );
+        } else if (movement1) {
+          robot.increaseCylinderScale();
+          robot.sphereMesh.scale.setScalar(robot.sphereMeshScale);
+          robot.sphereMesh.translateY(12.5);
+          if (robot.time < 3.0) {
+            check_beingHit_byBeam(robot);
+            //robot.sphereMesh.translateZ(2.0);
+            //robot.sphereMesh.translateY(2.0);
+            var tempRTop = robot.sphereMesh.geometry.parameters.radiusTop;
+            var tempRBottom = robot.sphereMesh.geometry.parameters.radiusBottom;
+            robot.sphereMesh.geometry.dispose();
+            robot.sphereMesh.geometry = new THREE.CylinderBufferGeometry(tempRTop*0.80, tempRBottom*0.80, 40, 8);
+          }
+          else {
+            //robot.removeSceneObj(robot.sphereMesh);
+            robot.hasBeam = false;
+            scene.remove( robot.sphereMesh );
+            robot.movement = 'idle';
+          }
+        } else if (movement2) {
+          robot.increaseTime();
+          if (robot.time < 3.0) {
+            check_beingHit_byBeam(robot);
+            //robot.sphereMesh.translateZ(2.0);
+            //robot.sphereMesh.translateY(2.0);
+            var tempRTop = robot.sphereMesh.geometry.parameters.radiusTop;
+            var tempRBottom = robot.sphereMesh.geometry.parameters.radiusBottom;
+            robot.sphereMesh.geometry.dispose();
+            robot.sphereMesh.geometry = new THREE.CylinderBufferGeometry(tempRTop*0.80, tempRBottom*0.80, 40, 8);
+          }
+          else {
+            //robot.removeSceneObj(robot.sphereMesh);
+            robot.hasBeam = false;
+            removeItemFromArray(skillObjects, robot.sphereMesh);
+            scene.remove( robot.sphereMesh );
+            robot.movement = 'idle';
+          }
+        }
+        
+      };
+
+      /* Used to check collision between the ball and robot in a circle.
+       *
+       * @param sphereMesh, takes an sphere mesh.
+       * @return nothing.
+       */
+      function check_beingHit_byBall(sphereMesh) {
+        var tempRemoveList = [];
+        for (var temp_i = 0; temp_i < all_robots.length; temp_i++) {
+          //if (robot != all_robots[temp_i]) {
+            var tempR = all_robots[temp_i];
+
+                    //console.log(temp_i+"returns x: " +Math.abs(sphereMesh.position.x - tempR.root.position.x)+
+                    //            ",returns y: " +Math.abs(sphereMesh.position.y - tempR.root.position.y)+
+                    //            ",returns z: " +Math.abs(sphereMesh.position.z - tempR.root.position.z));
+            
+              if (Math.abs(sphereMesh.position.x - tempR.root.position.x) <= 120 &&
+                  Math.abs(sphereMesh.position.y - tempR.root.position.y) <= 150 &&
+                  Math.abs(sphereMesh.position.z - tempR.root.position.z) <= 120) {
+                    //console.log("returns x: " +Math.abs(tempR2.root.position.x - tempR.root.position.x)+
+                    //            ",returns y: " +Math.abs(tempR2.root.position.y - tempR.root.position.y)+
+                    //            ",returns z: " +Math.abs(tempR2.root.position.z - tempR.root.position.z));
+                  
+                  
+                  //
+                  //removeItemFromArray(all_robots, tempR);
+                  var explode = new Explosion(tempR.root.position.x, tempR.root.position.y, tempR.root.position.z);
+                  parts.push(explode);
+                  //tempR.removeFromShow(scene);
+                  tempRemoveList.push(tempR);
+                  //return true;
+              
+              
+            //}
+          }
+        }
+        for (var temp_i = 0; temp_i < tempRemoveList.length; temp_i++) {
+          tempRemoveList[temp_i].removeFromShow(scene);
+          removeItemFromArray(all_robots, tempRemoveList[temp_i]);
+        }
+        tempRemoveList = null;
+        return false;
+      };
+
+      /* Used for robots to throw a ball for a short distance.
+       *
+       * @param robot, takes a robot.
+       * @param ty, move sphere's postion's y by ty value.
+       * @param tz, move sphere's postion's z by tz value.
+       * @param t_time, the time the sphere mesh will be traveling.
+       * @return nothing.
+       */
+      function cast_ball(robot, ty, tz, t_time) {
+        //console.log(robot.check_hands_up_then_cast_ball);
+        var movement1 = (robot.movement == 'hands up')
+        var movement2 = ((robot.movement == 'hands up over done') || (robot.movement == 'hands up over'))
+        //if (robot.check_hands_up_then_cast_ball && !hasBall) {
+        if (movement1 && !robot.hasBall) {
+          //console.log("B");
+          //console.log(hasBall);
+          robot.hasBall = true;
+          robot.setSphereMesh(1);
+          robot.sphereMesh.translateY(50);
+          scene.add( robot.sphereMesh );
+          skillObjects.push(robot.sphereMesh);
+          //var audio = new Audio('audio/spiritbomb/spiritbomb2.mp3');
+          //audio.play();
+          playModifierAnimation(idle2, 0.25, bombAnim2, 0.25);
+        } else if (movement1) {
+
+          robot.increaseSphereScale();
+          //robot.sphereMesh.scale.setScalar(robot.sphereMeshScale);
+          //robot.sphereMesh.translateY(1.5);
+        } else if (movement2) {
+          robot.increaseTime();
+          if (robot.time < t_time) {
+            //robot.sphereMesh.translateZ(3.0);
+            //robot.sphereMesh.translateY(-0.5);
+            robot.sphereMesh.translateZ(tz);
+            robot.sphereMesh.translateY(ty);
+          }
+          else {
+            //robot.removeSceneObj(robot.sphereMesh);
+            robot.hasBall = false;
+            var explode = new Explosion(robot.sphereMesh.position.x, robot.sphereMesh.position.y, robot.sphereMesh.position.z);
+            parts.push(explode);
+            check_beingHit_byBall(robot.sphereMesh);
+            removeItemFromArray(skillObjects, robot.sphereMesh);
+            scene.remove( robot.sphereMesh );
+            robot.movement = 'idle';
+          }
+        }
+      };
+
+      /* Used for robots to shoot a beam and generate explosion effect at target location.
+       *
+       * @param robot, takes a robot.
+       * @return nothing.
+       */
+      function cast_wave(robot) {
+        var movement1 = (robot.movement == 'shoot wave raise right hand over wave ready')
+        //var movement2 = ((robot.movement == 'shoot wave raise right hand over wave done'))
+        //if (robot.check_hands_up_then_cast_ball && !hasBall) {
+        if (cast_wave_preAnimation == false && robot.movement == 'shoot wave raise right hand') {
+          cast_wave_preAnimation = true;
+          //playModifierAnimation(idle, 0.25, bombAnim, 0.25);
+        }
+        if (movement1 && !robot.hasBeam) {
+          //console.log("B");
+          //console.log(hasBall);
+          robot.hasBeam = true;
+          var radius = 15;
+          var cylinderGeometry = new THREE.CylinderBufferGeometry(
+            40, // radiusTop
+            40, // radiusBottom
+            50, // height
+            8, // radiusSegments
+            5 * 3, // heightSegments
+            false // openEnded
+          );
+          var cylinderMaterial = new THREE.MeshBasicMaterial( { color: 0xffff00 } );
+          var cylinder = new THREE.Mesh( cylinderGeometry, cylinderMaterial );
+          robot.setCylinderMesh(cylinder);
+          skillObjects.push(robot.sphereMesh);
+          cylinder.rotateX(90*(Math.PI/180.0));
+          //cylinder.rotateZ(robot.facingOfRobot()*(Math.PI/180.0));
+          cylinder.rotateZ(-robot.facingOfRobot()*(Math.PI/180.0));
+
+          cylinder.position.x = robot.root.position.x*1 + robot.neck.position.x + robot.right_upperarm.position.x + robot.right_lowerarm.position.x + robot.right_hand.position.x+100;
+          cylinder.position.y = robot.root.position.y*1 + robot.neck.position.y + robot.right_upperarm.position.y + robot.right_lowerarm.position.y + robot.right_hand.position.y+100;
+          cylinder.position.z = robot.root.position.z*1 + robot.neck.position.z + 0;
+
+          //cylinder.position.x = robot.root.position.x*1;
+          //cylinder.position.y = robot.root.position.y*1;
+          //cylinder.position.z = robot.root.position.z*1;
+          if (robot.facingOfRobot() > 179) {
+            cylinder.position.x = -cylinder.position.x-25;//+25
+          //cylinder.position.y = -cylinder.position.y;
+          //cylinder.position.z = -cylinder.position.z;
+          }
+          cylinder.rotateY(robot.facingOfRobot()*(Math.PI/180));
+          
+          //TODO rotate, need better one
+          if (robot.facingOfRobot() > 179) {
+            cylinder.position.x = cylinder.position.x * -1;
+          }
+          scene.add( cylinder );
+          robot.sphereMesh.translateY(50);
+          //console.log(robot.sphereMesh);
+        } else if (movement1) {
+          //robot.increaseCylinderScale();
+          robot.sphereMesh.scale.setScalar(robot.sphereMeshScale);
+          robot.sphereMesh.translateY(15);
+          if (robot.time < 4.0) {
+            check_beingHit_byBeam(robot);
+            //robot.sphereMesh.translateZ(2.0);
+            //robot.sphereMesh.translateY(2.0);
+            var tempRTop = robot.sphereMesh.geometry.parameters.radiusTop;
+            var tempRBottom = robot.sphereMesh.geometry.parameters.radiusBottom;
+            var tempRHeight = robot.sphereMesh.geometry.parameters.height;
+            robot.sphereMesh.geometry.dispose();
+            robot.sphereMesh.geometry = new THREE.CylinderBufferGeometry(tempRTop*1, tempRBottom*1, tempRHeight+30, 8);
+            var tempOp = 0.8;
+            robot.sphereMesh.material = new THREE.MeshBasicMaterial( { color: 0xffff00, 
+              opacity: tempOp,
+              transparent: true,
+              alphaTest: 0.05 } 
+            );
+            
+          }
+          else {
+
+            //hemishpere
+            const phiStart = 0;
+            const phiEnd = Math.PI * 2;
+            const thetaStart = 0;
+            const thetaEnd = Math.PI / 2;
+
+            const geometry = new THREE.SphereGeometry( 10, 32, 16, phiStart, phiEnd, thetaStart, thetaEnd );
+            //const material = new THREE.MeshBasicMaterial( { color: 0x9900ff, wireframe: true } );
+            const material = new THREE.MeshBasicMaterial( { color: 0x9900ff } );
+            var sphere = new THREE.Mesh( geometry, material );
+            sphere.rotateY(robot.facing_angle*(Math.PI/180));
+            sphere.position.x = robot.sphereMesh.position.x;
+            sphere.position.y = robot.sphereMesh.position.y-30;
+            sphere.position.z = robot.sphereMesh.position.z;
+            var tempRHeight = robot.sphereMesh.geometry.parameters.height;
+            sphere.translateZ(tempRHeight/2);
+            var explode = new Explosion(sphere.position.x, sphere.position.y, sphere.position.z);
+            parts.push(explode);
+            robot.sphere_aftermathMesh = sphere;
+            robot.sphereMeshScale = 1.0;
+
+            scene.add( sphere );
+            //hemishpere end
+
+            robot.hasBeam = false;
+            scene.remove( robot.sphereMesh );
+            //console.log("done");
+            robot.movement = 'idle aftermathMesh';
+          }
+        } else if (robot.movement == 'idle aftermathMesh') {
+          if (robot.time < 6) {
+            //console.log(1);
+            robot.increaseTime();
+
+            robot.sphereMeshScale = 1.0 + robot.sphereMeshScale;
+            robot.sphere_aftermathMesh.scale.setScalar(robot.sphereMeshScale);
+            robot.sphere_aftermathMesh.translateY(0.5);
+            var tempOp = robot.sphere_aftermathMesh.material.opacity*0.96;
+            robot.sphere_aftermathMesh.material = new THREE.MeshBasicMaterial( { color: 0x9900ff, 
+              opacity: tempOp,
+              transparent: true,
+              alphaTest: 0.05 } 
+            );
+          } else {
+            robot.movement = 'idle';
+            scene.remove(robot.sphere_aftermathMesh);
+            cast_wave_preAnimation = false;
+          }
+        }
+        
+
+      }
+
+      /* Used for moving robots up and down by height.
+       *
+       * @param robot, takes a robot.
+       * @param height, takes a digital value.
+       * @return nothing.
+       */
+      function robot_fly(robot, height) {
+        robot.root.translateY(height);
+        model2.translateY(height);
+      };
+
+      function animate() {
+        
+      if (mixer) {
+        mixer.update(clock.getDelta());
+      }
+      if (mixer2) {
+        mixer2.update(clock2.getDelta());
+      }
+        //cast_ball(r);
+        //cast_beam(r);
+
+        requestAnimationFrame( animate );
+
+        for (r in all_robots) {
+          r = all_robots[r];
+          if (r == r1) {
+            cast_ball(r, -9.0, 24.0, 7.0);
+          } else { cast_ball(r, -0.5, 3.0, 15.0); }
+          cast_beam(r);
+          cast_wave(r);
+          //robot_fly(r, 0.5);
+          r.onAnimate();  
+          //console.log("robot x:"+r.root.position.x);
+          //console.log("robot z:"+r.root.position.z);
+        }
+
+        controls.update();
+
+        if (main_animation) {
+          mainTime += 1;
+          if (mainTime % 30 == 0) {
+            //console.log(mainTime);
+            mainTime = 0;
+            if (mainTimeTotalCount == 5-5) {
+              playModifierAnimation(idle, 0.25, bombAnim, 0.25);
+              r0.movement = 'shoot wave raise right hand';
+              r1_flying = true;
+            } else if (mainTimeTotalCount == 7-5) {
+              r1_flying = false;
+              r1.movement = 'hands up';
+            } else if (mainTimeTotalCount == 14-5) {
+              playModifierAnimation(idle, 0.25, defeatAnim, 0.25);
+            } else if (mainTimeTotalCount == 17-5) {
+              r1_flyingdown = true; 
+            } else if (mainTimeTotalCount == 18-5) {
+              //mixer.timeScale = 0;
+            } else if (mainTimeTotalCount == 19-5) {
+              r1_flyingdown = false; 
+            } else if (mainTimeTotalCount == 21-5) {
+              mixer.timeScale = 0;
+            } else if (mainTimeTotalCount == 24) {
+              //mixer.timeScale = 1;
+              mainTime = 0;
+              mainTimeTotalCount = -1;
+              main_animation = false;
+            }
+            mainTimeTotalCount += 1;
+          }
+          if (r1_flying == true) {
+            robot_fly(r1, 5);
+          }
+          if (r1_flyingdown == true) {
+            robot_fly(r1, -5);
+          }
+        }
+
+        var pCount = parts.length;
+        /*if (pCount > 0) {
+        //console.log(parts[0]);
+        parts[0].update();
+        }*/
+        while(pCount > 0) {
+          parts[pCount-1].update();
+          pCount--;
+        }
+
+        if (controller.anaglyph) {
+            renderer.setClearAlpha(1);
+            effect.render( scene, camera );
+        } else {
+            renderer.setClearAlpha(0);
+            renderer.render( scene, camera );
+        }
+        
+
+      };
+
+    </script>
+  </head>
+  <body>
+    <div style="visibility:hidden">
+      
+    </div>
+    <div class="wrapper">
+      <!-- The canvas element is used to draw the 3D scene -->
+  <canvas id="c"></canvas>
+  
+  </div>
+  </body>
+</html>

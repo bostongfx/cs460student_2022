@@ -41,7 +41,17 @@
 
         // TODO
         //code for sky sphere
-        
+        //sphere geometry
+        geometry = new THREE.SphereGeometry( 500, 60, 40);
+        video = document.getElementById('video');
+        video.play();
+        texture = new THREE.VideoTexture( video );
+        material = new THREE.MeshBasicMaterial( {
+            map: texture,
+            side: THREE.BackSide //texture inside of sphere rather than outside
+        } );
+        sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
 
 
         controls = new THREE.TrackballControls( camera, renderer.domElement );
@@ -65,5 +75,8 @@
     </script>
   </head>
   <body>
+    <video id=video loop crossOrigin="anonymous" webkit-playsinline style='display:none'>
+        <source src='jump_smaller.mp4' type='video/mp4'>
+    </video>>
   </body>
 </html>
