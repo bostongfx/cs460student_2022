@@ -2,12 +2,12 @@
   <head>
     <meta charset="UTF-8" />
     <style>
-      html, body { 
+      html, body {
         background-color:#000;
         margin: 0;
         padding: 0;
         height: 100%;
-        overflow: hidden !important;  
+        overflow: hidden !important;
       }
     </style>
 
@@ -26,7 +26,7 @@
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller, point1, point2, lambertMaterial;
 
       window.onload = function() {
 
@@ -39,7 +39,7 @@
         renderer = new THREE.WebGLRenderer({ });
         renderer.setSize( window.innerWidth, window.innerHeight );
         document.body.appendChild( renderer.domElement );
-        
+
         ambientLight = new THREE.AmbientLight();
         scene.add( ambientLight );
 
@@ -48,8 +48,13 @@
         scene.add( directionalLight );
 
 
-        // TODO Part 3 (add 2 pointlights)
-
+        // Part 3 (add 2 pointlights)
+        // Point 1
+        point1 = new THREE.PointLight('white', 1, 100);
+        point1.position.set(100, 25, 0);
+        // Point 2
+        point2 = new THREE.PointLight('white', 1, 100);
+        scene.add(point2);
 
 
         var loader = new PLYLoader();
@@ -62,20 +67,30 @@
           } );
 
           mesh = new THREE.Mesh( geometry, toonMaterial );
-          
+          mesh.position.x = -100;
           scene.add( mesh );
 
         } );
 
-        // TODO Part 1, load another mesh
+        // Part 1, load another mesh
+        loader.load('armadillo.ply', function (geometry) {
+          geometry.computeVertexNormals();
+          // Part 2, use a different material for this mesh
+          lambertMaterial = new THREE.MeshLambertMaterial( {
+            color: 0x21ce70
+          } );
+          mesh = new THREE.Mesh(geometry, lambertMaterial);
+          mesh.position.x = 100;
+          scene.add(mesh);
+        } );
 
-        // TODO Part 2, use a different material for this mesh
+
 
 
 
         controller = {
           'color': 0xffffff // we can use this single color
-                            // container for all colors in the scene 
+                            // container for all colors in the scene
                             // if we modify the onChange callback (see below)
 
           // TODO Bonus Part 1
@@ -95,9 +110,42 @@
         directionalFolder.add(directionalLight.position, 'z', -100, 100);
         directionalFolder.open();
 
-        // TODO Part 4 (control the color and position of point lights)
+        // Part 4 (control the color and position of point lights)
+        // Point 1
+        var point1Folder = gui.addFolder('Point Light #1');
+        point1Folder.addColor(controller, 'color').onChange(value => {
+          point1.color.setHex(value);
+        });
+        point1Folder.add(point1.position, 'x', -200, 200);
+        point1Folder.add(point1.position, 'y', -100, 100);
+        point1Folder.add(point1.position, 'z', -100, 100);
+        point1Folder.open();
 
-        // TODO Part 5 (control the color of both materials in the scene)
+        // Point 2
+        var point2Folder = gui.addFolder('Point Light #2');
+        point2Folder.addColor(controller, 'color').onChange(value => {
+          point2.color.setHex(value);
+        });
+        point2Folder.add(point2.position, 'x', -200, 200);
+        point2Folder.add(point2.position, 'y', -100, 100);
+        point2Folder.add(point2.position, 'z', -100, 100);
+        point2Folder.open();
+
+
+        // Part 5 (control the color of both materials in the scene)
+        // Toon Material
+        var toonColorFolder = gui.addFolder('Toon Material Color');
+        toonColorFolder.addColor(controller, 'color').onChange(value => {
+          toonMaterial.color.setHex(value);
+        });
+        toonColorFolder.open();
+
+        // Lambert Material
+        var lamColorFolder = gui.addFolder('Lambert Material Color');
+        lamColorFolder.addColor(controller, 'color').onChange(value => {
+          lambertMaterial.color.setHex(value);
+        });
+        lamColorFolder.open();
 
         gui.open();
 
@@ -118,7 +166,7 @@
         controls.update();
 
         renderer.render( scene, camera );
-        
+
 
       };
 

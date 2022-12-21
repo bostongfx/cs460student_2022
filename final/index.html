@@ -1,0 +1,198 @@
+<html>
+	<head>
+		<title>Final Project!</title>
+		<link rel="stylesheet" href="./presentation.css" />
+
+		<!-- Import Map Polyfill -->
+		<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+		<script type="importmap">
+			{
+				"imports": {
+					"three": "https://threejs.org/build/three.module.js",
+					"three/addons/": "https://threejs.org/examples/jsm/"
+				}
+			}
+		</script>
+
+		<script type="module">
+			import * as THREE from 'three';
+      import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
+      import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+      import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+			import RetroRender from './RetroRender.js';
+			import text from './presentation_text.js';
+
+			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, effect, vShader, fShader, controller, objects, palm, object;
+			var slide = 0;
+			var trees = [];
+			var ground, settingsun;
+
+			window.onload = function() {
+
+				objects = [];
+
+			scene = new THREE.Scene();
+
+			var fov = 60;
+			var ratio = window.innerWidth / window.innerHeight;
+			var zNear = 1;
+			var zFar = 10000;
+
+			camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+			camera.position.set(-29, 15, 207);
+
+			renderer = new THREE.WebGLRenderer({alpha:true, antialias: true});
+			renderer.setSize(window.innerWidth, window.innerHeight);
+			document.body.appendChild(renderer.domElement);
+
+			// LIGHTS
+			ambientLight = new THREE.AmbientLight();
+			scene.add( ambientLight );
+
+			light = new THREE.DirectionalLight('black', 5.0);
+			light.position.set(10, 100, 10);
+			scene.add(light);
+
+			pointLight = new THREE.PointLight(0xff0000, 1, 100);
+			pointLight.position.set(0, 20, 0);
+			scene.add(pointLight);
+
+			// CONTROLLER
+			controller = {
+				line: 1.5,
+				gColor: {
+					glow: [0.2, 0.0, 0.5, 1.0],
+					inner: [0.6, 0.0, 0.9, 1.0],
+					face: [0.0, 0.0, 0.0, 0.9]
+				},
+				tColor: {
+					glow: [0.0, 0.5, 0.0, 1.0],
+					inner: [0.0, 0.9, 0.0, 1.0],
+					face: [0.0, 0.0, 0.0, 0.8]
+				}
+			};
+
+			// LOAD OBJECTS
+			const loader = new OBJLoader();
+			loader.load(
+				'synth_ground.obj',
+				function(obj) {
+					var groundGeom = obj.children[0].geometry;
+					
+					loader.load(
+						'palm_tree.obj',
+						function(obj) {
+							var treeGeom = obj.children[0].geometry;
+							for (let j = 0; j < 2; j++) {
+								// load ground under trees
+								ground = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								ground.position.z = 50 + 100.3*j;
+								// load side ground
+								var groundL = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								groundL.position.x = -100.3;
+								groundL.position.z = 50 + 100.3*j;
+								var groundR = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								groundR.position.x = 100.3;
+								groundR.position.z = 50 + 100.3*j;
+								// load trees
+								for (let i = 0; i < 5; i++) {
+									var resultL = RetroRender.render(treeGeom, controller.line, controller.tColor);
+									resultL.position.y = 1;
+									resultL.position.x = 40;
+									resultL.position.z = 20*i+j - 40;
+									resultL.rotateY(90);
+									trees.push(resultL);
+									ground.add(resultL);
+									var resultR = RetroRender.render(treeGeom, controller.line, controller.tColor);
+									resultR.position.y = 1;
+									resultR.position.x = -40;
+									resultR.position.z = 20*i+j - 40;
+									resultR.rotateY(Math.PI*4/3);
+									trees.push(resultR);
+									ground.add(resultR);
+								}
+								scene.add(ground);
+								scene.add(groundL);
+								scene.add(groundR);
+							}
+						},
+						function (xhr) {
+							console.log('Tree loaded');
+						},
+						function (err) {
+							console.log("An error occurred when loading an OBJ file:", err);
+						}
+					); // end tree loading
+				},
+				function (xhr) {
+					console.log('Ground loaded');
+				},
+				function (err) {
+					console.log("An error occurred when loading an OBJ file:", err);
+				}
+			);
+
+			// create a plane along the back for the setting sun image
+			settingsun = new THREE.Mesh(
+				new THREE.PlaneGeometry(500,500),
+				new THREE.MeshBasicMaterial({
+					map: new THREE.TextureLoader().load( 'settingsun.png' ),
+					side: THREE.DoubleSide
+				})
+			);
+			scene.add(settingsun);
+
+			controls = new TrackballControls( camera, renderer.domElement );
+
+			animate();
+		}
+
+		/*function retroRender(geometry, lineWidth) {
+			// SHADER
+			RetroRender.setupAttributes(geometry);
+
+			var material = new THREE.ShaderMaterial({
+				vertexShader: RetroRender.vertexShader,
+				fragmentShader: RetroRender.fragmentShader,
+				uniforms: {
+						'thickness': {value: 1.25},
+						'glow': {value: [0.5, 0.0, 0.5, 1.0]},
+						'inner': {value: [0.9, 0.0, 0.9, 1.0]},
+						'face': {value: [0.0, 0.0, 0.0, 0.8]}
+				},
+				alphaToCoverage: true,
+				side: THREE.DoubleSide,
+			});
+			var solid = new THREE.Mesh(geometry, material);
+			return solid;
+		}*/
+
+		function animate() {
+			objects.forEach((item) => {
+				item.rotateX(Math.PI/360);
+				item.rotateY(Math.PI/360);
+				item.rotateZ(Math.PI/360);
+			});
+			settingsun.quaternion.copy(camera.quaternion);
+
+			requestAnimationFrame( animate );
+
+			controls.update();
+			if (camera.position.y < 7) camera.position.y = 7;
+
+			// and here...
+			renderer.render(scene, camera);
+		}
+
+		</script>
+	</head>
+	<body style="background-color: black; margin: 0; padding:0; overflow: hidden">
+		<header class="textbox">
+			<h1>1980s Retro Futurism</h1>
+		</header>
+		<footer class="textbox">
+			<span>Created by Emily Gagne for CS460, Fall 2022</span> ||
+			<a href="https://threejs.org/examples/#webgl_materials_wireframe">Wireframe Example</a>
+		</footer>
+	</body>
+</html>

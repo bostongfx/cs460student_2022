@@ -1,0 +1,67 @@
+@import url("https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap");
+
+:root {
+	--header-font: "Indie Flower";
+	--main-color: rgb(44, 44, 44);
+	--accent-color: rgb(85, 179, 251);
+	--text-color: rgb(170, 218, 255);
+	--link-color: rgb(136, 146, 255);
+	--link-secondary: rgb(105, 117, 250);
+	--link-old: rgb(230, 244, 255);
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	font-family: 'Courier New', Courier, monospace;
+	color: var(--text-color);
+}
+
+h1, h2 {
+	font-family: var(--header-font);
+	color: var(--accent-color);
+}
+
+header, main, footer {
+	position: absolute;
+	background-color: rgba(0, 0, 0, 0.9);
+	padding: 10px;
+}
+
+header {
+	top: 0px;
+	width: 100vw;
+	border-bottom: 2px dotted var(--accent-color);
+}
+
+main {
+	top: 200px;
+	margin-left: 20px;
+	border: 2px dotted var(--accent-color);
+}
+
+footer {
+	bottom: 0px;
+	width: 100vw;
+	border-top: 2px dotted var(--accent-color);
+}
+
+a {
+	color: var(--link-color);
+}
+
+a:hover, a:active {
+	color: var(--link-secondary);
+	text-decoration: wavy underline 1px;
+}
+
+a:visited {
+	color: var(--link-old);
+}
+
+ol > ul {
+	margin-bottom: 7px;
+}

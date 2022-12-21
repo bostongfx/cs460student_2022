@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+    <title>Default WebGL!</title>
+    <style>
+      html, body {
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+
+      #c {
+        width: 100%;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <script type="text/javascript" src="https://cs460.org/js/glmatrix.js"></script>
+
+  <script id="vertexshader" type="glsl">
+    attribute vec3 position;
+
+		//uniform vec3 offset;
+		uniform mat4 transform;
+
+    void main(void) {
+			//vec3 final_position = position;
+			//final_position.x += offset.x;
+			//final_position.y += offset.y;
+			//final_position.z += offset.z;
+
+			vec4 final_position = transform * vec4(position, 1.);
+
+      gl_Position = final_position;
+    }
+  </script>
+
+  <script id="fragmentshader" type="glsl">
+    precision mediump float;
+
+		uniform vec4 color;
+
+    void main(void) {
+      gl_FragColor = color;
+    }
+  </script>
+
+  <script>
+
+    // VARIABLE DECLARATIONS
+		var c, gl;
+		var v_shader, f_shader, shaderprogram;
+		var objects;
+
+    window.onload = function() {
+      //************************************************************//
+      //
+      // INITIALIZE WEBGL
+      //
+
+			c = document.getElementById('c');
+			c.width = window.innerWidth;
+			c.height = window.innerHeight;
+			gl = c.getContext('webgl');
+			gl.viewport(0,0,c.width,c.height);
+
+
+      //************************************************************//
+      //
+      // SHADERS
+      //
+
+			// Vertex Shader
+			v_shader = gl.createShader(gl.VERTEX_SHADER);
+
+			gl.shaderSource(v_shader, document.getElementById('vertexshader').innerText);
+			gl.compileShader(v_shader);
+
+			if(!gl.getShaderParameter(v_shader, gl.COMPILE_STATUS)) {
+				console.log('v-shader FAILED');
+				console.log(gl.getShaderInfoLog(v_shader));
+			} else {
+				console.log('v-shader compiled!');
+			}
+
+			// Fragment Shader
+			f_shader = gl.createShader(gl.FRAGMENT_SHADER);
+
+			gl.shaderSource(f_shader, document.getElementById('fragmentshader').innerText);
+			gl.compileShader(f_shader);
+
+			if(!gl.getShaderParameter(f_shader, gl.COMPILE_STATUS)) {
+				console.log('f-shader FAILED');
+				console.log(gl.getShaderInfoLog(f_shader));
+			} else {
+				console.log('f-shader compiled!');
+			}
+
+			// attach and link shaders
+			shaderprogram = gl.createProgram();
+			gl.attachShader( shaderprogram, v_shader);
+			gl.attachShader( shaderprogram, f_shader);
+			gl.linkProgram(shaderprogram);
+			gl.useProgram(shaderprogram);
+
+			// add objects
+			objects = [];
+			objects.push(
+				createRectangle(
+					new Float32Array( [0., 1., 0., 1.]),
+					new Float32Array( [-.1, -.2, 0 ] )
+				)
+			);
+			objects.push(
+				createRectangle(
+					new Float32Array( [.5, 0., 1., 1.]),
+					new Float32Array( [-.6, -.5, 0 ] )
+				)
+			);
+
+			console.log('objects', objects);
+
+			animate();
+		}
+
+		function createRectangle(color, offset) {
+      //************************************************************//
+      //
+      // CREATE GEOMETRY
+      //
+      vertices = new Float32Array(
+				[
+					-0.25,  0.25, 0.0, // V0.     // 0
+					-0.25, -0.25, 0.0, // V1, V4. // 1
+					 0.25,  0.25, 0.0, // V2, V3. // 2
+					 0.25, -0.25, 0.0  // V5.     // 3
+				]
+			);
+			indices = new Uint8Array(
+				[
+					0, 1, 2, // Triangle 1
+					2, 1, 3, // Triangle 2
+				]
+			);
+
+			// create
+			v_buffer = gl.createBuffer();
+			// bind
+			gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer);
+			// put data in
+			gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+			// unbind
+			gl.bindBuffer(gl.ARRAY_BUFFER, null);
+
+			i_buffer = gl.createBuffer(); // create
+			gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, i_buffer ); // bind
+			gl.bufferData( gl.ELEMENT_ARRAY_BUFFER, indices, gl.STATIC_DRAW ); // put data in
+			gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, null ); // unbind
+
+			return [v_buffer, i_buffer, color, offset];
+		};
+
+		function animate() {
+			// clear viewport
+			gl.clearColor(0.,0.,0.,0.);
+			// clear color buffer
+			gl.clear(gl.COLOR_BUFFER_BIT);
+
+			// loop through all objects in the scene
+			for (var o = 0; o < objects.length; o++) {
+				var current_object = objects[o];
+
+				var v_buffer = current_object[0];
+				var i_buffer = current_object[1];
+				var current_color = current_object[2];
+				var current_offset = current_object[3];
+
+				//************************************************************//
+				//
+				// CONNECT SHADER WITH GEOMETRY
+				//
+
+				// bind buffer
+				gl.bindBuffer(gl.ARRAY_BUFFER, v_buffer);
+				gl.bindBuffer( gl.ELEMENT_ARRAY_BUFFER, i_buffer );
+				// find vertex attribute in shader source
+				var a_pos = gl.getAttribLocation(shaderprogram, 'position');
+				// configure vertext attribute
+				gl.vertexAttribPointer(a_pos, 3, gl.FLOAT, false, 0, 0);
+				// enable vertex attribute array
+				gl.enableVertexAttribArray(a_pos);
+
+				var u_color = gl.getUniformLocation( shaderprogram, 'color' );
+				gl.uniform4fv( u_color, current_color );
+
+				//var u_offset = gl.getUniformLocation(shaderprogram, 'offset');
+				var u_transform = gl.getUniformLocation(shaderprogram, 'transform');
+
+				current_offset[0] -= .01;
+
+				if (current_offset[0] < -1) {
+					current_offset[0] = 1;
+				}
+
+				// row-major ordering
+				var matrix = new Float32Array(
+					[
+						.5, 0, 0, 0,
+						0, .5, 0, 0,
+						0, 0, .5, 0,
+						current_offset[0], current_offset[1], current_offset[2], 1
+					]
+				);
+
+				gl.uniformMatrix4fv(u_transform, false, matrix);
+
+				//gl.uniform3fv(u_offset, current_offset);
+
+				//************************************************************//
+				//
+				// DRAW!
+				//
+
+				// draw vertex arrays
+				//gl.drawArrays(gl.TRIANGLES, 0, 6);
+				gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_BYTE, 0);
+
+				// this is our loop
+				requestAnimationFrame(animate);
+			}
+    };
+
+  </script>
+  <body>
+    <canvas id="c"></canvas>
+  </body>
+</html>
