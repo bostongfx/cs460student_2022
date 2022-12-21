@@ -69,7 +69,7 @@ section {
   border-radius: 50px;
 }
 
-.left {
+.right {
   grid-column: 6 / 12;
 }
 
