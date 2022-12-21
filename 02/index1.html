@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Combo&display=swap" rel="stylesheet">
+    
+    <title>CS460 Assignment 2</title>
+    <style>
+      
+      body {
+        background-color: rgb(0, 0, 0);
+        color: rgb(241, 222, 225); /* font color */
+        font-family: 'Combo', cursive;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+      
+      .name,.sid{
+        margin-top: 5px;
+        margin-bottom: 5px;
+      }
+
+      #logo {
+        position: absolute;
+        right: 10px;
+        top: 10px;
+      }
+    </style>
+    
+    <script type="text/javascript" src="https://get.goXTK.com/xtk_edge.js"></script>
+
+    <script type="text/javascript">
+
+      window.onload = function() {
+
+        let fire=true;
+        var r = new X.renderer3D();
+        r.init();
+        //left wing
+        for(var i=0; i<9; i++){
+          for(var j=0; j<8-i; j++){
+            var c = new X.cube();
+            c.color = [1, 0, 0];
+            c.center = [i*-25, j*25, 0]
+            r.add(c);
+          }
+        }
+        //right-wing
+        for(var i=0; i<9; i++){
+          for(var j=0; j<8-i; j++){
+            var c = new X.cube();
+            c.color = [1, 0, 0];
+            c.center = [i*25, j*25, 0]
+            r.add(c);
+          }
+        }
+        //Rocket body left half
+        for(var i=0; i<4; i++){
+          for(var j=0; j<15-i; j++){
+            var c = new X.cube();
+            c.color = [0, 1, 1];
+            c.center = [i*-25, j*25, 0]
+            r.add(c);
+          }
+        }
+        //Rocket body right half  
+        for(var i=0; i<4; i++){
+          for(var j=0; j<15-i; j++){
+            var c = new X.cube();
+            c.color = [0, 1, 1];
+            c.center = [i*25, j*25, 0]
+            r.add(c);
+          }
+        }
+        //middle block
+        for (i=0; i<3; i++){
+          for(j=7;j<10;j++)
+          {
+            c = new X.cube();
+            c.color = [0, 0, 1];
+            c.center = [-25*i, 25*j, 0];
+            r.add(c);
+          }
+        }
+
+        setInterval(
+          function(){
+            if(fire){
+              //fire
+        for(i=-3; i<4; i++){
+          for(j=-4; j<0; j++){
+            if((j==-4&&i==0)|(j==-3&&i<=1&&i>=-1)|(j==-2&&i<=2&&i>=-2)|(j==-1&&i<=2&&i>=-2)){
+              c = new X.cube();
+              c.color = [0.8,0.3,0];
+              c.center = [-25*i, 25*j, 0];
+              r.add(c);
+            
+            }
+          }
+        }
+              fire=false;
+            }
+            else
+            {
+              //fire
+              for(i=-3; i<4; i++){
+              for(j=-4; j<0; j++){
+              if((j==-4&&i==0)|(j==-3&&i<=1&&i>=-1)|(j==-2&&i<=2&&i>=-2)|(j==-1&&i<=2&&i>=-2)){
+              c = new X.cube();
+              c.color = [0.4,0,0];
+              c.center = [-25*i, 25*j, 0];
+              r.add(c);
+            
+            }
+          }
+        }
+              fire=true;
+            }
+          }
+        ,1000);
+        
+
+       
+        
+        // set the camera further away!
+        //r.camera.position = [5, -5, 1000];
+        r.camera.position = [0, 0, 1000];
+  
+        // render everything!
+        r.render();
+  
+      };
+  
+
+      var r = new X.renderer3D();
+      r.init();
+  
+  
+    </script>
+  </head>
+  <body>
+    <h1>CS460 Assignment 2</h1>
+    <p class="name">Saicharitha Dathrika</p>
+    <p class="sid"> student id: 02010404</p>
+    <div id="logo"><img style="height:60px" src="gfx/cs460.png"></div>
+  </body>
+</html>
