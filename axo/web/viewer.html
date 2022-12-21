@@ -1,0 +1,296 @@
+<html>
+	<head>
+		<script src="js/openseadragon.min.js"></script>
+		<script src="js/openseadragon-scalebar.js"></script>
+		<script type="module" src="js/openseadragon-lengthtool.js"></script>
+
+		<script src="js/openseadragon-annotations.js"></script>
+		<!-- include the cornerstone library -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+		<script src="https://unpkg.com/cornerstone-core@2.2.6/dist/cornerstone.js"></script>
+		<script src="https://unpkg.com/cornerstone-math@0.1.6/dist/cornerstoneMath.js"></script>
+		<script src="https://unpkg.com/cornerstone-web-image-loader@2.1.0/dist/cornerstoneWebImageLoader.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@3.0.0-b.717/dist/cornerstoneTools.js"></script>
+
+		<style>
+			html,
+			body {
+				background-color: rgb(255, 255, 255);
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden !important;
+			}
+			.openseadragon-container {
+				position: absolute !important;
+			}
+			.cornerstone-element-wrapper,
+			.cornerstone-element {
+				width: 100%;
+				height: 100%;
+				margin: 0 auto;
+			}
+			.cornerstone-element-wrapper {
+				position: absolute;
+				background-color: transparent;
+				opacity: 50%;
+				top: 0;
+			}
+			#myCanvas {
+				width: 512px;
+				height: 512px;
+				border: 1px solid black;
+			}
+
+			#oviewer {
+				width: 100%;
+				height: 100%;
+			}
+			#myCanvas {
+				width: 512px;
+				height: 512px;
+				border: 1px solid black;
+			}
+			#oviewer {
+				width: 100%;
+				height: 100%;
+			}
+
+			#info {
+				position: absolute;
+				z-index: 1000;
+				top: 50px;
+				left: 10px;
+				background-color: rgba(0, 0, 0, 0.7);
+				min-height: 100px;
+				width: 200px;
+				color: white;
+				font-family: sans-serif;
+				font-size: 0.9em;
+				padding: 10px;
+			}
+		</style>
+
+		<script>
+			function toggleLengthTool() {
+				console.log("length tool toggled");
+				var wrapper = document.getElementsByClassName(
+					"cornerstone-element-wrapper"
+				)[0];
+				wrapper.hidden = !wrapper.hidden;
+				const canvas = document.getElementsByClassName("cornerstone-canvas");
+
+				// const ctx = canvas[0].getContext("2d");
+				// // ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
+				// const image = ctx.getImageData(0, 0, canvas[0].width, canvas[0].height);
+				// const { data } = image;
+    			// const { length } = data;
+				// for (let i = 0; i < length; i += 4) {
+				// 	// red, green, blue, and alpha
+				// 	const r = data[i + 0];
+				// 	const g = data[i + 1];
+				// 	const b = data[i + 2];
+				// 	const a = data[i + 3];
+				// 		data[i] = 0; // r
+				// 		data[i + 1] = 0; // green is set to 100%
+				// 		data[i + 2] = 0; // blue is set to 100%
+				// 		data[i + 3] = 1; // a
+				
+
+				// }
+				// ctx.putImageData(image, 0, 0);
+			}
+			window.onload = function () {
+				console.log("onload");
+				// smaller screens dont see info
+				if (window.innerWidth < 300) {
+					document.getElementById("info").style.display = "none";
+				}
+
+				PIXEL_SIZE = 4.54e-7;
+
+				SCAN = "W255B"; // query string
+				scene_count = 3;
+
+				if (window.location.search && window.location.search.length > 0) {
+					SCAN = window.location.search.substr(1);
+				}
+
+				document.title = SCAN;
+
+				if (SCAN == "W408B") {
+					scene_count = 29;
+				}
+
+				tileSources = [];
+				for (var s = 0; s < scene_count; s++) {
+					tileSources.push("data/" + SCAN + "_" + s + ".dzi");
+				}
+
+				viewer = OpenSeadragon({
+					id: "viewer",
+					showNavigator: true,
+					prefixUrl: "https://openseadragon.github.io/openseadragon/images/",
+					tileSources: tileSources,
+					sequenceMode: false,
+					useCanvas: true,
+				});
+
+				viewer.scalebar({
+					type: OpenSeadragon.ScalebarType.MICROSCOPY,
+					pixelsPerMeter: 1 / PIXEL_SIZE,
+					minWidth: "75px",
+					location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
+					xOffset: 5,
+					yOffset: 10,
+					stayInsideImage: true,
+					color: "rgba(255,255,0,1)",
+					fontColor: "rgb(100, 100, 100)",
+					backgroundColor: "rgba(0,0,0, 0.5)",
+					fontSize: "small",
+					barThickness: 2,
+				});
+
+				// viewer.lengthtool();
+
+				viewer.initializeAnnotations();
+
+				FIRSTPOINT = null;
+				SECONDPOINT = null;
+
+				info = document.getElementById("info");
+
+				cornerstoneWebImageLoader.external.cornerstone = cornerstone;
+				cornerstone.registerImageLoader(
+					"http",
+					cornerstoneWebImageLoader.loadImage
+				);
+				cornerstone.registerImageLoader(
+					"https",
+					cornerstoneWebImageLoader.loadImage
+				);
+				cornerstone.registerImageLoader(
+					"data",
+					cornerstoneWebImageLoader.loadImage
+				);
+
+				// Setup tools
+				const csTools = cornerstoneTools.init();
+				cornerstoneTools.toolStyle.setToolWidth(1);
+				cornerstoneTools.toolColors.setToolColor("rgb(255, 255, 0)");
+				cornerstoneTools.toolColors.setActiveColor("rgb(255, 255, 0)");
+				// viewer.canvas.childNodes[0].className = "cornerstone-canvas"
+				// const element =document.getElementsByTagName("canvas")[0]
+				// document.getElementsByTagName("canvas")[0].className = "cornerstone-canvas"
+				// cornerstone.enable(document.getElementsByTagName("canvas")[0]);
+				// console.log(viewer.canvas.childNodes[0])
+
+				// // Enable Element
+				const element = document.querySelector(".cornerstone-element");
+				// const element = document.querySelector("#myCanvas");
+
+				cornerstone.enable(element);
+
+				// Add Tool
+				const LengthTool = cornerstoneTools["LengthTool"];
+				csTools.addTool(LengthTool);
+
+				// Set Tool Active
+				csTools.setToolActive("Length", { mouseButtonMask: 1 });
+				const canvas2 = document.getElementById("myCanvas");
+				const dataURL = canvas2.toDataURL("image/png");
+				// const imageId =
+				//   'https://www.asteris.biz/Keystone/ImageDownload.aspx?ClinicCode=TESTKEYSTONE&ImageId=01b1755e-33d1-4b24-b9af-a4a019689d5f&ImageType=PreviewImage&FrameIndex=0'
+
+				const canvas = document.getElementsByClassName("cornerstone-canvas");
+
+				const ctx = canvas[0].getContext("2d");
+				ctx.clearRect(0, 0, canvas[0].width, canvas[0].height);
+				// ctx.globalAlpha = 0.001
+				// ctx.save();
+
+				// canvas[0].getContext('2d').globalAlpha = 1
+				// canvas[0].getContext('2d').restore()
+				// const imageId =
+				// 	"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBwgICAgIBwcHBwcHBwoIBwcHBw8ICQcKFREWFhURExMYHSggGBolJxMTITEhJSkrLi4uFx8zODMsNygtLisBCgoKDQ0NFQ8PFSsdFR0rKys3Ny0rKys3KysrNys3KzcrLSsrKysrKystKysrLSsrLSsrKzcrLSsrKysrKysrK//AABEIASwAqAMBIgACEQEDEQH/xAAYAAEBAQEBAAAAAAAAAAAAAAAAAQIDB//EABwQAQEBAQEAAwEAAAAAAAAAAAABEQJBITFRA//EABUBAQEAAAAAAAAAAAAAAAAAAAAB/8QAFxEBAQEBAAAAAAAAAAAAAAAAAAERIf/aAAwDAQACEQMRAD8A9xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAS1U+NBQAAAAAAAAAAAAASrExQAAASArLQAAAAAAAAAAAAACUFAAAAAAAAAAAAAAAAAAAAAAAAEigAAAAAAAAAAAAAAAAAAIoAAAnqpICgAAAAAAAAAAAAAAAAAAAAAAAAAkUgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAigAAAAAAAAAAAAAAAAJ6qRQRQAAAAAAAAAAAAAAAAABKBFAAAAAAEoAluS04+RGgBQAAAAAAABFAAAAAAAEUBj+n1n6vMyNYCZ0AFAAAAAAAAAAAAAAAAAABi9xqUFE1QAAAAAAAAAAAAAAAAGO98bTBK4c8Xdrt41hQkxy53XVmRpIoAoAAAAAAAAAAAAAAAAJaqUEjSRQAAAAAAf/Z";
+
+				cornerstone.loadImage(dataURL).then(function (image) {
+					console.log(image);
+					cornerstone.displayImage(element, image);
+				});
+				// cornerstone.setViewport(element,{
+				// 	scale: 1,
+				// 	invert: true
+				// })
+
+				console.log(cornerstone.getViewport(element));
+
+				viewer.addHandler("canvas-click", function (event) {
+					if (!event.originalEvent.ctrlKey) {
+						return;
+					}
+
+					// The canvas-click event gives us a position in web coordinates.
+					var webPoint = event.position;
+
+					// Convert that to viewport coordinates, the lingua franca of OpenSeadragon coordinates.
+					var viewportPoint = viewer.viewport.pointFromPixel(webPoint);
+
+					// Convert from viewport coordinates to image coordinates.
+					var imagePoint =
+						viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+					// Show the results.
+					// console.log(webPoint.toString(), viewportPoint.toString(), imagePoint.toString());
+
+					if (!FIRSTPOINT) {
+						FIRSTPOINT = imagePoint;
+						SECONDPOINT = null;
+
+						info.innerHTML += "P1 to";
+					} else if (!SECONDPOINT) {
+						SECONDPOINT = imagePoint;
+
+						MEASUREMENT = Math.sqrt(
+							Math.pow(SECONDPOINT.x - FIRSTPOINT.x, 2) +
+								Math.pow(SECONDPOINT.y - FIRSTPOINT.y, 2)
+						);
+
+						info.innerHTML +=
+							" P2 = " +
+							(MEASUREMENT * PIXEL_SIZE * 1e6).toFixed(3) +
+							" um<br>";
+
+						// console.log(MEASUREMENT)
+
+						FIRSTPOINT = null;
+					}
+				});
+
+				// document.getElementsByClassName(
+				// 	"cornerstone-element-wrapper"
+				// )[0].hidden= true;
+			};
+		</script>
+	</head>
+
+	<body>
+		<div id="viewer"></div>
+
+		<div class="cornerstone-element-wrapper">
+			<div
+				class="cornerstone-element"
+				data-index="0"
+				oncontextmenu="return false"
+			></div>
+		</div>
+
+		<div id="info">
+			MEASUREMENTS
+			<button onclick="toggleLengthTool()">LengthTool</button>
+			<br />
+			<br />
+		</div>
+		<canvas id="myCanvas"></canvas>
+	</body>
+</html>

@@ -1,0 +1,307 @@
+<html>
+	<head>
+		<script src="js/openseadragon.min.js"></script>
+		<script src="js/openseadragon-scalebar.js"></script>
+		<script type="module" src="js/openseadragon-lengthtool.js"></script>
+
+		<script src="js/openseadragon-annotations.js"></script>
+		<!-- include the cornerstone library -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+		<script src="https://unpkg.com/cornerstone-core@2.2.6/dist/cornerstone.js"></script>
+		<script src="https://unpkg.com/cornerstone-math@0.1.6/dist/cornerstoneMath.js"></script>
+		<script src="https://unpkg.com/cornerstone-web-image-loader@2.1.0/dist/cornerstoneWebImageLoader.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/cornerstone-tools@3.0.0-b.717/dist/cornerstoneTools.js"></script>
+
+		<style>
+			html,
+			body {
+				background-color: rgb(255, 255, 255);
+				margin: 0;
+				padding: 0;
+				height: 100%;
+				overflow: hidden !important;
+			}
+            #topCanvas{
+                background-color: transparent;
+                width: 100%;
+                height: 100%;
+                z-index: 100;
+                position: absolute;
+                opacity: 50%;
+                
+            }
+			.openseadragon-container {
+				position: absolute !important;
+			}
+			.cornerstone-element-wrapper,
+			.cornerstone-element {
+				width: 100%;
+				height: 100%;
+				margin: 0 auto;
+			}
+			.cornerstone-element-wrapper {
+				position: absolute;
+				background-color: transparent;
+				opacity: 50%;
+				top: 0;
+			}
+			#myCanvas {
+				/* width: 512px; */
+				/* height: 512px; */
+				border: 1px solid black;
+			}
+
+			#oviewer {
+				width: 100%;
+				height: 100%;
+			}
+			#myCanvas {
+				width: 512px;
+				height: 512px;
+				border: 1px solid black;
+			}
+			#oviewer {
+				width: 100%;
+				height: 100%;
+			}
+
+			#info {
+				position: absolute;
+				z-index: 1000;
+				top: 50px;
+				left: 10px;
+				background-color: rgba(0, 0, 0, 0.7);
+				min-height: 100px;
+				width: 200px;
+				color: white;
+				font-family: sans-serif;
+				font-size: 0.9em;
+				padding: 10px;
+			}
+		</style>
+
+		<script>
+			function toggleLengthTool() {
+				var wrapper = document.getElementById(
+					"topCanvas"
+				);
+                console.log(wrapper)
+				wrapper.hidden = !wrapper.hidden;
+
+			}
+			window.onload = function () {
+				console.log("onload");
+				// smaller screens dont see info
+				if (window.innerWidth < 300) {
+					document.getElementById("info").style.display = "none";
+				}
+
+				PIXEL_SIZE = 4.54e-7;
+
+				SCAN = "W255B"; // query string
+				scene_count = 3;
+
+				if (window.location.search && window.location.search.length > 0) {
+					SCAN = window.location.search.substr(1);
+				}
+
+				document.title = SCAN;
+
+				if (SCAN == "W408B") {
+					scene_count = 29;
+				}
+
+				tileSources = [];
+				for (var s = 0; s < scene_count; s++) {
+					tileSources.push("data/" + SCAN + "_" + s + ".dzi");
+				}
+
+				viewer = OpenSeadragon({
+					id: "viewer",
+					showNavigator: true,
+					prefixUrl: "https://openseadragon.github.io/openseadragon/images/",
+					tileSources: tileSources,
+					sequenceMode: false,
+				});
+
+				viewer.scalebar({
+					type: OpenSeadragon.ScalebarType.MICROSCOPY,
+					pixelsPerMeter: 1 / PIXEL_SIZE,
+					minWidth: "75px",
+					location: OpenSeadragon.ScalebarLocation.BOTTOM_RIGHT,
+					xOffset: 5,
+					yOffset: 10,
+					stayInsideImage: true,
+					color: "rgba(255,255,0,1)",
+					fontColor: "rgb(100, 100, 100)",
+					backgroundColor: "rgba(0,0,0, 0.5)",
+					fontSize: "small",
+					barThickness: 2,
+				});
+
+				// viewer.lengthtool();
+
+				// viewer.initializeAnnotations();
+
+				FIRSTPOINT = null;
+				SECONDPOINT = null;
+
+				
+				function distance(x1,y1,x2,y2){
+                    let y = x2 - x1;
+                    let x = y2 - y1;
+    
+                    return Math.sqrt(x * x + y * y);
+
+                }
+
+
+
+                const canvas = document.getElementById("topCanvas");
+
+                const ctx = canvas.getContext("2d");
+                canvas.width=window.innerWidth;
+                canvas.height = window.innerHeight;
+                let clickNum = 0;
+                let x1=null;
+                let y1=null
+                let startx=null,starty=null;
+                // canvas.addEventListener('mousedown', function(e){
+                //     let rect = canvas.getBoundingClientRect();
+                //     let x = e.clientX - rect.left;
+			    //     let y = e.clientY - rect.top;
+                //     startx = x;
+                //     starty= y;
+                //     console.log("mousedown at"+x,y)
+                //     ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                //     ctx.stroke();
+                //     clicknum=1;
+                //     ctx.beginPath();
+                // })
+                // canvas.addEventListener('mousemove',function(e){
+                //     let rect = canvas.getBoundingClientRect();
+                //     let x = e.clientX - rect.left;
+			    //     let y = e.clientY - rect.top;
+                //     ctx.beginPath()
+                //     if(clickNum==1){
+                //         ctx.moveTo();
+
+                        
+                //     }
+                // })
+                // canvas.addEventListener('mouseup', function(e){
+                //     let rect = canvas.getBoundingClientRect();
+                //     let x = e.clientX - rect.left;
+			    //     let y = e.clientY - rect.top;
+                //     console.log("mouseup at"+x,y)
+                //     ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                //     ctx.stroke();
+                // })
+                canvas.addEventListener('click', function(e) {
+                    
+                   
+                    let rect = canvas.getBoundingClientRect();
+                    let x = e.clientX - rect.left;
+			        let y = e.clientY - rect.top;
+                    ctx.translate(0.5, 0.5);
+                    ctx.lineWidth = 3;
+                    ctx.fillStyle = "#000000"
+                    ctx.font = "24px Arial";
+
+                    
+                    ctx.strokeStyle = "rgba(0,0,255,1)";
+                    if(clickNum ==0){
+                        ctx.beginPath()
+                        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        ctx.moveTo(x,y)
+                        x1=x;
+                        y1=y;
+                        
+
+                        console.log('first point', x,y)
+                        
+                        clickNum=1
+                    }
+                    else{
+                        ctx.arc(x, y, 5, 0, 2 * Math.PI);
+                        ctx.stroke();
+                        console.log('second point',x,y)
+                        ctx.lineTo(x,y)
+                        ctx.stroke();
+                        clickNum=0
+                        let d = distance(x1,y1,x,y)
+                        ctx.fillText(Math.round(d * 10) / 10, x, y);
+
+
+
+                    }
+                }, false);
+
+
+
+				
+
+			
+
+				viewer.addHandler("canvas-click", function (event) {
+					if (!event.originalEvent.ctrlKey) {
+						return;
+					}
+
+					// The canvas-click event gives us a position in web coordinates.
+					var webPoint = event.position;
+
+					// Convert that to viewport coordinates, the lingua franca of OpenSeadragon coordinates.
+					var viewportPoint = viewer.viewport.pointFromPixel(webPoint);
+
+					// Convert from viewport coordinates to image coordinates.
+					var imagePoint =
+						viewer.viewport.viewportToImageCoordinates(viewportPoint);
+
+					// Show the results.
+					// console.log(webPoint.toString(), viewportPoint.toString(), imagePoint.toString());
+
+					if (!FIRSTPOINT) {
+						FIRSTPOINT = imagePoint;
+						SECONDPOINT = null;
+
+						info.innerHTML += "P1 to";
+					} else if (!SECONDPOINT) {
+						SECONDPOINT = imagePoint;
+
+						MEASUREMENT = Math.sqrt(
+							Math.pow(SECONDPOINT.x - FIRSTPOINT.x, 2) +
+								Math.pow(SECONDPOINT.y - FIRSTPOINT.y, 2)
+						);
+
+						info.innerHTML +=
+							" P2 = " +
+							(MEASUREMENT * PIXEL_SIZE * 1e6).toFixed(3) +
+							" um<br>";
+
+						// console.log(MEASUREMENT)
+
+						FIRSTPOINT = null;
+					}
+				});
+
+			
+			};
+		</script>
+	</head>
+
+	<body>
+		<canvas id="topCanvas"></canvas>
+
+		<div id="viewer"></div>
+
+
+		<div id="info">
+			MEASUREMENTS
+			<button onclick="toggleLengthTool()">LengthTool</button>
+			<br />
+			<br />
+		</div>
+	</body>
+</html>
