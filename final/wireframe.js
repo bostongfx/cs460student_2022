@@ -16,6 +16,7 @@ const wireframe = {
 		uniform float thickness;
 		uniform vec3 glow;
 		uniform vec3 inner;
+		uniform vec3 face;
 
 		varying vec3 vCenter;
 
@@ -28,31 +29,23 @@ const wireframe = {
 			float alpha = 1.0 - min( min( edge3.x, edge3.y ), edge3.z );
 
 			vec3 black = vec3(0.0, 0.0, 0.0);
+			vec3 white = vec3(1.0, 1.0, 1.0);
 
-			vec3 color3 = edge3 * 2.0;
-
-			vec3 shinyCurves = smoothstep(
-				glow-edge3,
-				glow,
-				edge3
+			vec3 colorStep = smoothstep(
+				vec3(0.9, 0.0, 0.9),
+				white,
+				vec3(alpha, alpha, alpha)
 			);
 
-			vec3 cs = smoothstep(
-				glow,
-				inner,
-				edge3
-			);
-
-			gl_FragColor.rgb =
-			(cs == black) ?
-				inner
+			gl_FragColor.rgb = 
+			(colorStep == black) ?
+				face
 			:
-				(alpha < 0.1) ?
-					black
+				(alpha < 1.) ?
+					glow
 				:
-					glow;
+					inner;
 		gl_FragColor.a = 1.0;
-
 		}`,
 		setupAttributes: ( THREE, geometry ) => {
 
@@ -75,5 +68,15 @@ const wireframe = {
 
 		}
 	};
+
+	/* UNUSED FRAGMENT SHADER CODE
+		vec3 color3 = edge3 * 2.0;
+
+		vec3 shinyCurves = smoothstep(
+			glow-edge3,
+			glow,
+			edge3
+		);
+	*/
 
 export {wireframe};
