@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Trino-Rex — Three.js</title>
+  <style>
+    html,body {
+      margin: 0;
+      height: 100vh;
+    }
+    body {
+      background-color: lightgray;
+      font-family: 'Press Start 2P', cursive;
+    }
+    canvas {
+      width: 100vw;
+      height: 100vh;
+      transition: filter 1s ease-in;
+    }
+    body.failed canvas {
+      filter: invert(100%);  /*Credits: https://developer.mozilla.org/en-US/docs/Web/CSS/filter */
+    }
+    .ui {
+      position: absolute;
+      z-index: 2;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      bottom: 20px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      overflow: hidden;
+    }
+    .level {
+      display: flex;
+    }
+    .score {
+      grid-column-start: 3;
+      display: flex;
+      justify-content: flex-end;
+    }
+    .intro, .over {
+      grid-column-start: 2;
+      grid-row-start: 2;
+      text-align: center;
+      align-self: self-end;
+      transition: opacity .6s ease-in-out, transform .6s ease-in-out;
+      opacity: 0;
+      transform: translateY(100px);
+    }
+    .ui.menu .intro, .ui.game-over .over {
+      opacity: 1;
+      transform: translateY(0px);
+    }
+    button {
+      background: none;
+      border: solid 3px rgb(225, 27, 27);
+      padding: 12px 24px;
+      font-size: 14px;
+      font-family: 'Press Start 2P', cursive;
+      margin: 24px 0;
+    }
+    button:active {
+      color: rgb(213, 49, 49);
+      background-color: black;
+    }
+  </style>
+  
+</head>
+<body>
+  
+  <div id="stats" style="position: absolute;"></div>
+  <canvas id="game"></canvas>
+  <div class="ui">
+    <div class="level">
+      <div>level: </div> <div class="level__value">Easy-Level</div>
+    </div>
+    <div class="score">
+      <div>score: </div> <div class="score__value">00000</div>
+    </div>
+    <div class="intro">
+      <div>controls: wasd / arrows</div>
+      <div><button class="start" onclick="window.game.start()">start</button></div>
+    </div>
+    <div class="over">
+      <div>game over</div>
+      <div><button class="retry" onclick="window.game.retry()">retry</button></div>
+    </div>
+  </div>
+  <script src="bundle.js"></script>
+</body>
+</html>
