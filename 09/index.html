@@ -50,27 +50,40 @@
 
         // TODO Part 3 (add 2 pointlights)
 
+          var light0 = new THREE.PointLight(0xffffff, 1, 100);
+          light0.position.set(50, 80, 100);
+          scene.add(light0);
 
+          var light1 = new THREE.PointLight(0xffffff, 1, 100);
+          light1.position.set(50, 80, 100);
+          scene.add(light1);
+          // TODO Part 1, load another mesh
 
+        // TODO Part 2, use a different material for this mesh
         var loader = new PLYLoader();
         loader.load('armadillo.ply', function (geometry) {
 
           geometry.computeVertexNormals();
 
-          toonMaterial = new THREE.MeshToonMaterial( {
+          var toonMaterial = new THREE.MeshToonMaterial( {
              color: 0x21ce70
-          } );
+          });
+            var NewMaterial1 = new THREE.MeshPhongMaterial({
+                color: 0x21ce00,
+            })
 
-          mesh = new THREE.Mesh( geometry, toonMaterial );
+            var mesh = new THREE.Mesh(geometry, toonMaterial);
+            var mesh1 = new THREE.Mesh(geometry, NewMaterial1);
+            mesh1.position.set(-150, 0, 0);
           
-          scene.add( mesh );
+            scene.add(mesh);
+            scene.add(mesh1);
 
         } );
 
-        // TODO Part 1, load another mesh
+        
 
-        // TODO Part 2, use a different material for this mesh
-
+          
 
 
         controller = {
@@ -96,10 +109,26 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
+          var pointlight0Folder = gui.addFolder('Point Light 0');
+          pointlight0Folder.addColor(controller, 'color').onChange(function (value) { light0.color.setHex(value); });
+          pointlight0Folder.add(light0.position, 'x', -100, 100);
+          pointlight0Folder.add(light0.position, 'y', -100, 100);
+          pointlight0Folder.add(light0.position, 'z', -100, 100);
+          pointlight0Folder.open();
+
+          var pointlight1Folder = gui.addFolder('Point Light 1');
+          pointlight1Folder.addColor(controller, 'color').onChange(function (value) { light1.color.setHex(value); });
+          pointlight1Folder.add(light1.position, 'x', -100, 100);
+          pointlight1Folder.add(light1.position, 'y', -100, 100);
+          pointlight1Folder.add(light1.position, 'z', -100, 100);
+          pointlight1Folder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
+          var armadilloColorFolder = gui.addFolder('Armadillo');
+          armadilloColorFolder.addColor(controller, 'color').onChange(function (value) { toonMaterial.color.setHex(value); });
 
-        gui.open();
+          gui.open();
+       
 
 
 
