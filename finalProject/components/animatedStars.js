@@ -1,4 +1,4 @@
-import { stars } from "./addStars";
+import { stars } from "./addStars.js";
 
 export default function animateStars(speed) {
   // loop through each star

@@ -1,7 +1,6 @@
-import "./style.css";
 import * as THREE from "three";
-import animatedStar from "./components/animatedStars";
-import { addStars } from "./components/addStars";
+import animatedStar from "./components/animatedStars.js";
+import { addStars } from "./components/addStars.js";
 import { OrbitControls } from "https://unpkg.com/three/examples/jsm/controls/OrbitControls.js";
 import { GLTFLoader } from "https://unpkg.com/three/examples/jsm/loaders/GLTFLoader.js";
 import { FontLoader } from "https://unpkg.com/three/examples/jsm/loaders/FontLoader";
@@ -62,17 +61,14 @@ loadingManager.onLoad = function () {
 
 // Greeting text
 const fontLoader = new FontLoader(loadingManager);
-fontLoader.load("/fonts/retro_font.json", (font) => {
-  // Create the text geometry
+fontLoader.load("./public/fonts/retro_font.json", (font) => {
   const textGeometry = new TextGeometry("Hello!", {
     font: font,
     size: 150,
     height: 2,
   });
 
-  const textMaterial = new THREE.MeshNormalMaterial({
-    color: 0x2c3e50,
-  });
+  const textMaterial = new THREE.MeshNormalMaterial();
 
   greetingText = new THREE.Mesh(textGeometry, textMaterial);
   // textGeometry.computeBoundingSphere();
@@ -81,7 +77,7 @@ fontLoader.load("/fonts/retro_font.json", (font) => {
 });
 
 // icon
-fontLoader.load("/fonts/social_icon.json", (font) => {
+fontLoader.load("./public/fonts/social_icon.json", (font) => {
   const textGeometry = new TextGeometry("clms", {
     font: font,
     size: 150,
@@ -101,9 +97,11 @@ fontLoader.load("/fonts/social_icon.json", (font) => {
 });
 
 // Earth texture
-const earthTexture = new THREE.TextureLoader(loadingManager).load("earth.jpg");
+const earthTexture = new THREE.TextureLoader(loadingManager).load(
+  "./public/earth.jpg"
+);
 const normalTexture = new THREE.TextureLoader(loadingManager).load(
-  "earth-normalmap.jpg"
+  "./public/earth-normalmap.jpg"
 );
 
 // Earth material
@@ -132,7 +130,7 @@ scene.add(atmosphere);
 
 // https://sketchfab.com/3d-models/luminaris-starship-night-view-85c07f1546ec4574b5183597f35b2a88
 const starshipLoader = new GLTFLoader(loadingManager);
-starshipLoader.load("starship/scene.gltf", (loader) => {
+starshipLoader.load("./public/starship/scene.gltf", (loader) => {
   spaceship = loader.scene;
   scene.add(spaceship);
   spaceship.scale.set(2, 2, 2);
@@ -147,7 +145,7 @@ starshipLoader.load("starship/scene.gltf", (loader) => {
 });
 
 //https://sketchfab.com/3d-models/x-wing-04b0147bd4234e61ba21bbf7a73ceecc
-starshipLoader.load("x_-wing/scene.gltf", (loader) => {
+starshipLoader.load("./public/x_-wing/scene.gltf", (loader) => {
   spaceship2 = loader.scene;
   scene.add(spaceship2);
   spaceship2.scale.set(15, 15, 15);
@@ -164,7 +162,7 @@ starshipLoader.load("x_-wing/scene.gltf", (loader) => {
 
 //https://sketchfab.com/3d-models/blackhole-74cbeaeae2174a218fe9455d77902b5c
 const blackholeLoader = new GLTFLoader(loadingManager);
-blackholeLoader.load("blackhole/scene.gltf", (loader) => {
+blackholeLoader.load("./public/blackhole/scene.gltf", (loader) => {
   blackhole = loader.scene;
   scene.add(blackhole);
   blackhole.scale.set(200, 200, 200);
