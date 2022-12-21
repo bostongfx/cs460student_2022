@@ -1,4 +1,5 @@
-Creditting external resources.
+Live Demo:https://mrcode3.github.io/cs460student/finalProject/
+
 Thanks to the following authors to make this project possible.
 
 "X -WING" (https://sketchfab.com/3d-models/x-wing-04b0147bd4234e61ba21bbf7a73ceecc) by BlueMesh (https://sketchfab.com/VapTor) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -211,10 +211,10 @@ function moveCamera() {
   iconText.visible = true;
 
   factor = document.body.getBoundingClientRect().y;
-  starSpeed = factor + 4000; // offset
+  starSpeed = factor + 3500; // offset
   if (starSpeed < 20) starSpeed = 20;
 
-  cameraMovement = factor + 3500; // offset
+  cameraMovement = factor + 3400; // offset
   camera.position.z = cameraMovement;
   if (camera.position.z < 150) {
     camera.position.set(0, 0, -2000);
