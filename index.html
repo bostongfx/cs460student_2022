@@ -1,7 +1,9 @@
 <html>
 	<head>
-		<title>Final Project!</title>
-		<link rel="stylesheet" href="./presentation.css" />
+		<title>
+			Emily's CS460 Homepage!
+		</title>
+		<link rel="stylesheet" href="./main.css" />
 
 		<!-- Import Map Polyfill -->
 		<script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
@@ -17,29 +19,17 @@
 		<script type="module">
 			import * as THREE from 'three';
       import { GUI } from 'https://unpkg.com/dat.gui@0.7.7/build/dat.gui.module.js';
-      import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
-      import { OBJLoader } from 'https://threejs.org/examples/jsm/loaders/OBJLoader.js';
-			import { wireframe } from './final/wireframe.js';
+      import { TrackballControls } from 'three/addons/controls/TrackballControls.js';
+      import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
+			import RetroRender from './final/RetroRender.js';
 			import text from './final/presentation_text.js';
 
 			var scene, camera, renderer, ambientLight, light, pointLight, controls, floor, effect, vShader, fShader, controller, objects, palm, object;
 			var slide = 0;
+			var trees = [];
+			var ground, settingsun;
 
 			window.onload = function() {
-				/*
-				updateText();
-				document.body.addEventListener('keydown', (e) => {
-					if (e.keyCode === 39) {
-						slide++
-						if (slide > text.length) slide = text.length-1;
-						updateText();
-					} else if (e.keyCode === 37) {
-						--slide
-						if (slide < 0) slide = 0;
-						updateText();
-					}
-				});
-				*/
 
 				objects = [];
 
@@ -51,7 +41,7 @@
 			var zFar = 10000;
 
 			camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-			camera.position.set(0,0,50);
+			camera.position.set(29, 15, 207);
 
 			renderer = new THREE.WebGLRenderer({alpha:true, antialias: true});
 			renderer.setSize(window.innerWidth, window.innerHeight);
@@ -69,93 +59,115 @@
 			pointLight.position.set(0, 20, 0);
 			scene.add(pointLight);
 
-			// LINE CONTROLLER
+			// CONTROLLER
 			controller = {
-				line: {
-					width: 1.5,
+				line: 1.5,
+				gColor: {
+					glow: [0.2, 0.0, 0.5, 1.0],
+					inner: [0.6, 0.0, 0.9, 1.0],
+					face: [0.0, 0.0, 0.0, 0.9]
+				},
+				tColor: {
+					glow: [0.0, 0.5, 0.0, 1.0],
+					inner: [0.0, 0.9, 0.0, 1.0],
+					face: [0.0, 0.0, 0.0, 0.8]
 				}
-			}
+			};
 
-			// PALM TREE
+			// LOAD OBJECTS
 			const loader = new OBJLoader();
-			loader.load(
-				'final/palm_tree.obj',
-				function(obj) {
-					var object = obj.children[0].geometry;
-					var result = retroRender(object, 1);
-					result.position.y = 1;
-					result.rotateY(90);
-				},
-				function (xhr) {
-					console.log((xhr.loaded/xhr.total * 100) + '% loaded');
-				},
-				function (err) {
-					console.log("An error occurred when loading an OBJ file:", err);
-				}
-			);
 			loader.load(
 				'final/synth_ground.obj',
 				function(obj) {
-					var object = obj.children[0].geometry;
-					var result = retroRender(object, 1);
-					result.scale.x = 10;
-					result.scale.z = 10;
+					var groundGeom = obj.children[0].geometry;
+					
+					loader.load(
+						'final/palm_tree.obj',
+						function(obj) {
+							var treeGeom = obj.children[0].geometry;
+							for (let j = 0; j < 2; j++) {
+								// load ground under trees
+								ground = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								ground.position.z = 50 + 100.3*j;
+								// load side ground
+								var groundL = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								groundL.position.x = -100.3;
+								groundL.position.z = 50 + 100.3*j;
+								var groundR = RetroRender.render(groundGeom, controller.line, controller.gColor);
+								groundR.position.x = 100.3;
+								groundR.position.z = 50 + 100.3*j;
+								// load trees
+								for (let i = 0; i < 5; i++) {
+									var resultL = RetroRender.render(treeGeom, controller.line, controller.tColor);
+									resultL.position.y = 1;
+									resultL.position.x = 40;
+									resultL.position.z = 20*i+j - 40;
+									resultL.rotateY(90);
+									trees.push(resultL);
+									ground.add(resultL);
+									var resultR = RetroRender.render(treeGeom, controller.line, controller.tColor);
+									resultR.position.y = 1;
+									resultR.position.x = -40;
+									resultR.position.z = 20*i+j - 40;
+									resultR.rotateY(Math.PI*4/3);
+									trees.push(resultR);
+									ground.add(resultR);
+								}
+								scene.add(ground);
+								scene.add(groundL);
+								scene.add(groundR);
+							}
+						},
+						function (xhr) {
+							console.log('Tree loaded');
+						},
+						function (err) {
+							console.log("An error occurred when loading an OBJ file:", err);
+						}
+					); // end tree loading
 				},
 				function (xhr) {
-					console.log((xhr.loaded/xhr.total * 100) + '% loaded');
+					console.log('Ground loaded');
 				},
 				function (err) {
 					console.log("An error occurred when loading an OBJ file:", err);
 				}
 			);
-/*
-			var boxGeom = new THREE.BoxGeometry(15, 15, 15);
-			var box = retroRender(boxGeom, controller.line.width);
-			box.position.y = 30;
-			objects.push(box);
 
-			var torus = new THREE.TorusKnotGeometry(10, 3, 40, 10);
-			var knot = retroRender(torus, controller.line.width);
-			objects.push(knot);
-
-			var octaGeom = new THREE.OctahedronGeometry(10);
-			var octa = retroRender(octaGeom, controller.line.width);
-			octa.position.x = 35;
-			objects.push(octa);
-
-			var sunGeom = new THREE.SphereGeometry(10, 3, 3);
-			var sphere = retroRender(sunGeom, controller.line.width);
-			sphere.position.z = -5;
-			sphere.position.x = -35;
-			objects.push(sphere);
-			*/
+			// create a plane along the back for the setting sun image
+			settingsun = new THREE.Mesh(
+				new THREE.PlaneGeometry(500,500),
+				new THREE.MeshBasicMaterial({
+					map: new THREE.TextureLoader().load( 'final/settingsun.png' ),
+					side: THREE.DoubleSide
+				})
+			);
+			scene.add(settingsun);
 
 			controls = new TrackballControls( camera, renderer.domElement );
 
 			animate();
 		}
 
-		function retroRender(geometry, lineWidth) {
+		/*function retroRender(geometry, lineWidth) {
 			// SHADER
-			wireframe.setupAttributes(THREE, geometry);
+			RetroRender.setupAttributes(geometry);
 
 			var material = new THREE.ShaderMaterial({
-				vertexShader: wireframe.VertexShader,
-				fragmentShader: wireframe.FragmentShader,
+				vertexShader: RetroRender.vertexShader,
+				fragmentShader: RetroRender.fragmentShader,
 				uniforms: {
 						'thickness': {value: 1.25},
-						'glow': {value: [0.5, 0.0, 0.5]},
-						'inner': {value: [0.9, 0.0, 0.9]},
-						'face': {value: [0.0, 0.0, 0.0]}
+						'glow': {value: [0.5, 0.0, 0.5, 1.0]},
+						'inner': {value: [0.9, 0.0, 0.9, 1.0]},
+						'face': {value: [0.0, 0.0, 0.0, 0.8]}
 				},
 				alphaToCoverage: true,
 				side: THREE.DoubleSide,
 			});
-			material.extensions.derivatives = true;
 			var solid = new THREE.Mesh(geometry, material);
-			scene.add(solid);
 			return solid;
-		}
+		}*/
 
 		function animate() {
 			objects.forEach((item) => {
@@ -163,45 +175,84 @@
 				item.rotateY(Math.PI/360);
 				item.rotateZ(Math.PI/360);
 			});
+			settingsun.quaternion.copy(camera.quaternion);
 
 			requestAnimationFrame( animate );
 
 			controls.update();
+			if (camera.position.y < 7) camera.position.y = 7;
 
 			// and here...
-			//effect.render(scene, camera);
 			renderer.render(scene, camera);
 		}
 
-		function updateText() {
-			if (slide >= text.length) return;
-			var target = document.getElementById("content-goes-here");
-			target.innerHTML = "";
-			var header = document.createElement("h2")
-			header.innerText = text[slide].header;
-			target.appendChild(header);
-
-			var list = document.createElement("ul");
-			text[slide].bullets.forEach(item => {
-				var li = document.createElement("li");
-				li.innerText = item;
-				list.appendChild(li);
-			});
-			target.appendChild(list);
-		}
 		</script>
 	</head>
 	<body style="background-color: black; margin: 0; padding:0; overflow: hidden">
-		<header class="textbox">
-			<h1>1980s Retro Futurism</h1>
+		<header>
+			<h1>Emily's CS460 Homepage!</h1>
 		</header>
-		<main class="textbox" style="display: none;">
-			<article id="content-goes-here"></article>
+		<main>
+			<h2>Assignment Quick Links</h2>
+			<ol>
+				<li>Assignment 01</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/Assignment01/webgl_loader_ldraw.html">My favorite WebGL demo</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/Assignment01/CS460_Assignment_01.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 02</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/02/">Pixel Heart - Rainbow Heart</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/02/CS460_Assignment_02.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 03</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/03/">Random Shape Generator</a> - Hold shift while moving the mouse to generate shapes</li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/03/CS460_Assignment_03.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 04</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/04/">Airplane Game</a> - Use the arrow keys to dodge obstacles</li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/04/CS460_Assignment_04.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 05</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/05/">Assignment 05</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/05/CS460_Assignment_05.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 06</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/06/">Assignment 06</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/06/CS460_Assignment_06.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 07</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/07/">Assignment 07</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/07/CS460_Assignment_07.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 08</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/08/">Assignment 08</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/08/CS460_Assignment_08.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 09</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/09/">Assignment 09</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/09/CS460_Assignment_09.pdf">Report</a></li>
+				</ul>
+				<li>Assignment 10</li>
+				<ul>
+					<li><a href="https://ceg9498.github.io/cs460student/10/">Assignment 10</a></li>
+					<li><a href="https://github.com/ceg9498/cs460student/blob/main/10/CS460_Assignment_10.pdf">Report</a></li>
+				</ul>
+			</ol>
 		</main>
-		<footer class="textbox">
-			<span>Created by Emily Gagne for CS460, Fall 2022</span> ||
-			<a href="./contents.html">View Other Projects</a> ||
-			<a href="https://threejs.org/examples/#webgl_materials_wireframe">Wireframe Example</a>
+		<footer>
+			<a href="https://cs460.org/">Course Webpage</a><br />
+			<a href="https://github.com/ceg9498/cs460student">My Repository</a>
+			<p>
+				This site received updates between September and December, 2022.
+			</p>
 		</footer>
 	</body>
 </html>
