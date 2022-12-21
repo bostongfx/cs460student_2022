@@ -131,11 +131,17 @@ Robot = function(x, y, z) {
   this.hasBall = false;
   this.sphereMesh = null;
   this.sphereMeshScale = 1.0;
+  this.sphere_aftermathMesh = null;
 
   this.check_readiness_beam = false;
   this.hasBeam = false;
   this.cylinderMesh = null;
   this.cylinderMeshScale = 1.0;
+
+  this.check_readiness_wave = false;
+  this.hasWave = false;
+  this.wave_cylinderMesh = null;
+  this.wave_cylinderMeshScale = 1.0;
 
 
   this.time = 0.0;
@@ -187,7 +193,7 @@ Robot.prototype.setSphereMesh = function(mesh) {
   //console.log("robot y: " + this.root.position.y);
   //console.log("robot z: " + this.root.position.z);
   sphere.position.x = this.root.position.x + 0;
-  sphere.position.y = this.root.position.y + 0;
+  sphere.position.y = this.root.position.y + 150;
   sphere.position.z = this.root.position.z + 0;
   //sphere.rotateY(Math.PI);
   //console.log(this.facing_angle);
@@ -230,6 +236,12 @@ Robot.prototype.facingOfRobot = function() {
   return this.facing_angle;
 }
 
+Robot.prototype.setWave = function() {
+
+  this.hasWave = true;
+
+};
+
 Robot.prototype.raise_left_arm = function() {
 
   this.movement = 'raise left arm';
@@ -251,6 +263,12 @@ Robot.prototype.hands_up = function() {
 Robot.prototype.shoot_beam = function() {
 
   this.movement = 'shoot beam raise right hand';
+
+};
+
+Robot.prototype.shoot_wave = function() {
+
+  this.movement = 'shoot wave raise right hand';
 
 };
 
@@ -429,6 +447,32 @@ Robot.prototype.onAnimate = function() {
         this.check_readiness_beam = false;
       }
     }
+  } else if (this.movement == 'shoot wave raise right hand') {
+    var T = Math.PI/2;
+    this.right_upperarm.quaternion.slerp( new THREE.Quaternion(Math.sin(-T/2),  // w
+                                                              0,               // x
+                                                              0,               // y
+                                                              Math.cos(-T/2)), // z
+                                        0.3 );
+    
+    //console.log(this.right_upperarm.quaternion.w);
+    //console.log(this.movement);
+    if (this.right_upperarm.quaternion.w < 0.71) {
+      this.movement = 'shoot wave raise right hand over wave ready';
+      this.check_readiness_beam = true;
+    }
+
+  } else if (this.movement == 'shoot wave raise right hand over wave ready') {
+    //console.log(this.time);
+    this.time = this.time + 0.1;
+    //lifting hand's time
+    if (this.time > 1.0) {
+      this.right_upperarm.quaternion.slerp( new THREE.Quaternion(0,0,0,1), 0.1 );
+      if (this.right_upperarm.quaternion.w > 0.9999) {
+        this.movement = 'shoot wave raise right hand over wave done';
+        this.check_readiness_beam = false;
+      }
+    }
   } else if (this.movement == 'hands up') {
     var T = Math.PI;
     this.left_upperarm.quaternion.slerp( new THREE.Quaternion(Math.sin(-T/2),  // w
@@ -443,7 +487,7 @@ Robot.prototype.onAnimate = function() {
                                         0.1 );
     
     //console.log(this.left_upperarm.quaternion.w);
-    if (this.left_upperarm.quaternion.w < 1-0.9999) {
+    if (this.left_upperarm.quaternion.w < 1-0.999999) {
       this.movement = 'hands up over';
       this.check_hands_up_then_cast_ball = true;
     }

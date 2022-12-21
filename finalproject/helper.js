@@ -79,5 +79,5 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   }
 
   return [geometry, material, bones];
-
+  
 };
