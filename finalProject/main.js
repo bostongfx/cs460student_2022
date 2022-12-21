@@ -128,7 +128,7 @@ atmosphere = new THREE.Mesh(
 atmosphere.position.copy(globePosition);
 scene.add(atmosphere);
 
-// https://sketchfab.com/3d-models/luminaris-starship-night-view-85c07f1546ec4574b5183597f35b2a88
+// This work is based on "Luminaris Starship - Night view" (https://sketchfab.com/3d-models/luminaris-starship-night-view-85c07f1546ec4574b5183597f35b2a88) by iggy-design (https://sketchfab.com/iggy-design) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 const starshipLoader = new GLTFLoader(loadingManager);
 starshipLoader.load("./public/starship/scene.gltf", (loader) => {
   spaceship = loader.scene;
@@ -144,7 +144,7 @@ starshipLoader.load("./public/starship/scene.gltf", (loader) => {
   starShipAction.play();
 });
 
-//https://sketchfab.com/3d-models/x-wing-04b0147bd4234e61ba21bbf7a73ceecc
+//This work is based on "X -WING" (https://sketchfab.com/3d-models/x-wing-04b0147bd4234e61ba21bbf7a73ceecc) by BlueMesh (https://sketchfab.com/VapTor) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 starshipLoader.load("./public/x_-wing/scene.gltf", (loader) => {
   spaceship2 = loader.scene;
   scene.add(spaceship2);
@@ -160,7 +160,7 @@ starshipLoader.load("./public/x_-wing/scene.gltf", (loader) => {
   starShipAction2.play();
 });
 
-//https://sketchfab.com/3d-models/blackhole-74cbeaeae2174a218fe9455d77902b5c
+//This work is based on "Blackhole" (https://sketchfab.com/3d-models/blackhole-74cbeaeae2174a218fe9455d77902b5c) by rubykamen (https://sketchfab.com/rubykamen) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 const blackholeLoader = new GLTFLoader(loadingManager);
 blackholeLoader.load("./public/blackhole/scene.gltf", (loader) => {
   blackhole = loader.scene;
@@ -211,7 +211,7 @@ function moveCamera() {
   iconText.visible = true;
 
   factor = document.body.getBoundingClientRect().y;
-  starSpeed = factor + 4400; // offset
+  starSpeed = factor + 4000; // offset
   if (starSpeed < 20) starSpeed = 20;
 
   cameraMovement = factor + 3500; // offset
