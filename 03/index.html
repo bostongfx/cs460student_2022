@@ -1,0 +1,280 @@
+<html>
+  <head>
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <script src="https://threejs.org/examples/js/controls/TrackballControls.js" type="text/javascript"></script>
+    <script>
+      window.onload = function() {
+
+
+        // create scene
+        scene = new THREE.Scene();
+
+        // setup the camera
+        var fov = 75; //75 degree up and down angle
+        var ratio = window.innerWidth / window.innerHeight; //16:9 4:3,resolution
+        var zNear = 1;
+        var zFar = 10000; //for large virtual space behind our view point
+        const X = 20;
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+
+        camera.position.set(0, 0, 100); //cam set on 0 0 100,
+
+        //create renderer and canvas
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+
+        document.body.appendChild(renderer.domElement);
+
+        geometry = new THREE.PlaneGeometry(10000, 10000);
+        material = new THREE.MeshBasicMaterial({
+          visible: false
+        });
+
+        invisible_plane = new THREE.Mesh(geometry, material);
+        scene.add(invisible_plane);
+
+        //setup light
+        ambientLight = new THREE.AmbientLight(0x404040); //color is optional, def 0xffffffff
+        scene.add(ambientLight);
+
+        light = new THREE.DirectionalLight(0xffffff, 5.0); //color opt, 0xffffffff, 0.5 intensity
+        light.position.set(10, 100, 10); //light come from a point to the center pointed
+        scene.add(light);
+        //end setup light
+
+        //setup randomly generate geo
+
+        //end setup randomly generate geo
+
+        //reason use previousPx, y z to prevent create mutil obj
+        var previousPx = null;
+        var previousPy = null;
+        var previousPz = null;
+        var tempint1 = 0;
+
+        //New 9/23, pinrt pixel coords
+
+        var HoldMouse = false;
+        renderer.domElement.onmousedown = function() { HoldMouse = true; }
+        renderer.domElement.onmouseup = function() { HoldMouse = false; }
+
+        
+        renderer.domElement.onmousemove = function( e ){
+
+          if (window.event.shiftKey && HoldMouse) {
+            pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+
+            vp_coords = new THREE.Vector2( 
+                      ( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+                      -( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+
+            vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+
+            raycaster = new THREE.Raycaster();
+            raycaster.setFromCamera(vp_coords_near, camera);
+
+            intersects = raycaster.intersectObject(invisible_plane);
+
+            var whetherExecute = false;
+
+            p = intersects[0].point;
+            if (previousPx == null) { 
+              whetherExecute = true;
+            }
+            else if (Math.abs(previousPx-p.x) > 1 || Math.abs(previousPy-p.y) > 1 || Math.abs(previousPz-p.z) > 1) {
+              whetherExecute = true;
+            }
+            previousPx = p.x;
+            previousPy = p.y;
+            previousPz = p.z;
+            //whetherExecute = true;
+
+            if (whetherExecute) {
+              tempint1 = tempint1 + 1;
+              console.log('count: ', tempint1);
+              var randomRGBInt1 = Math.floor((Math.random() * 0xffffff));
+
+              var randomTypeGeo = Math.floor((Math.random() * 6) + 1);
+              var geometry = null;
+              var material = null;
+
+              switch(randomTypeGeo) {
+                case 1:
+                  geometry = new THREE.BoxGeometry(X, X, X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+              
+                case 2:
+                  geometry = new THREE.TorusKnotGeometry(X/2, X/2, X/2, X/2);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+
+                case 3:
+                  geometry = new THREE.SphereGeometry(X, X, X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+
+                case 4:
+                  geometry = new THREE.OctahedronGeometry(X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+
+                case 5:
+                  geometry = new THREE.ConeGeometry(X, X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+
+                case 6:
+                  geometry = new THREE.RingGeometry(X, X, X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+
+                default:
+                  geometry = new THREE.BoxGeometry(X, X, X);
+                  material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                  break;
+              }
+
+              var tempGeoMesh = new THREE.Mesh(geometry, material)
+
+              scene.add(tempGeoMesh);
+          
+              tempGeoMesh.position.set(p.x, p.y, p.z);
+
+              //setup interaction
+              controls = new THREE.TrackballControls(camera, renderer.domElement);
+
+              //render loop
+              animate();
+            }
+          }
+        };
+        
+        renderer.domElement.onclick = function( e ){
+
+          if (!e.shiftKey) {
+              e.preventDefault();
+              return false;
+          }
+          //renderer.domElement.onmousemove = function( e ){
+          
+          //console.log('Yay! We clicked!');
+
+          pixel_coords = new THREE.Vector2( e.clientX, e.clientY );
+
+          //console.log('Pixel coords', pixel_coords);
+
+          vp_coords = new THREE.Vector2( 
+                      ( pixel_coords.x / window.innerWidth ) * 2 - 1,  //X
+                      -( pixel_coords.y / window.innerHeight ) * 2 + 1) // Y
+
+          //console.log('Viewport coords', vp_coords);
+
+          vp_coords_near = new THREE.Vector3( vp_coords.x, vp_coords.y, 0);
+
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+
+          intersects = raycaster.intersectObject(invisible_plane);
+          //console.log('Ray to plane', intersects[0].point);
+          var whetherExecute = false;
+          p = intersects[0].point;
+          if (previousPx == null) { 
+            whetherExecute = true;
+          }
+          else if (Math.abs(previousPx-p.x) > 1 || Math.abs(previousPy-p.y) > 1 || Math.abs(previousPz-p.z) > 1) {
+            whetherExecute = true;
+          }
+          previousPx = p.x;
+          previousPy = p.y;
+          previousPz = p.z;
+          //whetherExecute = true;
+
+          if (whetherExecute) {
+            tempint1 = tempint1 + 1;
+            console.log('count: ', tempint1);
+
+            var randomRGBInt1 = Math.floor((Math.random() * 0xffffff));
+
+            var randomTypeGeo = Math.floor((Math.random() * 6) + 1);
+            var geometry = null;
+            var material = null;
+
+            switch(randomTypeGeo) {
+              case 1:
+                geometry = new THREE.BoxGeometry(X, X, X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+              
+              case 2:
+                geometry = new THREE.TorusKnotGeometry(X/2, X/2, X/2, X/2);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+
+              case 3:
+                geometry = new THREE.SphereGeometry(X, X, X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+
+              case 4:
+                geometry = new THREE.OctahedronGeometry(X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+
+              case 5:
+                geometry = new THREE.ConeGeometry(X, X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+
+              case 6:
+                geometry = new THREE.RingGeometry(X, X, X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+
+              default:
+                geometry = new THREE.BoxGeometry(X, X, X);
+                material = new THREE.MeshStandardMaterial({ color: randomRGBInt1 });
+                break;
+            }
+
+            var tempGeoMesh = new THREE.Mesh(geometry, material)
+
+            scene.add(tempGeoMesh);
+          
+            tempGeoMesh.position.set(p.x, p.y, p.z);
+          }
+
+        };
+
+        //setup interaction
+        controls = new THREE.TrackballControls(camera, renderer.domElement);
+
+        //render loop
+        animate();
+        
+      };
+
+      function animate() {
+
+        //call again and again until the computer is ready, 60 times per sec
+        //smooth animation, 24 frames 16 frames is ok
+        requestAnimationFrame( animate );
+
+        controls.update(); // base on how u move mouse
+        renderer.render(scene, camera);
+
+
+      };
+    </script>
+  </head>
+  <body></body>
+</html>

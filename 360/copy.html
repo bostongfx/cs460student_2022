@@ -41,7 +41,16 @@
 
         // TODO
         //code for sky sphere
-        
+        //sphere geometry
+        geometry = new THREE.SphereGeometry( 500, 60, 40);
+        texture = new THREE.TextureLoader().load( 'photo1.jpg' );
+        texture.crossOrigin = true;
+        material = new THREE.MeshBasicMaterial( {
+            map: texture,
+            side: THREE.BackSide //texture inside of sphere rather than outside
+        } );
+        sphere = new THREE.Mesh(geometry, material);
+        scene.add(sphere);
 
 
         controls = new THREE.TrackballControls( camera, renderer.domElement );

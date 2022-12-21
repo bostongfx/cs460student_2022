@@ -1,193 +1,303 @@
 <html>
 	<head>
-	<script src='base64.js' type='text/javascript'></script>
-  <script>
 
-    window.onload = function() {
-
-      VERTICES = new Float32Array([0.,0.,0., 0.,1.,0., 1.,0.,0.])
-      INDICES = new Uint16Array([0,1,2])
-
-      HOWMANY = 3
-      MAX_X = 1. 
-      MAX_Y = 1.
-      MAX_Z = 0.
-      MIN_X = 0.
-      MIN_Y =  0.
-      MIN_Z = 0.
-      MAX = 2
-      MIN = 0
-
-      HOWMANYBYTES_V = 9*4
-      HOWMANYBYTES_I = 3*2
-
-      BASE64_Vertices = base64.b64encode(VERTICES);
-      BASE64_Indices = base64.b64encode(INDICES);
-
-
-      gltf = {
-
-        "asset": {
-      	    "version": "2.0",
-            "generator": "CS460 Magic Fingers"
-    	},
-
-        "accessors": [
-        
-              {
-        
-                  "bufferView": 0,
-        
-                  "byteOffset": 0,
-        
-                  "componentType": 5126,
-        
-                  "count": HOWMANY,
-        
-                  "type": "VEC3",
-        
-                  "max": [MAX_X, MAX_Y, MAX_Z],
-        
-                  "min": [MIN_X, MIN_Y, MIN_Z]
-        
-              },
-        
-              {
-        
-                  "bufferView": 1,
-        
-                  "byteOffset": 0,
-        
-                  "componentType": 5123,
-        
-                  "count": HOWMANY,
-        
-                  "type": "SCALAR",
-        
-                  "max": [MAX],
-        
-                  "min": [MIN]
-        
-              }
-        
-          ], 
-        
-       
-        
-          "bufferViews": [
-        
-              {
-        
-                  "buffer": 0,
-        
-                  "byteOffset": 0,
-        
-                  "byteLength": HOWMANYBYTES_V,
-        
-                  "target": 34962
-        
-              },
-        
-              {
-        
-                  "buffer": 1,
-        
-                  "byteOffset": 0,
-        
-                  "byteLength": HOWMANYBYTES_I,
-        
-                  "target": 34963
-        
-              }
-        
-          ],
-        
-          
-        
-          "buffers": [
-        
-              {
-        
-                  "uri": "data:application/octet-stream;base64," + BASE64_Vertices,
-        
-                  "byteLength": HOWMANYBYTES_V
-        
-              },
-        
-              {
-        
-                  "uri": "data:application/octet-stream;base64," + BASE64_Indices,
-        
-                  "byteLength": HOWMANYBYTES_I
-        
-              }
-        
-          ],
-        
-        
-        
-          "meshes": [
-        
-              { 
-        
-                  "primitives": [{
-        
-                       "mode": 4,
-        
-                       "attributes": {
-        
-                           "POSITION": 0
-        
-                       },
-        
-                       "indices": 1
-        
-                  }]
-                
-              }
-        
-          ],
-        
-       
-        
-          "nodes": [
-        
-              {
-        
-                  "mesh": 0
-        
-              }
-        
-          ],
-        
-       
-        
-          "scenes": [
-        
-              {
-        
-                  "nodes": [
-        
-                      0
-        
-                  ]
-        
-              }
-        
-          ],
-        
-       
-        
-          "scene": 0
-        
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://threejs.org/build/three.module.js"
+        }
       }
+    </script>
+    <script src="base64.js" type="text/javascript"></script>
+    <script type='module'>
 
-    window.document.body.innerHTML = JSON.stringify(gltf)
+        import * as THREE from 'three';
+        import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-    };
+        function lowest(arr) {
+            let min = Number.MAX_VALUE
+            for (let i = 0; i < arr.length; i++) {
+                if (min > arr[i]) {
+                    min = arr[i];
+                }
+            }
+            return min
+        }
+
+        function highest(arr) {
+            let max = Number.MIN_VALUE
+            for (let i = 0; i < arr.length; i++) {
+                if (max < arr[i]) {
+                    max = arr[i];
+                }
+            }
+            return max
+        }
+
+        function lowest_x_y_z(arr) {
+            let min_x = Number.MAX_VALUE
+            let min_y = Number.MAX_VALUE
+            let min_z = Number.MAX_VALUE
+            for (let i = 0; i < arr.length-3; i += 3) {
+                if (min_x > arr[i]) {
+                    min_x = arr[i] * 1.0;
+                }
+                if (min_y > arr[i+1]) {
+                    min_y = arr[i+1] * 1.0;
+                }
+                if (min_z > arr[i+2]) {
+                    min_z = arr[i+2] * 1.0;
+                }
+            }
+            return [min_x, min_y, min_z]
+        }
+
+        function highest_x_y_z(arr) {
+            let max_x = Number.MIN_VALUE
+            let max_y = Number.MIN_VALUE
+            let max_z = Number.MIN_VALUE
+            for (let i = 0; i < arr.length-3; i += 3) {
+                if (max_x < arr[i]) {
+                    max_x = arr[i] * 1.0;
+                }
+                if (max_y < arr[i+1]) {
+                    max_y = arr[i+1] * 1.0;
+                }
+                if (max_z < arr[i+2]) {
+                    max_z = arr[i+2] * 1.0;
+                }
+            }
+            return [max_x, max_y, max_z]
+        }
+
+        window.onload = function() {
+
+            var VERTICES = new Float32Array([0.,0.,0., 0.,1.,0., 1.,0.,0.])
+            var INDICES = new Uint16Array([0,1,2])
+
+            var HOWMANY = 3
+            var HOWMANY_INDEX = 3
+            var MAX_X = 1. 
+            var MAX_Y = 1.
+            var MAX_Z = 0.
+            var MIN_X = 0.
+            var MIN_Y =  0.
+            var MIN_Z = 0.
+            var MAX = 2
+            var MIN = 0
+
+            var HOWMANYBYTES_V = 9*4
+            var HOWMANYBYTES_I = 3*2
+
+            var BASE64_Vertices = "base64.b64encode(VERTICES)";
+            var BASE64_Indices = "base64.b64encode(INDICES)";
+
+            var loader = new PLYLoader();
+            var loader_VERTICES, loader_INDICES, loader_BASE64_Vertices, loader_BASE64_Indices;
+            loader.load('cube.ply', function (geometry) {
+                //loader_VERTICES = geometry.getAttribute('position');
+                //loader_INDICES = geometry.getIndex();
+                VERTICES = geometry.getAttribute('position');
+                INDICES = geometry.getIndex();
+                //console.log(VERTICES);
+                //console.log(INDICES);
+                HOWMANY = VERTICES.count;
+                var tempMax_x_y_z = highest_x_y_z(VERTICES.array)
+                var tempMin_x_y_z = lowest_x_y_z(VERTICES.array)
+                //   MAX_X = 1. 
+                //   MAX_Y = 1.
+                //   MAX_Z = 1.
+                //   MIN_X = -1.
+                //   MIN_Y = -1.
+                //   MIN_Z = -1.
+                MAX_X = tempMax_x_y_z[0]
+                MAX_Y = tempMax_x_y_z[1]
+                MAX_Z = tempMax_x_y_z[2]
+                MIN_X = tempMin_x_y_z[0]
+                MIN_Y = tempMin_x_y_z[1]
+                MIN_Z = tempMin_x_y_z[2]
+                MAX = highest(INDICES.array);
+                MIN = lowest(INDICES.array);
+                //MAX = Math.max(temp_VERTICES.array);
+                //MIN = Math.min(temp_VERTICES.array);
+
+                HOWMANYBYTES_V = VERTICES.array.length*4
+                HOWMANY_INDEX = INDICES.array.length
+                HOWMANYBYTES_I = INDICES.array.length*2
+                //console.log("HOWMANYBYTES_V: "+HOWMANYBYTES_V);
+                //console.log("HOWMANYBYTES_I: "+HOWMANYBYTES_I);
+
+                BASE64_Vertices = base64.b64encode(VERTICES.array);
+                BASE64_Indices = base64.b64encode(INDICES.array);
+
+                //BASE64_Vertices = VERTICES.array;
+                //BASE64_Indices = INDICES.array;
+                //console.log(geometry.toJSON());
+                //var temp1 = geometry.toJSON();
+                //console.log(JSON.stringify(temp1));
+                var gltf = {
+
+                    "asset": {
+                        "version": "2.0",
+                        "generator": "CS460 Magic Fingers"
+                    },
+
+                    "accessors": [
+                    
+                        {
+                    
+                            "bufferView": 0,
+                    
+                            "byteOffset": 0,
+                    
+                            "componentType": 5126,
+                    
+                            "count": HOWMANY,
+                    
+                            "type": "VEC3",
+                    
+                            "max": [MAX_X, MAX_Y, MAX_Z],
+                    
+                            "min": [MIN_X, MIN_Y, MIN_Z]
+                    
+                        },
+                    
+                        {
+                    
+                            "bufferView": 1,
+                    
+                            "byteOffset": 0,
+                    
+                            "componentType": 5123,
+                    
+                            "count": HOWMANY_INDEX,
+                    
+                            "type": "SCALAR",
+                    
+                            "max": [MAX],
+                    
+                            "min": [MIN]
+                    
+                        }
+                    
+                    ], 
+                    
+                
+                    
+                    "bufferViews": [
+                    
+                        {
+                    
+                            "buffer": 0,
+                    
+                            "byteOffset": 0,
+                    
+                            "byteLength": HOWMANYBYTES_V,
+                    
+                            "target": 34962
+                    
+                        },
+                    
+                        {
+                    
+                            "buffer": 1,
+                    
+                            "byteOffset": 0,
+                    
+                            "byteLength": HOWMANYBYTES_I,
+                    
+                            "target": 34963
+                    
+                        }
+                    
+                    ],
+                    
+                    
+                    
+                    "buffers": [
+                    
+                        {
+                    
+                            "uri": "data:application/octet-stream;base64," + BASE64_Vertices,
+                    
+                            "byteLength": HOWMANYBYTES_V
+                    
+                        },
+                    
+                        {
+                    
+                            "uri": "data:application/octet-stream;base64," + BASE64_Indices,
+                    
+                            "byteLength": HOWMANYBYTES_I
+                    
+                        }
+                    
+                    ],
+                    
+                    
+                    
+                    "meshes": [
+                    
+                        { 
+                    
+                            "primitives": [{
+                    
+                                "mode": 4,
+                    
+                                "attributes": {
+                    
+                                    "POSITION": 0
+                    
+                                },
+                    
+                                "indices": 1
+                    
+                            }]
+                            
+                        }
+                    
+                    ],
+                    
+                
+                    
+                    "nodes": [
+                    
+                        {
+                    
+                            "mesh": 0
+                    
+                        }
+                    
+                    ],
+                    
+                
+                    
+                    "scenes": [
+                    
+                        {
+                    
+                            "nodes": [
+                    
+                                0
+                    
+                            ]
+                    
+                        }
+                    
+                    ],
+                    
+                
+                    
+                    "scene": 0
+                
+                }
+                window.document.body.innerHTML = JSON.stringify(gltf)
+            } );
+
+        };
 
 
-  </script>
+    </script>
 	</head>
 	<body>
 
