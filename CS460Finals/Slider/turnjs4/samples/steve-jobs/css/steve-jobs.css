@@ -142,6 +142,7 @@ body, ul, table, form{
 	-ms-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	-o-box-shadow:0 0 20px rgba(0,0,0,0.2);
 	box-shadow:0 0 20px rgba(0,0,0,0.2);
+	background-image:url(../pics/pageswithcube.png) !important ;
 }
 
 .zoom-pic{
@@ -170,6 +171,7 @@ body, ul, table, form{
 	background-color:white;
 	background-image:url(../pics/book-covers.jpg) !important;
 }
+/*	background-image:url(../pics/pageswithcube.png) !important ; */
 
 .sj-book .p1{
 	background-position:0 0;
