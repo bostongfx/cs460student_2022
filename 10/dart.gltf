@@ -1,0 +1,68 @@
+{
+    "accessors" : [
+    {
+        "bufferView" : 0, 
+        "byteOffset" : 0, 
+        "componentType" : 5123, 
+        "count" : 18, 
+        "type" : "SCALAR", 
+        "max" : [12], 
+        "min" : [0]}, 
+        {
+            "bufferView" : 1, 
+            "byteOffset" : 0, 
+            "componentType" : 5126, 
+            "count" : 13, "type" : 
+            "VEC3", "max" : [3, 3, 6], 
+            "min" : [0, 0, 0], 
+            "name" : "POSITION"
+        }
+    ], 
+    "asset" : {
+        "generator" : "Aspose.3D 22.10", 
+        "version" : "2.0"
+    }, 
+    "buffers" : [
+        {
+            "uri" : "data:application/octet-stream;base64,AAABAAIAAAADAAQAAAAFAAYAAwAHAAgABQAJAAoAAQALAAwAAAAAAAAAgD8AAIA/AADAQAAAAAAAAAAAAACAQAAAQEAAAAAAAACAQAAAQEAAAAAAAACAQAAAAAAAAEBAAACAQAAAAAAAAEBAAACAQAAAAAAAAAAAAACAQAAAAAAAAAAAAACAQAAAwD8AAAA/AAAAAAAAQEAAAAAAAACAQAAAwD8AAAA/AAAAAAAAAAAAAEBAAACAQAAAwD8AAAA/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=", 
+            "byteLength" : 260
+        }
+        ], 
+        "bufferViews" : [
+            {
+                "buffer" : 0, 
+                "byteOffset" : 0, 
+                "byteLength" : 36, 
+                "target" : 34963
+            }, 
+            {
+                "buffer" : 0, 
+                "byteOffset" : 40, 
+                "byteLength" : 216, 
+                "byteStride" : 12, 
+                "target" : 34962
+            }
+        ], 
+        "meshes" : [
+            {
+                "primitives" : [
+                    {
+                        "attributes" : {"POSITION" : 1}, 
+                        "indices" : 0, 
+                        "mode" : 4
+                    }
+                ], 
+                "name" : ""
+            }
+            ], 
+        "nodes" : [
+            {
+                "mesh" : 0, 
+                "name" : "model"
+            }
+            ], 
+        "scene" : 0, 
+        "scenes" : [
+            {"nodes" : [0]}
+            ]
+        }
