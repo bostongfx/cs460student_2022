@@ -412,9 +412,7 @@ function enginestep() {
 
 	    ctx.fillText("Score: "+score,stage.w-200,40);
 		
-		
-		
-		
+
 		
 	    // ctx.fillText("Step:   "+(Date.now()-steptime),20,120);
 	    if (health>30) {
@@ -427,6 +425,11 @@ function enginestep() {
 	    ctx.strokeStyle = "#00ffff";
 	    ctx.strokeRect(130,25,300,30);
 	    
+		
+		
+		
+		
+		
 	    if (health<0) {
 	    	gameover = true;
 	    }
