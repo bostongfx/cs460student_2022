@@ -18,7 +18,7 @@ HELPER.cylinderSkeletonMesh = function(howmany, howwide, color) {
   //
 
   // step1: geometry
-  var geometry = new THREE.CylinderBufferGeometry(
+  var geometry = new THREE.CylinderGeometry(
     howwide, // radiusTop
     howwide, // radiusBottom
     height, // height
