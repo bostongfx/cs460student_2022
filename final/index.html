@@ -99,8 +99,6 @@
       zFar = 10000;
 
       camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
-      //camera.position.set( 20, 10, 20);;
-      //camera.position.set( 30, 10, 0);
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
@@ -113,6 +111,18 @@
       scene.add( light );   
 
       controls = new THREE.TrackballControls( camera, renderer.domElement );
+
+
+      // Skybox Texture////////////////////////////////////////////////
+      geometry = new THREE.SphereGeometry (500, 60, 40);     
+      // LOad photo as a texture
+      texture = new THREE.TextureLoader().load( 'minecraft.png'
+        );
+      material = new THREE.MeshBasicMaterial({ map:texture,
+        side: THREE.BackSide });
+      sphere = new THREE.Mesh(geometry, material );
+      scene.add(sphere);
+      /////////////////////////////////////////////////////////////////
 
       //
       // ACTION!
