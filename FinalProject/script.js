@@ -401,6 +401,8 @@ function enginestep() {
 	    	dangera = 0;
 	    }
 
+		
+		
 	    healthprog += (health-healthprog)/5;
 	    ctx.fillStyle='#00ffff';
 	    ctx.font = "30px arial";
@@ -409,6 +411,11 @@ function enginestep() {
 	    ctx.fillText("Health: ",20,40);
 
 	    ctx.fillText("Score: "+score,stage.w-200,40);
+		
+		
+		
+		
+		
 	    // ctx.fillText("Step:   "+(Date.now()-steptime),20,120);
 	    if (health>30) {
 	    	ctx.fillStyle='rgba(0,255,255,0.8)';
