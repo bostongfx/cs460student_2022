@@ -1,0 +1,167 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html,
+      body {
+        background-color: #000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;
+      }
+    </style>
+    <script
+      src="https://threejs.org/build/three.min.js"
+      type="text/javascript"
+    ></script>
+    <script
+      src="https://threejs.org/examples/js/controls/TrackballControls.js"
+      type="text/javascript"
+    ></script>
+    <script>
+      var shapecount = 0;
+      
+      // Generate random color
+
+      function randomizec() {
+        var rc =
+          "#" +
+          Math.floor(Math.random() * (256 * 256 * 256))
+            .toString(16)
+            .padStart(6, "0");
+        return rc;
+      }
+
+      // List of Shapes
+      const shapelist = [
+        "Box",
+        "TorusKnot",
+        "Octahedron",
+        "Sphere",
+        "Ring",
+        "Cone",
+      ];
+
+      // get a random geometry
+      function randomizeg() {
+        var shape = Math.floor(Math.random() * shapelist.length);
+        return shapelist[shape];
+      }
+
+
+      window.onload = function () {
+        scene = new THREE.Scene();
+
+        fov = 75;
+        ratio = window.innerWidth / window.innerHeight;
+        zNear = 1;
+        zFar = 10000;
+        // console.log(ratio);
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set(0, 0, 100);
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // light
+        ambientLight = new THREE.AmbientLight(0x404040);
+        scene.add(ambientLight);
+        light = new THREE.DirectionalLight(0xffffff, 5.0);
+        light.position.set(10, 100, 10);
+        scene.add(light);
+
+        // The invisible plane
+        
+        geometry = new THREE.PlaneGeometry(10000, 10000);
+        material = new THREE.MeshBasicMaterial({
+          visible: false,
+        });
+
+        invisible_plane = new THREE.Mesh(geometry, material);
+        scene.add(invisible_plane);
+        controls = new THREE.TrackballControls(camera, renderer.domElement);
+        animate();
+
+        // Onmouse move action
+
+        renderer.domElement.onmousemove = function (e) {
+          if (!e.shiftKey) {
+            e.preventDefault();
+            return false;
+          }
+
+          console.log("yes! you clicked!");
+
+          pixel_coords = new THREE.Vector2(e.clientX, e.clientY);
+
+          console.log("Pixel coordinates", pixel_coords);
+
+          vp_coords = new THREE.Vector2(
+            (pixel_coords.x / window.innerWidth) * 2 - 1,
+            -(pixel_coords.y / window.innerHeight) * 2 + 1
+          );
+          console.log("Viewport coordinates", vp_coords);
+
+          vp_coords_near = new THREE.Vector3(vp_coords.x, vp_coords.y, 0);
+
+          raycaster = new THREE.Raycaster();
+          raycaster.setFromCamera(vp_coords_near, camera);
+          intersects = raycaster.intersectObject(invisible_plane);
+          console.log("Ray to Invisible Plane", intersects[0].point);
+
+          // Object creation
+          function create_Object(geo) {
+            material = new THREE.MeshStandardMaterial({
+              color: randomizec(),
+            });
+            obj = new THREE.Mesh(geometry, material);
+            scene.add(obj);
+            p = intersects[0].point;
+            obj.position.set(p.x, p.y, p.z);
+            shapecount++;
+            console.log(`Number of shapes ${shapecount}`);
+          }
+
+          switch (randomizeg()) {
+            case "Box":
+              geometry = new THREE.BoxGeometry(10, 10, 10);
+              create_Object(geometry);
+              break;
+            case "TorusKnot":
+              geometry = new THREE.TorusKnotGeometry(10, 3, 64, 8);
+              create_Object(geometry);
+              break;
+            case "Octahedron":
+              geometry = new THREE.OctahedronGeometry(10);
+              create_Object(geometry);
+              break;
+            case "Sphere":
+              geometry = new THREE.SphereGeometry(10,20,20);
+              create_Object(geometry);
+              break;
+            case "Ring":
+              geometry = new THREE.RingGeometry(4, 10, 12);
+              create_Object(geometry);
+              break;
+            case "Cone":
+              geometry = new THREE.ConeGeometry(10, 20, 32);
+              create_Object(geometry);
+              break;
+            default:
+              console.log("hello");
+          }
+        };
+      };
+
+      function animate() {
+        requestAnimationFrame(animate);
+
+        controls.update();
+        renderer.render(scene, camera);
+      }
+    </script>
+  </head>
+  <body></body>
+</html>
