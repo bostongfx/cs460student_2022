@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brain Surface Shader</title>
+    
+    <script src="deps/three.js"></script>
+
+    <script src="deps/CopyShader.js"></script>
+    <script src="deps/EffectComposer.js"></script>
+    <script src="deps/RenderPass.js"></script>
+    <script src="deps/ShaderPass.js"></script>
+    
+    
+    <script src="deps/TrackballControls.js"></script>
+    <script src="deps/dat.gui.js"></script>
+    <script src="deps/OBJLoader.js"></script>
+    
+    <script>
+        let renderer, scene, camera, controls, light, helper
+        let loader, material, mesh
+        let composer, renderPass, shaderPass, effect, vshader, fshader
+        let counter = 0
+	let gui
+	controller = 
+	{
+		intensity: 0.4	
+	}
+	
+        window.onload = async function()
+        {
+            renderer = new THREE.WebGLRenderer({ })
+            renderer.setSize( window.innerWidth, window.innerHeight )
+            document.body.appendChild( renderer.domElement )
+
+            /* one time instantiation */
+            scene = new THREE.Scene()
+            loader = new THREE.OBJLoader()
+            composer = new THREE.EffectComposer(renderer)
+	    gui = new dat.GUI()
+	    gui.add(controller, "intensity", 0, 1, 0.01)
+
+            /* lights */
+            scene.add(new THREE.AmbientLight(0x404040))
+            light = new THREE.DirectionalLight( 0xffffff, 1.0 )
+            light.castShadow = false
+            helper = new THREE.DirectionalLightHelper(light, 5)
+            scene.add(light)
+            // scene.add(helper)
+
+            /* camera */
+            camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.01, 1000)
+            camera.position.set( 0, 40, -40)
+
+            /* renderpass for post effect film grain */
+            renderPass = new THREE.RenderPass(scene, camera)
+            composer.addPass(renderPass)
+
+            await fetch("vert.glsl").then((res)=> res.text()).then((data)=>
+            {
+                vshader = data;
+                
+            })
+
+            await fetch("frag.glsl").then((res)=> res.text()).then((data)=>
+            {
+                fshader = data;
+            })
+
+            effect = 
+            {
+                uniforms:{
+                    "tDiffuse": {value: null},
+                    "amount": {value: counter},
+                    "intensity": {value: controller.intensity},
+                },
+                vertexShader: vshader,
+                fragmentShader: fshader
+            }
+            shaderPass = new THREE.ShaderPass(effect)
+            shaderPass.renderToScreen = true
+            composer.addPass(shaderPass)
+
+            controls = new THREE.TrackballControls( camera, renderer.domElement )
+
+            
+            loader.load('brain.obj', function(obj)
+            {
+                obj.children[0].material = new THREE.MeshStandardMaterial(
+                    {color: 0xF48E72}
+                )
+                scene.add(obj.children[0])
+            })
+
+            /* testing */
+            // var material = new THREE.MeshLambertMaterial( { color: 0x00ff00 } );
+            // var geometry = new THREE.SphereBufferGeometry( 10.6, 16, 16);
+            // var cube = new THREE.Mesh( geometry, material );
+            // scene.add(cube)
+
+            /* action! */
+            animate()
+        }
+
+        function animate()
+        {
+            controls.update();
+            
+            counter += 0.01
+            shaderPass.uniforms["amount"].value = counter;
+            shaderPass.uniforms["intensity"].value = controller.intensity;
+
+            requestAnimationFrame(animate)
+            
+            // renderer.render( scene, camera );
+            composer.render()
+
+        }
+    </script>
+</head>
+<body>
+</body>
+</html>
