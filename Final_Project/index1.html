@@ -1,0 +1,99 @@
+<!-- This index file is a modified version of the demo file here:
+https://github.com/schteppe/cannon.js/blob/master/examples/threejs.html
+while also inheriting a lot of structure and code from my index.html file
+for Assignment 3 -->
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      html, body { 
+        background-color:#000;
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        overflow: hidden !important;  
+      }
+    </style>
+    <script src="https://threejs.org/build/three.min.js" type="text/javascript"></script>
+    <!-- I ended up going with regular cannon.js because the forked,
+    still updated versions didn't indicate you could import it like this,
+    and importing it the way they said to involved some server work that I didn't want to figure out -->
+    <script src="https://github.com/schteppe/cannon.js/releases/download/v0.6.2/cannon.js"></script>
+  </head>
+  <body>
+    <script>
+
+        // no window.onload function as it causes problems with updatePhysics
+        var world, timeStep = 1/60, mass, body, shape, camera, scene, renderer, geometry, material, mesh;
+
+        world = new CANNON.World();
+        // gravity is a Vec3
+        world.gravity.set(0,0,0);
+        world.broadphase = new CANNON.NaiveBroadphase();
+        world.solver.iterations = 10;
+
+        shape = new CANNON.Box(new CANNON.Vec3(1,1,1));
+        mass = 1;
+        body = new CANNON.Body({
+            mass: 1
+        });
+        body.addShape(shape);
+        body.angularVelocity.set(0,10,0);
+        body.angularDamping = 0.5;
+        world.addBody(body);
+
+        scene = new THREE.Scene();
+
+        fov = 75;
+        ratio = window.innerWidth / window.innerHeight;
+        zNear = 1;
+        zFar = 1000;
+
+        camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+        camera.position.set( 0, 0, 5);
+        scene.add(camera)
+
+        geometry = new THREE.BoxGeometry( 2, 2, 2 );
+        material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+
+        mesh = new THREE.Mesh( geometry, material );
+        scene.add( mesh );
+
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+        document.body.appendChild( renderer.domElement );
+        
+        ambientLight = new THREE.AmbientLight( 0x404040 );
+        scene.add( ambientLight );
+
+        light = new THREE.DirectionalLight( 0xffffff, 5.0 );
+        light.position.set( 10, 100, 10 );
+        scene.add( light );
+
+
+
+        animate();
+
+        function animate() {
+
+            requestAnimationFrame( animate );
+
+            updatePhysics();
+            renderer.render( scene, camera );
+
+        };
+
+        function updatePhysics() {
+
+            // Step the physics world
+            world.step(timeStep);
+
+            // Copy coordinates from Cannon.js to Three.js
+            mesh.position.copy(body.position);
+            mesh.quaternion.copy(body.quaternion);
+
+        }
+
+    </script>
+  </body>
+</html>
