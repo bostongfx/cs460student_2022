@@ -26,7 +26,10 @@
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh1, mesh2, toonMaterial, lambertMaterial, controls, controller, DLightName;
+      var count = 0;
+      var newLights = new Array();
+      var newLightFolders = new Array();
 
       window.onload = function() {
 
@@ -50,6 +53,14 @@
 
         // TODO Part 3 (add 2 pointlights)
 
+        var light1 = new THREE.PointLight( 0xffffff, 100, 100 );
+        light1.position.set( 50, 50, 50 );
+        scene.add( light1 );
+
+        var light2 = new THREE.PointLight( 0xffffff, 100, 100 );
+        light2.position.set( -50, -50, -50 );
+        scene.add( light2 );
+
 
 
         var loader = new PLYLoader();
@@ -61,9 +72,11 @@
              color: 0x21ce70
           } );
 
-          mesh = new THREE.Mesh( geometry, toonMaterial );
+          mesh1 = new THREE.Mesh( geometry, toonMaterial );
+
+          mesh1.position.set(100, 0, 0);
           
-          scene.add( mesh );
+          scene.add( mesh1 );
 
         } );
 
@@ -71,17 +84,82 @@
 
         // TODO Part 2, use a different material for this mesh
 
+        loader.load('armadillo.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          lambertMaterial = new THREE.MeshLambertMaterial( {
+             color: 0xe86e7f
+          } );
+
+          mesh2 = new THREE.Mesh( geometry, lambertMaterial );
+
+          mesh2.position.set(-100, 0, 0);
+          
+          scene.add( mesh2 );
+
+        } );
 
 
         controller = {
-          'color': 0xffffff // we can use this single color
+          'color': 0xffffff, // we can use this single color
                             // container for all colors in the scene 
                             // if we modify the onChange callback (see below)
 
           // TODO Bonus Part 1
-          // TODO Bonus Part 2
-        }
 
+          'Left Armadillo': 'Toon',
+
+          'Right Armadillo': 'Lambert',
+
+          // TODO Bonus Part 2
+
+          'Add New': function(){
+
+            count += 1;
+
+            var newDLight = new THREE.DirectionalLight( 0xffffff, 5.0 );
+            newDLight.position.set( 10, 100, -100 );
+            newLights.push(newDLight);
+            scene.add( newDLight );
+
+
+            DLightName = 'Directional Light ' + count.toString();
+
+            var newLightFolder = gui.addFolder(DLightName);
+            newLightFolders.push(newLightFolder);
+
+            newLightFolder.addColor(controller, 'color').onChange( function(value) {newDLight.color.setHex(value);});
+            newLightFolder.add(newDLight.position, 'x', -100, 100);
+            newLightFolder.add(newDLight.position, 'y', -100, 100);
+            newLightFolder.add(newDLight.position, 'z', -100, 100);
+            newLightFolder.open();
+
+          },
+
+          'Remove Light': function(){
+
+            // Remove light
+            if (newLights.length > 0) {
+
+              scene.remove(newLights[newLights.length - 1]);
+              toonMaterial.needsUpdate = true;
+              lambertMaterial.needsUpdate = true;
+              newLights.pop();
+
+            }
+        
+            // Remove folder
+            if (newLightFolders.length > 0) {
+
+              gui.removeFolder(newLightFolders[newLightFolders.length - 1]);
+              newLightFolders.pop();
+
+            }
+
+          },
+
+        }
 
         var gui = new GUI();
         var ambientFolder = gui.addFolder('Ambient Light');
@@ -93,16 +171,119 @@
         directionalFolder.add(directionalLight.position, 'x', -100, 100);
         directionalFolder.add(directionalLight.position, 'y', -100, 100);
         directionalFolder.add(directionalLight.position, 'z', -100, 100);
+        directionalFolder.add(controller, 'Add New');
+        directionalFolder.add(controller, 'Remove Light');
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
 
+        var pointLightFolder1 = gui.addFolder('Point Light 1');
+        pointLightFolder1.addColor(controller, 'color').onChange( function(value) { light1.color.setHex(value); });
+        pointLightFolder1.add(light1.position, 'x', -100, 100);
+        pointLightFolder1.add(light1.position, 'y', -100, 100);
+        pointLightFolder1.add(light1.position, 'z', -100, 100);
+        pointLightFolder1.open();
+
+        var pointLightFolder2 = gui.addFolder('Point Light 2');
+        pointLightFolder2.addColor(controller, 'color').onChange( function(value) { light2.color.setHex(value); });
+        pointLightFolder2.add(light2.position, 'x', -100, 100);
+        pointLightFolder2.add(light2.position, 'y', -100, 100);
+        pointLightFolder2.add(light2.position, 'z', -100, 100);
+        pointLightFolder2.open();
+
+
         // TODO Part 5 (control the color of both materials in the scene)
 
+        var toonMaterialFolder = gui.addFolder('Toon Material');
+        toonMaterialFolder.addColor(controller, 'color').onChange( function(value) 
+          { toonMaterial.color.setHex(value); });
+        toonMaterialFolder.open();
+
+        var lambertMaterialFolder = gui.addFolder('Lambert Material');
+        lambertMaterialFolder.addColor(controller, 'color').onChange( function(value) 
+          { lambertMaterial.color.setHex(value); });
+        lambertMaterialFolder.open();
+
+        // Bonus Part 1
+        
+        var materialFolder = gui.addFolder('Materials');
+        materialFolder.add(controller, 'Left Armadillo', ['Toon','Standard','Phong','Lambert']).onChange(function(value)
+        {
+
+          if (value == 'Toon') {
+
+            mesh1.material = new THREE.MeshToonMaterial( {
+              color: 0x21ce70
+            } );
+
+          }
+
+          if (value == 'Standard') {
+
+            mesh1.material = new THREE.MeshStandardMaterial( {
+              color: 0x21ce70
+            } );
+
+          }
+
+          if (value == 'Phong') {
+
+            mesh1.material = new THREE.MeshPhongMaterial( {
+              color: 0x21ce70
+            } );
+
+          }
+
+          if (value == 'Lambert') {
+
+            mesh1.material = new THREE.MeshLambertMaterial( {
+              color: 0x21ce70
+            } );
+
+          }
+
+        });
+
+        materialFolder.add(controller, 'Right Armadillo', ['Toon','Standard','Phong','Lambert']).onChange(function(value)
+        {
+
+          if (value == 'Toon') {
+
+            mesh2.material = new THREE.MeshToonMaterial( {
+              color: 0xe86e7f
+            } );
+
+          }
+
+          if (value == 'Standard') {
+
+            mesh2.material = new THREE.MeshStandardMaterial( {
+              color: 0xe86e7f
+            } );
+
+          }
+
+          if (value == 'Phong') {
+
+            mesh2.material = new THREE.MeshPhongMaterial( {
+              color: 0xe86e7f
+            } );
+
+          }
+
+          if (value == 'Lambert') {
+
+            mesh2.material = new THREE.MeshLambertMaterial( {
+              color: 0xe86e7f
+            } );
+
+          }
+
+        });;
+
+        materialFolder.open();
+        
         gui.open();
-
-
-
 
         controls = new TrackballControls( camera, renderer.domElement );
 
