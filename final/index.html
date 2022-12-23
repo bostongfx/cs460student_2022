@@ -99,6 +99,8 @@
       zFar = 10000;
 
       camera = new THREE.PerspectiveCamera(fov, ratio, zNear, zFar);
+      
+      camera.position.set( 20, 10, 20);
 
       renderer = new THREE.WebGLRenderer();
       renderer.setSize( window.innerWidth, window.innerHeight );
