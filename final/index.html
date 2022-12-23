@@ -239,12 +239,13 @@
             direction = keys.length > 0 ? keys.pop(0) : direction;
 
             // ---change position of camera based on direction of snake to give---
-            // --- the game a more natural feel---
+            /* --- the game a more natural feel---
             if ( direction.y == 0 ) {
               camera.position.set(10, 30, 10);
             } else if ( Math.abs(direction.y) == 1 ) {
               camera.position.set( 20, 10, 30)
             }
+            */
 
             // ---Determine snake movement using head position, direction and padding---
             var movement = new THREE.Vector3(
