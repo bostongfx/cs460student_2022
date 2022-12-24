@@ -1,3 +1,5 @@
+/** for cs460 by Krishna Prasad, Hindu ,Kavin */
+
 const SNAKE_DISPLACEMENT_VECTOR = {'x': 0.0, 'y': 0.0, 'z': -1.1}
 const SNAKE_BODY = [Body, Tail]
 
