@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>CS460 Graphics at UMass Boston</title>
+  <script type="text/javascript" src="js/xtk_edge.js"></script>
+  <script type="text/javascript" src="js/table.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+  <link rel="stylesheet" type="text/css" href="styles/fonts.css" />
+  <link rel="stylesheet" type="text/css" href="styles/main.css" />
+
+
+
+  <!-- new code -->
+  <!-- Nav Script -->
+  <script>
+    let isActivate = false;
+    function openNav() {
+      document.getElementById("mySidenav").style.width = "250px";
+      isActivate = true;
+    }
+
+    function closeNav() {
+      document.getElementById("mySidenav").style.width = "0";
+      isActivate = false;
+    }
+
+    document.onclick = function (e) {
+
+      const box = document.getElementById('mySidenav');
+      if (!box.contains(event.target)) {
+        if (!isActivate)
+          closeNav();
+        isActivate = false;
+
+      }
+
+
+
+
+    }
+  </script>
+  <!--Slideshow Script-->
+  <!---- picture Script ---->
+
+
+</head>
+
+<body>
+
+  <div class="nav"><span style="font-size:30px; margin: 30px 30px 30px 30px;cursor:pointer" onclick="openNav()">&#9776;
+    </span>
+    <br />
+    <br />
+    <!-- &#8962;-->
+    <div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <a href="./"><img src='gfx/home.png' style='width:20px;'> Home</a>
+      <a href="discord/index.html"><img src='gfx/discordblue.png' style='width:20px;'> Discord</a>
+      <a href="lectures.html"><img src='gfx/lectures.png' style='width:20px;'> Lectures</a>
+      <a href="syllabus.pdf"><img src='gfx/syllabus.png' style='width:20px;'> Syllabus</a>
+      <a href="contact.html"><img src='gfx/info.png' style='width:20px;'> Info</a>
+    </div>
+
+    <br>
+    <!-- Banner/Logo Area-->
+    <!-- WebGL Script-->
+    <div style="margin: auto;  width: 700px;height: auto;">
+      <center style='display:inline-block;'>
+        <iframe src="webgl/intro/intro.html" width="700" height="300" frameborder="0" webkitallowfullscreen
+          mozallowfullscreen allowfullscreen></iframe>
+
+      </center>
+    </div>
+
+    <!-- end of Banner/Logo Area-->
+
+
+    <div id="info" class="square">
+      <center>
+        <!---- Picture head ----->
+
+        <br />
+        <div class="slideshow-container">
+          <div class="mySlides fade">
+            <div class="numbertext"><b>1 / 3</b></div>
+            <img src="gfx/slideshow/pic1.png" style="width:680px;height: 400px;">
+            <div class="neonText"><b>CS460</b></div>
+          </div>
+          <div class="mySlides fade">
+            <div class="numbertext"><b>2 / 3</b></div>
+            <img src="gfx/slideshow/pic2.png" style="width:680px;height: 400px;">
+            <div class="neonText"><b>CS460</b></div>
+          </div>
+          <div class="mySlides fade">
+            <div class="numbertext"><b>3 / 3</b></div>
+            <img src="gfx/slideshow/pic3.png" style="width:680px;height: 400px;">
+            <div class="neonText"><b>CS460</b></div>
+          </div>
+        </div>
+        <div style="text-align:center">
+          <span class="dot"></span> <span class="dot"></span> <span class="dot">
+        </div>
+        <!---- End of picture head ---->
+
+
+
+
+
+      </center>
+
+
+      <script>
+        var slideIndex = 0;
+        showSlides();
+        function showSlides() {
+          var i;
+          var slides = document.getElementsByClassName("mySlides");
+          var dots = document.getElementsByClassName("dot");
+          for (i = 0; i < slides.length; i++) {
+            slides[i].style.display = "none";
+          }
+          slideIndex++;
+          if (slideIndex > slides.length) { slideIndex = 1 }
+          for (i = 0; i < dots.length; i++) {
+            dots[i].className = dots[i].className.replace(" active", "");
+          }
+          slides[slideIndex - 1].style.display = "block";
+          dots[slideIndex - 1].className += " active";
+          setTimeout(showSlides, 5000); // Change image every 2 seconds
+        }
+      </script>
+
+      <center>
+        <div id='description'>
+          <span class='highlight2'> Something Something I need to write, but to lazy to write....</span> <span class="rtext">
+            Lets go Brasil, champion World Cup...!!! 
+            Ole ole ole ole Ole ole ole ole
+            Ole ole ole ole
+            Ole ole ole oleOle ole ole oleOle ole ole oleOle ole ole oleOle ole ole oleOle ole ole oleOle ole ole oleOle ole ole ole
+          </span>
+        </div>
+      </center>
+
+      <br><br>
+
+      <center>
+        <span class='highlight2'>Enrolling now for in-person Fall 2022! Check the teasers..</span><br>
+        <!-- frames were here. 
+      
+      <iframe class='video' width="280" height="155" src="https://www.youtube.com/embed/j9oeOGMiXSs" frameborder="0" allow="" allowfullscreen></iframe>
+
+      <iframe class='video' width="280" height="155" src="https://www.youtube.com/embed/52TD1RUPNCs" frameborder="0" allow="" allowfullscreen></iframe>
+
+      <br>
+
+      <iframe class='video' width="280" height="155" src="https://www.youtube.com/embed/oEbEiJsCMxs" frameborder="0" allow="" allowfullscreen></iframe>
+
+      <iframe class='video' width="280" height="155" src="https://www.youtube.com/embed/Jxv2-yElxOY" frameborder="0" allow="" allowfullscreen></iframe>
+      
+
+      
+      
+      -->
+
+      </center>
+      <center>
+        <br><br>
+        <span style='font-size:32px'>A hands-on experience based on</span>
+        <div id='textbooks'>
+          <a href="https://mitpress.mit.edu/books/foundations-3d-computer-graphics" target="_blank"><img
+              src='gfx/gortler_cover.jpg' class='bookthumb'></a>
+          <a href="http://www.informit.com/store/webgl-programming-guide-interactive-3d-graphics-programming-9780321902924"
+            target="_blank"><img src='gfx/matsuda_cover.jpg' class='bookthumb'></a>
+          <a href="https://www.manning.com/books/secrets-of-the-javascript-ninja" target="_blank"><img
+              src='gfx/resig_cover.jpg' class='bookthumb'></a>
+        </div>
+        Do you need to buy these books? <span style='color:red'>No!</span> All course materials will be provided.
+      </center>
+
+      <br><br>
+
+      <br><br>
+      <div style='width:950px'></div>
+      <center style='width:100%;display:inline-block;margin-top:50px'>
+        <br>
+        <iframe src="./Slider/gfx/room/" width="680" height="600" frameborder="2" webkitallowfullscreen mozallowfullscreen
+          allowfullscreen></iframe>
+
+      </center>
+    </div>
+    <br><br>
+
+    <center style='width:100%;display:inline-block;'>
+      <span style='font-size:32px'><a name='lectures'></a>Lecture Videos and Slides</span><br><br>
+      <center>
+
+        COMING SOON
+
+      </center>
+      <br><br><br>
+
+  </div>
+  <footer>
+    <div style="display:inline-block;margin-top:0px;">
+      <div style="float:left;"><a href="https://www.umb.edu" class="invisiblelink" target=_blank"><img
+            src="./gfx/umb_gray.png" width="50" style="float:left" title="CS.UMB.EDU"></a>
+        <div class="institution_bottom white"><a href="https://www.umb.edu" class="invisiblelink"
+            target=_blank">UNIVERSITY OF MASSACHUSETTS BOSTON<br>Department of Computer Science<br>College of Science
+            and Mathematics</a></div>
+        <div style="float:left;padding-left:30px"><a href="https://bostongfx.com" target="_blank"
+            class='invisiblelink'><img src="./gfx/bostongfx.png" width="100" title="bostonGFX.com"><span
+              class="small white" style="display:block;margin-top:-6px">Graphics For Everybody</span></a></div>
+        <br>
+        <a href="https://ILOVEYOU.boston" target="_blank"><img src="./gfx/ILYboston.png" width="120"
+            title="ILOVEYOU.boston" style="padding-top:35px"></a>
+        <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank"
+          style="position:absolute;right:10px;bottom:4px;"><img src="./gfx/cc.png"></a>
+      </div>
+  </footer>
+
+</body>
+
+</html>
