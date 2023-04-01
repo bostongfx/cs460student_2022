@@ -1,3 +1,0 @@
-THE_TIME="Sun Mar 19 12:59 2023 -0400" GIT_AUTHOR_DATE=$THE_TIME GIT_COMMITTER_DATE=$THE_TIME git commit --amend --no-edit
-
- 
