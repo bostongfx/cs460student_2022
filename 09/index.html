@@ -26,7 +26,7 @@
       import { TrackballControls } from 'https://threejs.org/examples/jsm/controls/TrackballControls.js';
       import { PLYLoader } from 'https://threejs.org/examples/jsm/loaders/PLYLoader.js';
 
-      let scene, camera, renderer, effect, ambientLight, directionalLight, light, mesh, toonMaterial, controls, controller;
+      let scene, camera, renderer, effect, ambientLight, directionalLight, light, pointLight, pointLight1, mesh, phongMaterial, standardMaterial, controls, controller;
 
       window.onload = function() {
 
@@ -49,6 +49,17 @@
 
 
         // TODO Part 3 (add 2 pointlights)
+        pointLight = new THREE.PointLight( 0xb62121  );
+        pointLight.position.set( -150, 100, -100 );
+
+        scene.add( pointLight );
+
+
+
+        pointLight1 = new THREE.PointLight( 0x54d71e  );
+        pointLight1.position.set( 300, 100, -100 );
+
+        scene.add( pointLight1 );
 
 
 
@@ -57,11 +68,11 @@
 
           geometry.computeVertexNormals();
 
-          toonMaterial = new THREE.MeshToonMaterial( {
-             color: 0x21ce70
+          phongMaterial = new THREE.MeshToonMaterial( {
+             color: 'green'
           } );
 
-          mesh = new THREE.Mesh( geometry, toonMaterial );
+          mesh = new THREE.Mesh( geometry, phongMaterial );
           
           scene.add( mesh );
 
@@ -70,13 +81,29 @@
         // TODO Part 1, load another mesh
 
         // TODO Part 2, use a different material for this mesh
+        var loader = new PLYLoader();
+        loader.load('armadillo.ply', function (geometry) {
+
+          geometry.computeVertexNormals();
+
+          standardMaterial = new THREE.MeshStandardMaterial( {
+             color: 'grey'
+          } );
+          mesh.position.set(150,0,0);
+
+          mesh = new THREE.Mesh( geometry, standardMaterial );
+          
+          scene.add( mesh );
+
+        } );
 
 
 
         controller = {
-          'color': 0xffffff // we can use this single color
+          'color': 0xffffff, // we can use this single color
                             // container for all colors in the scene 
                             // if we modify the onChange callback (see below)
+          'color2': 0xffffff
 
           // TODO Bonus Part 1
           // TODO Bonus Part 2
@@ -96,8 +123,21 @@
         directionalFolder.open();
 
         // TODO Part 4 (control the color and position of point lights)
+        var pLightsFolder = gui.addFolder('Point Lights');
+        pLightsFolder.addColor(controller, 'color').onChange( function(value) { pointLight.color.setHex(value); });
+        pLightsFolder.addColor(controller, 'color2').onChange( function(value) { pointLight1.color.setHex(value); });
+        pLightsFolder.add(pointLight.position, 'x', -300, 0);
+        pLightsFolder.add(pointLight.position, 'y', 0, 200);
+        pLightsFolder.add(pointLight.position, 'z', -200, 0);
+        pLightsFolder.add(pointLight1.position, 'x', 150, 450);
+        pLightsFolder.add(pointLight1.position, 'y', 0, 200);
+        pLightsFolder.add(pointLight1.position, 'z', -200, 0);
+        pLightsFolder.open();
 
         // TODO Part 5 (control the color of both materials in the scene)
+        var materialsColorFolder = gui.addFolder('Materials Color');
+        materialsColorFolder.addColor(controller, 'color').onChange( function(value) { phongMaterial.color.setHex(value); });
+        materialsColorFolder.addColor(controller, 'color2').onChange( function(value) { standardMaterial.color.setHex(value); });
 
         gui.open();
 
